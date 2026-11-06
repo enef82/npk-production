@@ -29,6 +29,7 @@ from src.core.accounts.groups import (
     ESTIMATOR,
     FOREMAN,
     OBSERVER,
+    POWER_ENGINEER,
     PROCUREMENT_OFFICER,
     PRODUCTION_HEAD,
     PROJECT_MANAGER,
@@ -182,6 +183,17 @@ EMPLOYEES = (
         "SKL",
         "shilova@npk-prod.local",
         WAREHOUSE_HEAD,
+    ),
+    # В прототипе энергетика нет; без него ручные показания и тарифы на демо-данных
+    # были бы видны только администратору.
+    DemoEmployee(
+        "0000206",
+        "Ковалёв Е.Н.",
+        "Энергетик",
+        S,
+        "SMU",
+        "kovalev@npk-prod.local",
+        POWER_ENGINEER,
     ),
 )
 

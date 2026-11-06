@@ -48,8 +48,9 @@ def test_seed_demo_заводит_прототип_и_идемпотентна()
     assert ProductionOrder.objects.count() == 14
     assert Inquiry.objects.count() == 24
     assert LossReason.objects.count() == 4
-    # 19 сотрудников `EMP` и 5 персонажей `PEOPLE` вне `EMP`; «00001» — директор из `seed`.
-    assert Employee.objects.exclude(personnel_number="00001").count() == 24
+    # 19 сотрудников `EMP`, 5 персонажей `PEOPLE` вне `EMP` и энергетик (в прототипе его
+    # нет); «00001» — директор из `seed`.
+    assert Employee.objects.exclude(personnel_number="00001").count() == 25
     morozov = User.objects.get(email="morozov@npk-prod.local")
     assert morozov.check_password("demo12345")
     assert morozov.groups.filter(name="начальник производства").exists()
