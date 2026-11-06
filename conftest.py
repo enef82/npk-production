@@ -5,19 +5,45 @@
 применялась ни к одному тесту вне `tests/`, включая тот единственный, ради которого её
 и заводили)."""
 
+import importlib
 import uuid
 from collections.abc import Iterator
 from typing import Any
 
 import boto3
 import pytest
+from django.apps import apps
 from django.conf import settings
 from django.core.files.storage import default_storage, storages
 from django.utils.functional import empty
 
+from src.core.documents.models import DocumentType
 from src.core.numbering.models import Numerator
 from src.core.org.models import Position
-from tests.reference_data import CORE_NUMERATORS, CORE_TRADE_POSITIONS
+from tests.reference_data import (
+    CORE_DOCUMENT_TYPES,
+    CORE_NUMERATORS,
+    CORE_TRADE_POSITIONS,
+    DOCUMENT_MAX_SIZE_BYTES,
+)
+
+
+# Посев справочников модулей их же data-миграциями: (миграция, модель-признак). Функция
+# `seed` каждой из них идемпотентна (`get_or_create`), поэтому повторный вызов после
+# `flush()` восстанавливает ровно то, что дала бы миграция, без второго списка значений.
+MODULE_SEED_MIGRATIONS: tuple[tuple[str, str], ...] = (
+    ("src.timesheet.migrations.0002_seed_time_codes", "timesheet.TimeCode"),
+    ("src.timesheet.migrations.0003_seed_repair_locked_notification", ""),
+    ("src.equipment.migrations.0003_seed_reference_lists", "equipment.IdleReason"),
+    ("src.energy.migrations.0002_seed_energy_resources", "energy.EnergyResource"),
+)
+
+
+def _restore_module_seeds() -> None:
+    for module_path, sentinel in MODULE_SEED_MIGRATIONS:
+        if sentinel and apps.get_model(sentinel).objects.exists():
+            continue
+        importlib.import_module(module_path).seed(apps, None)
 
 
 def ensure_core_reference_data() -> None:
@@ -56,6 +82,18 @@ def ensure_core_reference_data() -> None:
                 "is_active": True,
             },
         )
+
+    for code, name in CORE_DOCUMENT_TYPES:
+        DocumentType.objects.get_or_create(
+            code=code,
+            defaults={
+                "name": name,
+                "allowed_mime_types": [],
+                "max_size_bytes": DOCUMENT_MAX_SIZE_BYTES,
+                "is_active": True,
+            },
+        )
+    _restore_module_seeds()
 
 
 @pytest.fixture(autouse=True)

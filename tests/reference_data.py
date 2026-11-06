@@ -14,7 +14,26 @@ CORE_NUMERATORS: tuple[tuple[str, str, str, str], ...] = (
         "АР-{seq:04d}",
         NumeratorResetPeriod.NEVER,
     ),
+    (
+        "production.order",
+        "Производственный заказ",
+        "ПЗ-{year}-{seq:04d}",
+        NumeratorResetPeriod.YEARLY,
+    ),
+    ("sales.inquiry", "Заявка на просчёт", "З-{seq:04d}", NumeratorResetPeriod.NEVER),
 )
+
+# (code, name) — виды документов заказа, см. `production.migrations.0005_seed_document_types`.
+CORE_DOCUMENT_TYPES: tuple[tuple[str, str], ...] = (
+    ("production.kd", "КД"),
+    ("production.drawing", "Чертёж"),
+    ("production.tz", "ТЗ / опросный лист"),
+    ("production.specification", "Спецификация"),
+    ("production.process", "Техпроцесс"),
+    ("production.cnc", "УП ЧПУ"),
+    ("production.other", "Прочее"),
+)
+DOCUMENT_MAX_SIZE_BYTES = 100 * 1024 * 1024
 
 # (name, category) — см. `core.org.migrations.0003_seed_trade_positions`.
 CORE_TRADE_POSITIONS = (

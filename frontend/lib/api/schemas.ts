@@ -62,15 +62,16 @@ export const SrcCoreDocumentsApiRoutersUploadBody = zod.object({
 })
 
 export const SrcCoreDocumentsApiRoutersUploadResponse = zod.object({
-  "id": zod.uuid(),
-  "original_name": zod.string(),
-  "size_bytes": zod.int(),
-  "mime_type": zod.string(),
-  "checksum": zod.string(),
-  "doc_type_id": zod.uuid(),
+  "document_id": zod.uuid(),
+  "name": zod.string(),
+  "doc_type_code": zod.string(),
+  "doc_type_name": zod.string(),
   "version": zod.int(),
-  "uploaded_by": zod.uuid(),
-  "created_at": zod.iso.datetime({"offset":true})
+  "size_bytes": zod.int(),
+  "uploaded_at": zod.iso.datetime({"offset":true}),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()])
 })
 
 
@@ -115,15 +116,16 @@ export const SrcCoreDocumentsApiRoutersListForEntityParams = zod.object({
 })
 
 export const SrcCoreDocumentsApiRoutersListForEntityResponseItem = zod.object({
-  "id": zod.uuid(),
-  "original_name": zod.string(),
-  "size_bytes": zod.int(),
-  "mime_type": zod.string(),
-  "checksum": zod.string(),
-  "doc_type_id": zod.uuid(),
+  "document_id": zod.uuid(),
+  "name": zod.string(),
+  "doc_type_code": zod.string(),
+  "doc_type_name": zod.string(),
   "version": zod.int(),
-  "uploaded_by": zod.uuid(),
-  "created_at": zod.iso.datetime({"offset":true})
+  "size_bytes": zod.int(),
+  "uploaded_at": zod.iso.datetime({"offset":true}),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()])
 })
 export const SrcCoreDocumentsApiRoutersListForEntityResponse = zod.array(SrcCoreDocumentsApiRoutersListForEntityResponseItem)
 
@@ -2058,6 +2060,4296 @@ export const CloseRepairResponse = zod.object({
   "can_start": zod.boolean(),
   "can_close": zod.boolean()
 })
+})
+
+
+/**
+ * @summary List Work Centers
+ */
+export const listWorkCentersResponseHourlyRateRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const ListWorkCentersResponseItem = zod.object({
+  "id": zod.uuid(),
+  "code": zod.string(),
+  "short_name": zod.string(),
+  "name": zod.string(),
+  "hourly_rate": zod.string().regex(listWorkCentersResponseHourlyRateRegExp),
+  "capacity": zod.int(),
+  "phase": zod.string(),
+  "is_supply": zod.boolean(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "is_active": zod.boolean(),
+  "requires_inspection": zod.boolean()
+})
+export const ListWorkCentersResponse = zod.array(ListWorkCentersResponseItem)
+
+
+/**
+ * @summary List Templates
+ */
+export const ListProductTemplatesResponseItem = zod.object({
+  "id": zod.uuid(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "is_active": zod.boolean()
+})
+export const ListProductTemplatesResponse = zod.array(ListProductTemplatesResponseItem)
+
+
+/**
+ * @summary Get Template
+ */
+export const GetProductTemplateParams = zod.object({
+  "code_or_id": zod.string()
+})
+
+export const getProductTemplateResponseMaterialsItemQtyPerUnitRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getProductTemplateResponseMaterialsItemPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getProductTemplateResponseOperationsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetProductTemplateResponse = zod.object({
+  "id": zod.uuid(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "is_active": zod.boolean(),
+  "materials": zod.array(zod.object({
+  "name": zod.string(),
+  "qty_per_unit": zod.string().regex(getProductTemplateResponseMaterialsItemQtyPerUnitRegExp),
+  "price": zod.string().regex(getProductTemplateResponseMaterialsItemPriceRegExp)
+})),
+  "operations": zod.array(zod.object({
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "hours": zod.string().regex(getProductTemplateResponseOperationsItemHoursRegExp),
+  "scales_with_qty": zod.boolean(),
+  "people": zod.int(),
+  "predecessor_indexes": zod.array(zod.int())
+}))
+})
+
+
+/**
+ * @summary Get Settings
+ */
+export const GetProductionSettingsResponse = zod.object({
+  "stages": zod.array(zod.object({
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string()
+}))
+})
+
+
+/**
+ * @summary List Document Kinds
+ */
+export const ListDocumentKindsResponseItem = zod.object({
+  "code": zod.string(),
+  "name": zod.string()
+})
+export const ListDocumentKindsResponse = zod.array(ListDocumentKindsResponseItem)
+
+
+/**
+ * @summary Get Board
+ */
+export const getProductionBoardQuerySearchDefault = ``;
+export const getProductionBoardQueryActiveOnlyDefault = false;
+
+export const GetProductionBoardQueryParams = zod.object({
+  "stage": zod.union([zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),zod.null()]).optional(),
+  "search": zod.string().default(getProductionBoardQuerySearchDefault),
+  "active_only": zod.boolean().default(getProductionBoardQueryActiveOnlyDefault)
+})
+
+export const getProductionBoardResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getProductionBoardResponseProgressRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getProductionBoardResponseContractTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetProductionBoardResponseItem = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "inquiry_id": zod.union([zod.uuid(),zod.null()]),
+  "inquiry_number": zod.string(),
+  "customer_id": zod.union([zod.uuid(),zod.null()]),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(getProductionBoardResponseQuantityRegExp),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "planned_start": zod.iso.date(),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "due_date": zod.iso.date(),
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "derived_stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "progress": zod.string().regex(getProductionBoardResponseProgressRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "contract_total": zod.string().regex(getProductionBoardResponseContractTotalRegExp),
+  "operations_total": zod.int(),
+  "operations_done": zod.int(),
+  "abilities": zod.object({
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean()
+})
+})
+export const GetProductionBoardResponse = zod.array(GetProductionBoardResponseItem)
+
+
+/**
+ * @summary Get Gantt
+ */
+export const getProductionGanttResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetProductionGanttResponseItem = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "customer_name": zod.string(),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(getProductionGanttResponseQuantityRegExp),
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "due_date": zod.iso.date(),
+  "planned_start": zod.iso.date(),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "can_plan": zod.boolean(),
+  "operations": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "is_supply": zod.boolean(),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "progress": zod.int(),
+  "responsible_name": zod.string(),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "is_critical": zod.boolean(),
+  "violates_dependency": zod.boolean()
+}))
+})
+export const GetProductionGanttResponse = zod.array(GetProductionGanttResponseItem)
+
+
+/**
+ * @summary My Visas
+ */
+export const listMyProductionVisasResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const ListMyProductionVisasResponseItem = zod.object({
+  "inquiry_id": zod.uuid(),
+  "number": zod.string(),
+  "customer_name": zod.string(),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(listMyProductionVisasResponseQuantityRegExp),
+  "due_date": zod.iso.date(),
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "text": zod.string()
+})
+export const ListMyProductionVisasResponse = zod.array(ListMyProductionVisasResponseItem)
+
+
+/**
+ * @summary Get Order
+ */
+export const GetProductionOrderParams = zod.object({
+  "order_id": zod.uuid()
+})
+
+export const getProductionOrderResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getProductionOrderResponseProgressRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getProductionOrderResponseContractTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getProductionOrderResponseLaborCostPlannedRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getProductionOrderResponseHoursTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getProductionOrderResponseEarnedTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetProductionOrderResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "inquiry_id": zod.union([zod.uuid(),zod.null()]),
+  "inquiry_number": zod.string(),
+  "customer_id": zod.union([zod.uuid(),zod.null()]),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(getProductionOrderResponseQuantityRegExp),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "planned_start": zod.iso.date(),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "due_date": zod.iso.date(),
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "derived_stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "progress": zod.string().regex(getProductionOrderResponseProgressRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "contract_total": zod.string().regex(getProductionOrderResponseContractTotalRegExp),
+  "operations_total": zod.int(),
+  "operations_done": zod.int(),
+  "abilities": zod.object({
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean()
+}),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "labor_cost_planned": zod.string().regex(getProductionOrderResponseLaborCostPlannedRegExp),
+  "shipped_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "approvals": zod.array(zod.object({
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "approved_by_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string()
+})),
+  "hours_total": zod.string().regex(getProductionOrderResponseHoursTotalRegExp),
+  "earned_total": zod.string().regex(getProductionOrderResponseEarnedTotalRegExp),
+  "has_kd": zod.boolean(),
+  "order_abilities": zod.object({
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_edit": zod.boolean(),
+  "can_plan": zod.boolean(),
+  "can_manage_documents": zod.boolean(),
+  "can_comment": zod.boolean()
+})
+})
+
+
+/**
+ * @summary Update Order
+ */
+export const UpdateProductionOrderParams = zod.object({
+  "order_id": zod.uuid()
+})
+
+export const UpdateProductionOrderBody = zod.object({
+  "due_date": zod.iso.date(),
+  "manager_id": zod.uuid()
+})
+
+export const updateProductionOrderResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateProductionOrderResponseProgressRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateProductionOrderResponseContractTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateProductionOrderResponseLaborCostPlannedRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateProductionOrderResponseHoursTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateProductionOrderResponseEarnedTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const UpdateProductionOrderResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "inquiry_id": zod.union([zod.uuid(),zod.null()]),
+  "inquiry_number": zod.string(),
+  "customer_id": zod.union([zod.uuid(),zod.null()]),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(updateProductionOrderResponseQuantityRegExp),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "planned_start": zod.iso.date(),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "due_date": zod.iso.date(),
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "derived_stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "progress": zod.string().regex(updateProductionOrderResponseProgressRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "contract_total": zod.string().regex(updateProductionOrderResponseContractTotalRegExp),
+  "operations_total": zod.int(),
+  "operations_done": zod.int(),
+  "abilities": zod.object({
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean()
+}),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "labor_cost_planned": zod.string().regex(updateProductionOrderResponseLaborCostPlannedRegExp),
+  "shipped_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "approvals": zod.array(zod.object({
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "approved_by_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string()
+})),
+  "hours_total": zod.string().regex(updateProductionOrderResponseHoursTotalRegExp),
+  "earned_total": zod.string().regex(updateProductionOrderResponseEarnedTotalRegExp),
+  "has_kd": zod.boolean(),
+  "order_abilities": zod.object({
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_edit": zod.boolean(),
+  "can_plan": zod.boolean(),
+  "can_manage_documents": zod.boolean(),
+  "can_comment": zod.boolean()
+})
+})
+
+
+/**
+ * @summary Move Stage
+ */
+export const MoveProductionOrderStageParams = zod.object({
+  "order_id": zod.uuid()
+})
+
+export const moveProductionOrderStageBodyCommentDefault = ``;
+
+export const MoveProductionOrderStageBody = zod.object({
+  "to": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "comment": zod.string().default(moveProductionOrderStageBodyCommentDefault)
+})
+
+export const moveProductionOrderStageResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveProductionOrderStageResponseProgressRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveProductionOrderStageResponseContractTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveProductionOrderStageResponseLaborCostPlannedRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveProductionOrderStageResponseHoursTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveProductionOrderStageResponseEarnedTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const MoveProductionOrderStageResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "inquiry_id": zod.union([zod.uuid(),zod.null()]),
+  "inquiry_number": zod.string(),
+  "customer_id": zod.union([zod.uuid(),zod.null()]),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(moveProductionOrderStageResponseQuantityRegExp),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "planned_start": zod.iso.date(),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "due_date": zod.iso.date(),
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "derived_stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "progress": zod.string().regex(moveProductionOrderStageResponseProgressRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "contract_total": zod.string().regex(moveProductionOrderStageResponseContractTotalRegExp),
+  "operations_total": zod.int(),
+  "operations_done": zod.int(),
+  "abilities": zod.object({
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean()
+}),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "labor_cost_planned": zod.string().regex(moveProductionOrderStageResponseLaborCostPlannedRegExp),
+  "shipped_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "approvals": zod.array(zod.object({
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "approved_by_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string()
+})),
+  "hours_total": zod.string().regex(moveProductionOrderStageResponseHoursTotalRegExp),
+  "earned_total": zod.string().regex(moveProductionOrderStageResponseEarnedTotalRegExp),
+  "has_kd": zod.boolean(),
+  "order_abilities": zod.object({
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_edit": zod.boolean(),
+  "can_plan": zod.boolean(),
+  "can_manage_documents": zod.boolean(),
+  "can_comment": zod.boolean()
+})
+})
+
+
+/**
+ * @summary Approve Stage
+ */
+export const ApproveProductionOrderStageParams = zod.object({
+  "order_id": zod.uuid(),
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done'])
+})
+
+export const approveProductionOrderStageBodyCommentDefault = ``;
+
+export const ApproveProductionOrderStageBody = zod.object({
+  "comment": zod.string().default(approveProductionOrderStageBodyCommentDefault)
+})
+
+export const approveProductionOrderStageResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveProductionOrderStageResponseProgressRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveProductionOrderStageResponseContractTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveProductionOrderStageResponseLaborCostPlannedRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveProductionOrderStageResponseHoursTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveProductionOrderStageResponseEarnedTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const ApproveProductionOrderStageResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "inquiry_id": zod.union([zod.uuid(),zod.null()]),
+  "inquiry_number": zod.string(),
+  "customer_id": zod.union([zod.uuid(),zod.null()]),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(approveProductionOrderStageResponseQuantityRegExp),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "planned_start": zod.iso.date(),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "due_date": zod.iso.date(),
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "derived_stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "progress": zod.string().regex(approveProductionOrderStageResponseProgressRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "contract_total": zod.string().regex(approveProductionOrderStageResponseContractTotalRegExp),
+  "operations_total": zod.int(),
+  "operations_done": zod.int(),
+  "abilities": zod.object({
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean()
+}),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "labor_cost_planned": zod.string().regex(approveProductionOrderStageResponseLaborCostPlannedRegExp),
+  "shipped_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "approvals": zod.array(zod.object({
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "approved_by_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string()
+})),
+  "hours_total": zod.string().regex(approveProductionOrderStageResponseHoursTotalRegExp),
+  "earned_total": zod.string().regex(approveProductionOrderStageResponseEarnedTotalRegExp),
+  "has_kd": zod.boolean(),
+  "order_abilities": zod.object({
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_edit": zod.boolean(),
+  "can_plan": zod.boolean(),
+  "can_manage_documents": zod.boolean(),
+  "can_comment": zod.boolean()
+})
+})
+
+
+/**
+ * @summary Set Stage Responsible
+ */
+export const SetProductionStageResponsibleParams = zod.object({
+  "order_id": zod.uuid(),
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done'])
+})
+
+export const SetProductionStageResponsibleBody = zod.object({
+  "responsible_id": zod.uuid()
+})
+
+export const setProductionStageResponsibleResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setProductionStageResponsibleResponseProgressRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setProductionStageResponsibleResponseContractTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setProductionStageResponsibleResponseLaborCostPlannedRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setProductionStageResponsibleResponseHoursTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setProductionStageResponsibleResponseEarnedTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const SetProductionStageResponsibleResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "inquiry_id": zod.union([zod.uuid(),zod.null()]),
+  "inquiry_number": zod.string(),
+  "customer_id": zod.union([zod.uuid(),zod.null()]),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(setProductionStageResponsibleResponseQuantityRegExp),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "planned_start": zod.iso.date(),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "due_date": zod.iso.date(),
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "derived_stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "progress": zod.string().regex(setProductionStageResponsibleResponseProgressRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "contract_total": zod.string().regex(setProductionStageResponsibleResponseContractTotalRegExp),
+  "operations_total": zod.int(),
+  "operations_done": zod.int(),
+  "abilities": zod.object({
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean()
+}),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "labor_cost_planned": zod.string().regex(setProductionStageResponsibleResponseLaborCostPlannedRegExp),
+  "shipped_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "approvals": zod.array(zod.object({
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "approved_by_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string()
+})),
+  "hours_total": zod.string().regex(setProductionStageResponsibleResponseHoursTotalRegExp),
+  "earned_total": zod.string().regex(setProductionStageResponsibleResponseEarnedTotalRegExp),
+  "has_kd": zod.boolean(),
+  "order_abilities": zod.object({
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_edit": zod.boolean(),
+  "can_plan": zod.boolean(),
+  "can_manage_documents": zod.boolean(),
+  "can_comment": zod.boolean()
+})
+})
+
+
+/**
+ * @summary Get Schedule
+ */
+export const GetProductionOrderScheduleParams = zod.object({
+  "order_id": zod.uuid()
+})
+
+export const getProductionOrderScheduleResponseOperationsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getProductionOrderScheduleResponseOperationsItemEarnedHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetProductionOrderScheduleResponse = zod.object({
+  "order_id": zod.uuid(),
+  "planned_start": zod.iso.date(),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "due_date": zod.iso.date(),
+  "length": zod.int(),
+  "critical_path": zod.array(zod.uuid()),
+  "has_violations": zod.boolean(),
+  "operations": zod.array(zod.object({
+  "id": zod.uuid(),
+  "order_id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "phase": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "hours": zod.string().regex(getProductionOrderScheduleResponseOperationsItemHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "progress": zod.int(),
+  "earned_hours": zod.string().regex(getProductionOrderScheduleResponseOperationsItemEarnedHoursRegExp),
+  "started_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_for_name": zod.string(),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean(),
+  "violates_dependency": zod.boolean(),
+  "requires_inspection": zod.boolean(),
+  "abilities": zod.object({
+  "can_change_status": zod.boolean(),
+  "can_set_progress": zod.boolean(),
+  "can_approve": zod.boolean(),
+  "can_edit_plan": zod.boolean(),
+  "can_set_responsible": zod.boolean()
+})
+}))
+})
+
+
+/**
+ * @summary Replan
+ */
+export const ReplanProductionOrderParams = zod.object({
+  "order_id": zod.uuid()
+})
+
+export const ReplanProductionOrderBody = zod.object({
+  "planned_start": zod.union([zod.iso.date(),zod.null()]).optional()
+})
+
+export const replanProductionOrderResponseOperationsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const replanProductionOrderResponseOperationsItemEarnedHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const ReplanProductionOrderResponse = zod.object({
+  "order_id": zod.uuid(),
+  "planned_start": zod.iso.date(),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "due_date": zod.iso.date(),
+  "length": zod.int(),
+  "critical_path": zod.array(zod.uuid()),
+  "has_violations": zod.boolean(),
+  "operations": zod.array(zod.object({
+  "id": zod.uuid(),
+  "order_id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "phase": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "hours": zod.string().regex(replanProductionOrderResponseOperationsItemHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "progress": zod.int(),
+  "earned_hours": zod.string().regex(replanProductionOrderResponseOperationsItemEarnedHoursRegExp),
+  "started_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_for_name": zod.string(),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean(),
+  "violates_dependency": zod.boolean(),
+  "requires_inspection": zod.boolean(),
+  "abilities": zod.object({
+  "can_change_status": zod.boolean(),
+  "can_set_progress": zod.boolean(),
+  "can_approve": zod.boolean(),
+  "can_edit_plan": zod.boolean(),
+  "can_set_responsible": zod.boolean()
+})
+}))
+})
+
+
+/**
+ * @summary Shift
+ */
+export const ShiftProductionOrderParams = zod.object({
+  "order_id": zod.uuid()
+})
+
+export const ShiftProductionOrderBody = zod.object({
+  "days": zod.int()
+})
+
+export const shiftProductionOrderResponseOperationsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const shiftProductionOrderResponseOperationsItemEarnedHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const ShiftProductionOrderResponse = zod.object({
+  "order_id": zod.uuid(),
+  "planned_start": zod.iso.date(),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "due_date": zod.iso.date(),
+  "length": zod.int(),
+  "critical_path": zod.array(zod.uuid()),
+  "has_violations": zod.boolean(),
+  "operations": zod.array(zod.object({
+  "id": zod.uuid(),
+  "order_id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "phase": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "hours": zod.string().regex(shiftProductionOrderResponseOperationsItemHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "progress": zod.int(),
+  "earned_hours": zod.string().regex(shiftProductionOrderResponseOperationsItemEarnedHoursRegExp),
+  "started_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_for_name": zod.string(),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean(),
+  "violates_dependency": zod.boolean(),
+  "requires_inspection": zod.boolean(),
+  "abilities": zod.object({
+  "can_change_status": zod.boolean(),
+  "can_set_progress": zod.boolean(),
+  "can_approve": zod.boolean(),
+  "can_edit_plan": zod.boolean(),
+  "can_set_responsible": zod.boolean()
+})
+}))
+})
+
+
+/**
+ * @summary List Journal
+ */
+export const ListProductionJournalParams = zod.object({
+  "order_id": zod.uuid()
+})
+
+export const ListProductionJournalQueryParams = zod.object({
+  "operation_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "kind": zod.union([zod.enum(['stage', 'visa', 'status', 'plan', 'comment', 'qc', 'proc', 'doc']),zod.null()]).optional(),
+  "author_id": zod.union([zod.uuid(),zod.null()]).optional()
+})
+
+export const ListProductionJournalResponseItem = zod.object({
+  "id": zod.uuid(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "kind": zod.enum(['stage', 'visa', 'status', 'plan', 'comment', 'qc', 'proc', 'doc']),
+  "kind_label": zod.string(),
+  "stage": zod.string(),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_label": zod.string(),
+  "author_id": zod.union([zod.uuid(),zod.null()]),
+  "author_name": zod.string(),
+  "text": zod.string()
+})
+export const ListProductionJournalResponse = zod.array(ListProductionJournalResponseItem)
+
+
+/**
+ * @summary Add Comment
+ */
+export const AddProductionCommentParams = zod.object({
+  "order_id": zod.uuid()
+})
+
+export const AddProductionCommentBody = zod.object({
+  "text": zod.string(),
+  "operation_id": zod.union([zod.uuid(),zod.null()]).optional()
+})
+
+export const AddProductionCommentResponse = zod.object({
+  "id": zod.uuid()
+})
+
+
+/**
+ * @summary List Documents
+ */
+export const ListProductionOrderDocumentsParams = zod.object({
+  "order_id": zod.uuid()
+})
+
+export const ListProductionOrderDocumentsResponseItem = zod.object({
+  "document_id": zod.uuid(),
+  "name": zod.string(),
+  "doc_type_code": zod.string(),
+  "doc_type_name": zod.string(),
+  "version": zod.int(),
+  "size_bytes": zod.int(),
+  "uploaded_at": zod.iso.datetime({"offset":true}),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()])
+})
+export const ListProductionOrderDocumentsResponse = zod.array(ListProductionOrderDocumentsResponseItem)
+
+
+/**
+ * @summary Upload Document
+ */
+export const UploadProductionOrderDocumentParams = zod.object({
+  "order_id": zod.uuid()
+})
+
+export const uploadProductionOrderDocumentBodyDescriptionDefault = ``;
+
+export const UploadProductionOrderDocumentBody = zod.object({
+  "file": zod.instanceof(File),
+  "doc_type_code": zod.string(),
+  "operation_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "description": zod.string().default(uploadProductionOrderDocumentBodyDescriptionDefault)
+})
+
+export const UploadProductionOrderDocumentResponseItem = zod.object({
+  "document_id": zod.uuid(),
+  "name": zod.string(),
+  "doc_type_code": zod.string(),
+  "doc_type_name": zod.string(),
+  "version": zod.int(),
+  "size_bytes": zod.int(),
+  "uploaded_at": zod.iso.datetime({"offset":true}),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()])
+})
+export const UploadProductionOrderDocumentResponse = zod.array(UploadProductionOrderDocumentResponseItem)
+
+
+/**
+ * @summary Approve Document
+ */
+export const ApproveProductionOrderDocumentParams = zod.object({
+  "order_id": zod.uuid(),
+  "document_id": zod.uuid()
+})
+
+export const ApproveProductionOrderDocumentResponseItem = zod.object({
+  "document_id": zod.uuid(),
+  "name": zod.string(),
+  "doc_type_code": zod.string(),
+  "doc_type_name": zod.string(),
+  "version": zod.int(),
+  "size_bytes": zod.int(),
+  "uploaded_at": zod.iso.datetime({"offset":true}),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()])
+})
+export const ApproveProductionOrderDocumentResponse = zod.array(ApproveProductionOrderDocumentResponseItem)
+
+
+/**
+ * @summary Annul Document
+ */
+export const AnnulProductionOrderDocumentParams = zod.object({
+  "order_id": zod.uuid(),
+  "document_id": zod.uuid()
+})
+
+export const AnnulProductionOrderDocumentResponseItem = zod.object({
+  "document_id": zod.uuid(),
+  "name": zod.string(),
+  "doc_type_code": zod.string(),
+  "doc_type_name": zod.string(),
+  "version": zod.int(),
+  "size_bytes": zod.int(),
+  "uploaded_at": zod.iso.datetime({"offset":true}),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()])
+})
+export const AnnulProductionOrderDocumentResponse = zod.array(AnnulProductionOrderDocumentResponseItem)
+
+
+/**
+ * @summary Get Operation
+ */
+export const GetProductionOperationParams = zod.object({
+  "operation_id": zod.uuid()
+})
+
+export const getProductionOperationResponseOperationHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getProductionOperationResponseOperationEarnedHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getProductionOperationResponseOrderQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getProductionOperationResponseOrderProgressRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getProductionOperationResponseOrderContractTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetProductionOperationResponse = zod.object({
+  "operation": zod.object({
+  "id": zod.uuid(),
+  "order_id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "phase": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "hours": zod.string().regex(getProductionOperationResponseOperationHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "progress": zod.int(),
+  "earned_hours": zod.string().regex(getProductionOperationResponseOperationEarnedHoursRegExp),
+  "started_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_for_name": zod.string(),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean(),
+  "violates_dependency": zod.boolean(),
+  "requires_inspection": zod.boolean(),
+  "abilities": zod.object({
+  "can_change_status": zod.boolean(),
+  "can_set_progress": zod.boolean(),
+  "can_approve": zod.boolean(),
+  "can_edit_plan": zod.boolean(),
+  "can_set_responsible": zod.boolean()
+})
+}),
+  "order": zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "inquiry_id": zod.union([zod.uuid(),zod.null()]),
+  "inquiry_number": zod.string(),
+  "customer_id": zod.union([zod.uuid(),zod.null()]),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(getProductionOperationResponseOrderQuantityRegExp),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "planned_start": zod.iso.date(),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "due_date": zod.iso.date(),
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "derived_stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "progress": zod.string().regex(getProductionOperationResponseOrderProgressRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "contract_total": zod.string().regex(getProductionOperationResponseOrderContractTotalRegExp),
+  "operations_total": zod.int(),
+  "operations_done": zod.int(),
+  "abilities": zod.object({
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean()
+})
+}),
+  "predecessors": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()])
+})),
+  "successors": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()])
+})),
+  "documents": zod.array(zod.object({
+  "document_id": zod.uuid(),
+  "name": zod.string(),
+  "doc_type_code": zod.string(),
+  "doc_type_name": zod.string(),
+  "version": zod.int(),
+  "size_bytes": zod.int(),
+  "uploaded_at": zod.iso.datetime({"offset":true}),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()])
+})),
+  "journal": zod.array(zod.object({
+  "id": zod.uuid(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "kind": zod.enum(['stage', 'visa', 'status', 'plan', 'comment', 'qc', 'proc', 'doc']),
+  "kind_label": zod.string(),
+  "stage": zod.string(),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_label": zod.string(),
+  "author_id": zod.union([zod.uuid(),zod.null()]),
+  "author_name": zod.string(),
+  "text": zod.string()
+})),
+  "has_inspection": zod.boolean()
+})
+
+
+/**
+ * @summary Update Operation
+ */
+export const UpdateProductionOperationParams = zod.object({
+  "operation_id": zod.uuid()
+})
+
+export const UpdateProductionOperationBody = zod.object({
+  "people": zod.union([zod.int(),zod.null()]).optional(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]).optional(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]).optional()
+}).describe('Правка плана операции: передаются только меняемые поля. `not_before: null` —\nснять ограничение.')
+
+export const updateProductionOperationResponseOperationHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateProductionOperationResponseOperationEarnedHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateProductionOperationResponseOrderQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateProductionOperationResponseOrderProgressRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateProductionOperationResponseOrderContractTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const UpdateProductionOperationResponse = zod.object({
+  "operation": zod.object({
+  "id": zod.uuid(),
+  "order_id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "phase": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "hours": zod.string().regex(updateProductionOperationResponseOperationHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "progress": zod.int(),
+  "earned_hours": zod.string().regex(updateProductionOperationResponseOperationEarnedHoursRegExp),
+  "started_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_for_name": zod.string(),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean(),
+  "violates_dependency": zod.boolean(),
+  "requires_inspection": zod.boolean(),
+  "abilities": zod.object({
+  "can_change_status": zod.boolean(),
+  "can_set_progress": zod.boolean(),
+  "can_approve": zod.boolean(),
+  "can_edit_plan": zod.boolean(),
+  "can_set_responsible": zod.boolean()
+})
+}),
+  "order": zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "inquiry_id": zod.union([zod.uuid(),zod.null()]),
+  "inquiry_number": zod.string(),
+  "customer_id": zod.union([zod.uuid(),zod.null()]),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(updateProductionOperationResponseOrderQuantityRegExp),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "planned_start": zod.iso.date(),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "due_date": zod.iso.date(),
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "derived_stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "progress": zod.string().regex(updateProductionOperationResponseOrderProgressRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "contract_total": zod.string().regex(updateProductionOperationResponseOrderContractTotalRegExp),
+  "operations_total": zod.int(),
+  "operations_done": zod.int(),
+  "abilities": zod.object({
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean()
+})
+}),
+  "predecessors": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()])
+})),
+  "successors": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()])
+})),
+  "documents": zod.array(zod.object({
+  "document_id": zod.uuid(),
+  "name": zod.string(),
+  "doc_type_code": zod.string(),
+  "doc_type_name": zod.string(),
+  "version": zod.int(),
+  "size_bytes": zod.int(),
+  "uploaded_at": zod.iso.datetime({"offset":true}),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()])
+})),
+  "journal": zod.array(zod.object({
+  "id": zod.uuid(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "kind": zod.enum(['stage', 'visa', 'status', 'plan', 'comment', 'qc', 'proc', 'doc']),
+  "kind_label": zod.string(),
+  "stage": zod.string(),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_label": zod.string(),
+  "author_id": zod.union([zod.uuid(),zod.null()]),
+  "author_name": zod.string(),
+  "text": zod.string()
+})),
+  "has_inspection": zod.boolean()
+})
+
+
+/**
+ * @summary Set Status
+ */
+export const SetProductionOperationStatusParams = zod.object({
+  "operation_id": zod.uuid()
+})
+
+export const SetProductionOperationStatusBody = zod.object({
+  "status": zod.enum(['wait', 'work', 'check', 'done'])
+})
+
+export const setProductionOperationStatusResponseOperationHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setProductionOperationStatusResponseOperationEarnedHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setProductionOperationStatusResponseOrderQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setProductionOperationStatusResponseOrderProgressRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setProductionOperationStatusResponseOrderContractTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const SetProductionOperationStatusResponse = zod.object({
+  "operation": zod.object({
+  "id": zod.uuid(),
+  "order_id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "phase": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "hours": zod.string().regex(setProductionOperationStatusResponseOperationHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "progress": zod.int(),
+  "earned_hours": zod.string().regex(setProductionOperationStatusResponseOperationEarnedHoursRegExp),
+  "started_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_for_name": zod.string(),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean(),
+  "violates_dependency": zod.boolean(),
+  "requires_inspection": zod.boolean(),
+  "abilities": zod.object({
+  "can_change_status": zod.boolean(),
+  "can_set_progress": zod.boolean(),
+  "can_approve": zod.boolean(),
+  "can_edit_plan": zod.boolean(),
+  "can_set_responsible": zod.boolean()
+})
+}),
+  "order": zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "inquiry_id": zod.union([zod.uuid(),zod.null()]),
+  "inquiry_number": zod.string(),
+  "customer_id": zod.union([zod.uuid(),zod.null()]),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(setProductionOperationStatusResponseOrderQuantityRegExp),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "planned_start": zod.iso.date(),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "due_date": zod.iso.date(),
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "derived_stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "progress": zod.string().regex(setProductionOperationStatusResponseOrderProgressRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "contract_total": zod.string().regex(setProductionOperationStatusResponseOrderContractTotalRegExp),
+  "operations_total": zod.int(),
+  "operations_done": zod.int(),
+  "abilities": zod.object({
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean()
+})
+}),
+  "predecessors": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()])
+})),
+  "successors": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()])
+})),
+  "documents": zod.array(zod.object({
+  "document_id": zod.uuid(),
+  "name": zod.string(),
+  "doc_type_code": zod.string(),
+  "doc_type_name": zod.string(),
+  "version": zod.int(),
+  "size_bytes": zod.int(),
+  "uploaded_at": zod.iso.datetime({"offset":true}),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()])
+})),
+  "journal": zod.array(zod.object({
+  "id": zod.uuid(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "kind": zod.enum(['stage', 'visa', 'status', 'plan', 'comment', 'qc', 'proc', 'doc']),
+  "kind_label": zod.string(),
+  "stage": zod.string(),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_label": zod.string(),
+  "author_id": zod.union([zod.uuid(),zod.null()]),
+  "author_name": zod.string(),
+  "text": zod.string()
+})),
+  "has_inspection": zod.boolean()
+})
+
+
+/**
+ * @summary Set Progress
+ */
+export const SetProductionOperationProgressParams = zod.object({
+  "operation_id": zod.uuid()
+})
+
+export const SetProductionOperationProgressBody = zod.object({
+  "progress": zod.int()
+})
+
+export const setProductionOperationProgressResponseOperationHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setProductionOperationProgressResponseOperationEarnedHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setProductionOperationProgressResponseOrderQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setProductionOperationProgressResponseOrderProgressRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setProductionOperationProgressResponseOrderContractTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const SetProductionOperationProgressResponse = zod.object({
+  "operation": zod.object({
+  "id": zod.uuid(),
+  "order_id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "phase": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "hours": zod.string().regex(setProductionOperationProgressResponseOperationHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "progress": zod.int(),
+  "earned_hours": zod.string().regex(setProductionOperationProgressResponseOperationEarnedHoursRegExp),
+  "started_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_for_name": zod.string(),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean(),
+  "violates_dependency": zod.boolean(),
+  "requires_inspection": zod.boolean(),
+  "abilities": zod.object({
+  "can_change_status": zod.boolean(),
+  "can_set_progress": zod.boolean(),
+  "can_approve": zod.boolean(),
+  "can_edit_plan": zod.boolean(),
+  "can_set_responsible": zod.boolean()
+})
+}),
+  "order": zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "inquiry_id": zod.union([zod.uuid(),zod.null()]),
+  "inquiry_number": zod.string(),
+  "customer_id": zod.union([zod.uuid(),zod.null()]),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(setProductionOperationProgressResponseOrderQuantityRegExp),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "planned_start": zod.iso.date(),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "due_date": zod.iso.date(),
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "derived_stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "progress": zod.string().regex(setProductionOperationProgressResponseOrderProgressRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "contract_total": zod.string().regex(setProductionOperationProgressResponseOrderContractTotalRegExp),
+  "operations_total": zod.int(),
+  "operations_done": zod.int(),
+  "abilities": zod.object({
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean()
+})
+}),
+  "predecessors": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()])
+})),
+  "successors": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()])
+})),
+  "documents": zod.array(zod.object({
+  "document_id": zod.uuid(),
+  "name": zod.string(),
+  "doc_type_code": zod.string(),
+  "doc_type_name": zod.string(),
+  "version": zod.int(),
+  "size_bytes": zod.int(),
+  "uploaded_at": zod.iso.datetime({"offset":true}),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()])
+})),
+  "journal": zod.array(zod.object({
+  "id": zod.uuid(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "kind": zod.enum(['stage', 'visa', 'status', 'plan', 'comment', 'qc', 'proc', 'doc']),
+  "kind_label": zod.string(),
+  "stage": zod.string(),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_label": zod.string(),
+  "author_id": zod.union([zod.uuid(),zod.null()]),
+  "author_name": zod.string(),
+  "text": zod.string()
+})),
+  "has_inspection": zod.boolean()
+})
+
+
+/**
+ * @summary Approve Operation
+ */
+export const ApproveProductionOperationParams = zod.object({
+  "operation_id": zod.uuid()
+})
+
+export const approveProductionOperationBodyCommentDefault = ``;
+
+export const ApproveProductionOperationBody = zod.object({
+  "comment": zod.string().default(approveProductionOperationBodyCommentDefault)
+})
+
+export const approveProductionOperationResponseOperationHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveProductionOperationResponseOperationEarnedHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveProductionOperationResponseOrderQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveProductionOperationResponseOrderProgressRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveProductionOperationResponseOrderContractTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const ApproveProductionOperationResponse = zod.object({
+  "operation": zod.object({
+  "id": zod.uuid(),
+  "order_id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "phase": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "hours": zod.string().regex(approveProductionOperationResponseOperationHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "progress": zod.int(),
+  "earned_hours": zod.string().regex(approveProductionOperationResponseOperationEarnedHoursRegExp),
+  "started_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_for_name": zod.string(),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean(),
+  "violates_dependency": zod.boolean(),
+  "requires_inspection": zod.boolean(),
+  "abilities": zod.object({
+  "can_change_status": zod.boolean(),
+  "can_set_progress": zod.boolean(),
+  "can_approve": zod.boolean(),
+  "can_edit_plan": zod.boolean(),
+  "can_set_responsible": zod.boolean()
+})
+}),
+  "order": zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "inquiry_id": zod.union([zod.uuid(),zod.null()]),
+  "inquiry_number": zod.string(),
+  "customer_id": zod.union([zod.uuid(),zod.null()]),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(approveProductionOperationResponseOrderQuantityRegExp),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "planned_start": zod.iso.date(),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "due_date": zod.iso.date(),
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "derived_stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "progress": zod.string().regex(approveProductionOperationResponseOrderProgressRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "contract_total": zod.string().regex(approveProductionOperationResponseOrderContractTotalRegExp),
+  "operations_total": zod.int(),
+  "operations_done": zod.int(),
+  "abilities": zod.object({
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean()
+})
+}),
+  "predecessors": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()])
+})),
+  "successors": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()])
+})),
+  "documents": zod.array(zod.object({
+  "document_id": zod.uuid(),
+  "name": zod.string(),
+  "doc_type_code": zod.string(),
+  "doc_type_name": zod.string(),
+  "version": zod.int(),
+  "size_bytes": zod.int(),
+  "uploaded_at": zod.iso.datetime({"offset":true}),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()])
+})),
+  "journal": zod.array(zod.object({
+  "id": zod.uuid(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "kind": zod.enum(['stage', 'visa', 'status', 'plan', 'comment', 'qc', 'proc', 'doc']),
+  "kind_label": zod.string(),
+  "stage": zod.string(),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_label": zod.string(),
+  "author_id": zod.union([zod.uuid(),zod.null()]),
+  "author_name": zod.string(),
+  "text": zod.string()
+})),
+  "has_inspection": zod.boolean()
+})
+
+
+/**
+ * @summary Move Operation
+ */
+export const MoveProductionOperationParams = zod.object({
+  "operation_id": zod.uuid()
+})
+
+export const MoveProductionOperationBody = zod.object({
+  "start": zod.iso.date()
+})
+
+export const moveProductionOperationResponseOperationHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveProductionOperationResponseOperationEarnedHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveProductionOperationResponseOrderQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveProductionOperationResponseOrderProgressRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveProductionOperationResponseOrderContractTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const MoveProductionOperationResponse = zod.object({
+  "operation": zod.object({
+  "id": zod.uuid(),
+  "order_id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "phase": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "hours": zod.string().regex(moveProductionOperationResponseOperationHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "progress": zod.int(),
+  "earned_hours": zod.string().regex(moveProductionOperationResponseOperationEarnedHoursRegExp),
+  "started_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_for_name": zod.string(),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean(),
+  "violates_dependency": zod.boolean(),
+  "requires_inspection": zod.boolean(),
+  "abilities": zod.object({
+  "can_change_status": zod.boolean(),
+  "can_set_progress": zod.boolean(),
+  "can_approve": zod.boolean(),
+  "can_edit_plan": zod.boolean(),
+  "can_set_responsible": zod.boolean()
+})
+}),
+  "order": zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "inquiry_id": zod.union([zod.uuid(),zod.null()]),
+  "inquiry_number": zod.string(),
+  "customer_id": zod.union([zod.uuid(),zod.null()]),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(moveProductionOperationResponseOrderQuantityRegExp),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "planned_start": zod.iso.date(),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "due_date": zod.iso.date(),
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "derived_stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "progress": zod.string().regex(moveProductionOperationResponseOrderProgressRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "contract_total": zod.string().regex(moveProductionOperationResponseOrderContractTotalRegExp),
+  "operations_total": zod.int(),
+  "operations_done": zod.int(),
+  "abilities": zod.object({
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean()
+})
+}),
+  "predecessors": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()])
+})),
+  "successors": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()])
+})),
+  "documents": zod.array(zod.object({
+  "document_id": zod.uuid(),
+  "name": zod.string(),
+  "doc_type_code": zod.string(),
+  "doc_type_name": zod.string(),
+  "version": zod.int(),
+  "size_bytes": zod.int(),
+  "uploaded_at": zod.iso.datetime({"offset":true}),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()])
+})),
+  "journal": zod.array(zod.object({
+  "id": zod.uuid(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "kind": zod.enum(['stage', 'visa', 'status', 'plan', 'comment', 'qc', 'proc', 'doc']),
+  "kind_label": zod.string(),
+  "stage": zod.string(),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_label": zod.string(),
+  "author_id": zod.union([zod.uuid(),zod.null()]),
+  "author_name": zod.string(),
+  "text": zod.string()
+})),
+  "has_inspection": zod.boolean()
+})
+
+
+/**
+ * @summary Set Predecessors
+ */
+export const SetProductionOperationPredecessorsParams = zod.object({
+  "operation_id": zod.uuid()
+})
+
+export const SetProductionOperationPredecessorsBody = zod.object({
+  "predecessor_ids": zod.array(zod.uuid())
+})
+
+export const setProductionOperationPredecessorsResponseOperationHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setProductionOperationPredecessorsResponseOperationEarnedHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setProductionOperationPredecessorsResponseOrderQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setProductionOperationPredecessorsResponseOrderProgressRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setProductionOperationPredecessorsResponseOrderContractTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const SetProductionOperationPredecessorsResponse = zod.object({
+  "operation": zod.object({
+  "id": zod.uuid(),
+  "order_id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "phase": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "hours": zod.string().regex(setProductionOperationPredecessorsResponseOperationHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "progress": zod.int(),
+  "earned_hours": zod.string().regex(setProductionOperationPredecessorsResponseOperationEarnedHoursRegExp),
+  "started_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_for_name": zod.string(),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean(),
+  "violates_dependency": zod.boolean(),
+  "requires_inspection": zod.boolean(),
+  "abilities": zod.object({
+  "can_change_status": zod.boolean(),
+  "can_set_progress": zod.boolean(),
+  "can_approve": zod.boolean(),
+  "can_edit_plan": zod.boolean(),
+  "can_set_responsible": zod.boolean()
+})
+}),
+  "order": zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "inquiry_id": zod.union([zod.uuid(),zod.null()]),
+  "inquiry_number": zod.string(),
+  "customer_id": zod.union([zod.uuid(),zod.null()]),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(setProductionOperationPredecessorsResponseOrderQuantityRegExp),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "planned_start": zod.iso.date(),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "due_date": zod.iso.date(),
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "derived_stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "progress": zod.string().regex(setProductionOperationPredecessorsResponseOrderProgressRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "contract_total": zod.string().regex(setProductionOperationPredecessorsResponseOrderContractTotalRegExp),
+  "operations_total": zod.int(),
+  "operations_done": zod.int(),
+  "abilities": zod.object({
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean()
+})
+}),
+  "predecessors": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()])
+})),
+  "successors": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "status": zod.enum(['wait', 'work', 'check', 'done']),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()])
+})),
+  "documents": zod.array(zod.object({
+  "document_id": zod.uuid(),
+  "name": zod.string(),
+  "doc_type_code": zod.string(),
+  "doc_type_name": zod.string(),
+  "version": zod.int(),
+  "size_bytes": zod.int(),
+  "uploaded_at": zod.iso.datetime({"offset":true}),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()])
+})),
+  "journal": zod.array(zod.object({
+  "id": zod.uuid(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "kind": zod.enum(['stage', 'visa', 'status', 'plan', 'comment', 'qc', 'proc', 'doc']),
+  "kind_label": zod.string(),
+  "stage": zod.string(),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_label": zod.string(),
+  "author_id": zod.union([zod.uuid(),zod.null()]),
+  "author_name": zod.string(),
+  "text": zod.string()
+})),
+  "has_inspection": zod.boolean()
+})
+
+
+/**
+ * @summary List Loss Reasons
+ */
+export const ListLossReasonsResponseItem = zod.object({
+  "id": zod.uuid(),
+  "name": zod.string()
+})
+export const ListLossReasonsResponse = zod.array(ListLossReasonsResponseItem)
+
+
+/**
+ * @summary Get Settings
+ */
+export const getSalesSettingsResponseProbNewRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getSalesSettingsResponseProbCalcRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getSalesSettingsResponseProbApprovalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetSalesSettingsResponse = zod.object({
+  "economist_id": zod.union([zod.uuid(),zod.null()]),
+  "economist_name": zod.string(),
+  "prob_new": zod.string().regex(getSalesSettingsResponseProbNewRegExp),
+  "prob_calc": zod.string().regex(getSalesSettingsResponseProbCalcRegExp),
+  "prob_approval": zod.string().regex(getSalesSettingsResponseProbApprovalRegExp)
+})
+
+
+/**
+ * @summary Get Board
+ */
+export const getSalesBoardQuerySearchDefault = ``;
+export const getSalesBoardQueryIncludeClosedDefault = false;
+
+export const GetSalesBoardQueryParams = zod.object({
+  "stage": zod.union([zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),zod.null()]).optional(),
+  "search": zod.string().default(getSalesBoardQuerySearchDefault),
+  "include_closed": zod.boolean().default(getSalesBoardQueryIncludeClosedDefault)
+})
+
+export const getSalesBoardResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getSalesBoardResponseTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getSalesBoardResponseProbabilityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetSalesBoardResponseItem = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "customer_id": zod.uuid(),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(getSalesBoardResponseQuantityRegExp),
+  "due_date": zod.iso.date(),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "total": zod.string().regex(getSalesBoardResponseTotalRegExp),
+  "probability": zod.string().regex(getSalesBoardResponseProbabilityRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "has_calc": zod.boolean(),
+  "has_plan": zod.boolean(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_edit_calculation": zod.boolean(),
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_launch": zod.boolean(),
+  "can_lose": zod.boolean()
+})
+})
+export const GetSalesBoardResponse = zod.array(GetSalesBoardResponseItem)
+
+
+/**
+ * @summary My Visas
+ */
+export const listMySalesVisasResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const ListMySalesVisasResponseItem = zod.object({
+  "inquiry_id": zod.uuid(),
+  "number": zod.string(),
+  "customer_name": zod.string(),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(listMySalesVisasResponseQuantityRegExp),
+  "due_date": zod.iso.date(),
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "text": zod.string()
+})
+export const ListMySalesVisasResponse = zod.array(ListMySalesVisasResponseItem)
+
+
+/**
+ * @summary Create Inquiry
+ */
+export const createInquiryBodyNewCustomerOneInnDefault = ``;
+export const createInquiryBodyProductNameDefault = ``;
+export const createInquiryBodyQuantityTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const CreateInquiryBody = zod.object({
+  "customer_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "new_customer": zod.union([zod.object({
+  "short_name": zod.string(),
+  "inn": zod.string().default(createInquiryBodyNewCustomerOneInnDefault)
+}),zod.null()]).optional(),
+  "object_name": zod.string(),
+  "template_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "product_name": zod.string().default(createInquiryBodyProductNameDefault),
+  "quantity": zod.union([zod.number(),zod.string().regex(createInquiryBodyQuantityTwoRegExp)]),
+  "due_date": zod.iso.date(),
+  "manager_id": zod.union([zod.uuid(),zod.null()]).optional()
+}).describe('Заказчик — выбранный контрагент (`customer_id`) или новый (`new_customer`):\nпри похожем на существующего ответ 409 `duplicates_found` с кандидатами.')
+
+export const createInquiryResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createInquiryResponseTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createInquiryResponseProbabilityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createInquiryResponseOverheadPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createInquiryResponseMarginPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createInquiryResponseVatPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createInquiryResponseMaterialsItemQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createInquiryResponseMaterialsItemPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createInquiryResponseMaterialsItemAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createInquiryResponseOperationsItemRateRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createInquiryResponseOperationsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createInquiryResponseTotalsMaterialsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createInquiryResponseTotalsLaborRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createInquiryResponseTotalsHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createInquiryResponseTotalsOverheadRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createInquiryResponseTotalsCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createInquiryResponseTotalsPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createInquiryResponseTotalsVatRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createInquiryResponseTotalsTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createInquiryResponseTotalsProfitRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const CreateInquiryResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "customer_id": zod.uuid(),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(createInquiryResponseQuantityRegExp),
+  "due_date": zod.iso.date(),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "total": zod.string().regex(createInquiryResponseTotalRegExp),
+  "probability": zod.string().regex(createInquiryResponseProbabilityRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "has_calc": zod.boolean(),
+  "has_plan": zod.boolean(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_edit_calculation": zod.boolean(),
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_launch": zod.boolean(),
+  "can_lose": zod.boolean()
+}),
+  "overhead_pct": zod.string().regex(createInquiryResponseOverheadPctRegExp),
+  "margin_pct": zod.string().regex(createInquiryResponseMarginPctRegExp),
+  "vat_pct": zod.string().regex(createInquiryResponseVatPctRegExp),
+  "lost_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "lost_reason_name": zod.string(),
+  "lost_comment": zod.string(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "approvals": zod.array(zod.object({
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "approved_by_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string()
+})),
+  "materials": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "quantity": zod.string().regex(createInquiryResponseMaterialsItemQuantityRegExp),
+  "price": zod.string().regex(createInquiryResponseMaterialsItemPriceRegExp),
+  "amount": zod.string().regex(createInquiryResponseMaterialsItemAmountRegExp)
+})),
+  "operations": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "rate": zod.string().regex(createInquiryResponseOperationsItemRateRegExp),
+  "hours": zod.string().regex(createInquiryResponseOperationsItemHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean()
+})),
+  "totals": zod.object({
+  "materials": zod.string().regex(createInquiryResponseTotalsMaterialsRegExp),
+  "labor": zod.string().regex(createInquiryResponseTotalsLaborRegExp),
+  "hours": zod.string().regex(createInquiryResponseTotalsHoursRegExp),
+  "overhead": zod.string().regex(createInquiryResponseTotalsOverheadRegExp),
+  "cost": zod.string().regex(createInquiryResponseTotalsCostRegExp),
+  "price": zod.string().regex(createInquiryResponseTotalsPriceRegExp),
+  "vat": zod.string().regex(createInquiryResponseTotalsVatRegExp),
+  "total": zod.string().regex(createInquiryResponseTotalsTotalRegExp),
+  "profit": zod.string().regex(createInquiryResponseTotalsProfitRegExp)
+}),
+  "plan_length": zod.int(),
+  "critical_path": zod.array(zod.uuid())
+})
+
+
+/**
+ * @summary Get Inquiry
+ */
+export const GetInquiryParams = zod.object({
+  "inquiry_id": zod.uuid()
+})
+
+export const getInquiryResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getInquiryResponseTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getInquiryResponseProbabilityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getInquiryResponseOverheadPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getInquiryResponseMarginPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getInquiryResponseVatPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getInquiryResponseMaterialsItemQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getInquiryResponseMaterialsItemPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getInquiryResponseMaterialsItemAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getInquiryResponseOperationsItemRateRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getInquiryResponseOperationsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getInquiryResponseTotalsMaterialsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getInquiryResponseTotalsLaborRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getInquiryResponseTotalsHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getInquiryResponseTotalsOverheadRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getInquiryResponseTotalsCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getInquiryResponseTotalsPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getInquiryResponseTotalsVatRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getInquiryResponseTotalsTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getInquiryResponseTotalsProfitRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetInquiryResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "customer_id": zod.uuid(),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(getInquiryResponseQuantityRegExp),
+  "due_date": zod.iso.date(),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "total": zod.string().regex(getInquiryResponseTotalRegExp),
+  "probability": zod.string().regex(getInquiryResponseProbabilityRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "has_calc": zod.boolean(),
+  "has_plan": zod.boolean(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_edit_calculation": zod.boolean(),
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_launch": zod.boolean(),
+  "can_lose": zod.boolean()
+}),
+  "overhead_pct": zod.string().regex(getInquiryResponseOverheadPctRegExp),
+  "margin_pct": zod.string().regex(getInquiryResponseMarginPctRegExp),
+  "vat_pct": zod.string().regex(getInquiryResponseVatPctRegExp),
+  "lost_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "lost_reason_name": zod.string(),
+  "lost_comment": zod.string(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "approvals": zod.array(zod.object({
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "approved_by_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string()
+})),
+  "materials": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "quantity": zod.string().regex(getInquiryResponseMaterialsItemQuantityRegExp),
+  "price": zod.string().regex(getInquiryResponseMaterialsItemPriceRegExp),
+  "amount": zod.string().regex(getInquiryResponseMaterialsItemAmountRegExp)
+})),
+  "operations": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "rate": zod.string().regex(getInquiryResponseOperationsItemRateRegExp),
+  "hours": zod.string().regex(getInquiryResponseOperationsItemHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean()
+})),
+  "totals": zod.object({
+  "materials": zod.string().regex(getInquiryResponseTotalsMaterialsRegExp),
+  "labor": zod.string().regex(getInquiryResponseTotalsLaborRegExp),
+  "hours": zod.string().regex(getInquiryResponseTotalsHoursRegExp),
+  "overhead": zod.string().regex(getInquiryResponseTotalsOverheadRegExp),
+  "cost": zod.string().regex(getInquiryResponseTotalsCostRegExp),
+  "price": zod.string().regex(getInquiryResponseTotalsPriceRegExp),
+  "vat": zod.string().regex(getInquiryResponseTotalsVatRegExp),
+  "total": zod.string().regex(getInquiryResponseTotalsTotalRegExp),
+  "profit": zod.string().regex(getInquiryResponseTotalsProfitRegExp)
+}),
+  "plan_length": zod.int(),
+  "critical_path": zod.array(zod.uuid())
+})
+
+
+/**
+ * @summary Update Inquiry
+ */
+export const UpdateInquiryParams = zod.object({
+  "inquiry_id": zod.uuid()
+})
+
+export const updateInquiryBodyQuantityTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateInquiryBodyOverheadPctTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateInquiryBodyMarginPctTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateInquiryBodyVatPctTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const UpdateInquiryBody = zod.object({
+  "object_name": zod.string(),
+  "product_name": zod.string(),
+  "template_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "quantity": zod.union([zod.number(),zod.string().regex(updateInquiryBodyQuantityTwoRegExp)]),
+  "due_date": zod.iso.date(),
+  "manager_id": zod.uuid(),
+  "overhead_pct": zod.union([zod.number(),zod.string().regex(updateInquiryBodyOverheadPctTwoRegExp)]),
+  "margin_pct": zod.union([zod.number(),zod.string().regex(updateInquiryBodyMarginPctTwoRegExp)]),
+  "vat_pct": zod.union([zod.number(),zod.string().regex(updateInquiryBodyVatPctTwoRegExp)])
+})
+
+export const updateInquiryResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateInquiryResponseTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateInquiryResponseProbabilityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateInquiryResponseOverheadPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateInquiryResponseMarginPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateInquiryResponseVatPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateInquiryResponseMaterialsItemQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateInquiryResponseMaterialsItemPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateInquiryResponseMaterialsItemAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateInquiryResponseOperationsItemRateRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateInquiryResponseOperationsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateInquiryResponseTotalsMaterialsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateInquiryResponseTotalsLaborRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateInquiryResponseTotalsHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateInquiryResponseTotalsOverheadRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateInquiryResponseTotalsCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateInquiryResponseTotalsPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateInquiryResponseTotalsVatRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateInquiryResponseTotalsTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateInquiryResponseTotalsProfitRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const UpdateInquiryResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "customer_id": zod.uuid(),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(updateInquiryResponseQuantityRegExp),
+  "due_date": zod.iso.date(),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "total": zod.string().regex(updateInquiryResponseTotalRegExp),
+  "probability": zod.string().regex(updateInquiryResponseProbabilityRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "has_calc": zod.boolean(),
+  "has_plan": zod.boolean(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_edit_calculation": zod.boolean(),
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_launch": zod.boolean(),
+  "can_lose": zod.boolean()
+}),
+  "overhead_pct": zod.string().regex(updateInquiryResponseOverheadPctRegExp),
+  "margin_pct": zod.string().regex(updateInquiryResponseMarginPctRegExp),
+  "vat_pct": zod.string().regex(updateInquiryResponseVatPctRegExp),
+  "lost_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "lost_reason_name": zod.string(),
+  "lost_comment": zod.string(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "approvals": zod.array(zod.object({
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "approved_by_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string()
+})),
+  "materials": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "quantity": zod.string().regex(updateInquiryResponseMaterialsItemQuantityRegExp),
+  "price": zod.string().regex(updateInquiryResponseMaterialsItemPriceRegExp),
+  "amount": zod.string().regex(updateInquiryResponseMaterialsItemAmountRegExp)
+})),
+  "operations": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "rate": zod.string().regex(updateInquiryResponseOperationsItemRateRegExp),
+  "hours": zod.string().regex(updateInquiryResponseOperationsItemHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean()
+})),
+  "totals": zod.object({
+  "materials": zod.string().regex(updateInquiryResponseTotalsMaterialsRegExp),
+  "labor": zod.string().regex(updateInquiryResponseTotalsLaborRegExp),
+  "hours": zod.string().regex(updateInquiryResponseTotalsHoursRegExp),
+  "overhead": zod.string().regex(updateInquiryResponseTotalsOverheadRegExp),
+  "cost": zod.string().regex(updateInquiryResponseTotalsCostRegExp),
+  "price": zod.string().regex(updateInquiryResponseTotalsPriceRegExp),
+  "vat": zod.string().regex(updateInquiryResponseTotalsVatRegExp),
+  "total": zod.string().regex(updateInquiryResponseTotalsTotalRegExp),
+  "profit": zod.string().regex(updateInquiryResponseTotalsProfitRegExp)
+}),
+  "plan_length": zod.int(),
+  "critical_path": zod.array(zod.uuid())
+})
+
+
+/**
+ * @summary Move Stage
+ */
+export const MoveInquiryStageParams = zod.object({
+  "inquiry_id": zod.uuid()
+})
+
+export const moveInquiryStageBodyCommentDefault = ``;
+
+export const MoveInquiryStageBody = zod.object({
+  "to": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "comment": zod.string().default(moveInquiryStageBodyCommentDefault)
+})
+
+export const moveInquiryStageResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveInquiryStageResponseTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveInquiryStageResponseProbabilityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveInquiryStageResponseOverheadPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveInquiryStageResponseMarginPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveInquiryStageResponseVatPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveInquiryStageResponseMaterialsItemQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveInquiryStageResponseMaterialsItemPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveInquiryStageResponseMaterialsItemAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveInquiryStageResponseOperationsItemRateRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveInquiryStageResponseOperationsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveInquiryStageResponseTotalsMaterialsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveInquiryStageResponseTotalsLaborRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveInquiryStageResponseTotalsHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveInquiryStageResponseTotalsOverheadRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveInquiryStageResponseTotalsCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveInquiryStageResponseTotalsPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveInquiryStageResponseTotalsVatRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveInquiryStageResponseTotalsTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const moveInquiryStageResponseTotalsProfitRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const MoveInquiryStageResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "customer_id": zod.uuid(),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(moveInquiryStageResponseQuantityRegExp),
+  "due_date": zod.iso.date(),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "total": zod.string().regex(moveInquiryStageResponseTotalRegExp),
+  "probability": zod.string().regex(moveInquiryStageResponseProbabilityRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "has_calc": zod.boolean(),
+  "has_plan": zod.boolean(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_edit_calculation": zod.boolean(),
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_launch": zod.boolean(),
+  "can_lose": zod.boolean()
+}),
+  "overhead_pct": zod.string().regex(moveInquiryStageResponseOverheadPctRegExp),
+  "margin_pct": zod.string().regex(moveInquiryStageResponseMarginPctRegExp),
+  "vat_pct": zod.string().regex(moveInquiryStageResponseVatPctRegExp),
+  "lost_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "lost_reason_name": zod.string(),
+  "lost_comment": zod.string(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "approvals": zod.array(zod.object({
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "approved_by_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string()
+})),
+  "materials": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "quantity": zod.string().regex(moveInquiryStageResponseMaterialsItemQuantityRegExp),
+  "price": zod.string().regex(moveInquiryStageResponseMaterialsItemPriceRegExp),
+  "amount": zod.string().regex(moveInquiryStageResponseMaterialsItemAmountRegExp)
+})),
+  "operations": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "rate": zod.string().regex(moveInquiryStageResponseOperationsItemRateRegExp),
+  "hours": zod.string().regex(moveInquiryStageResponseOperationsItemHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean()
+})),
+  "totals": zod.object({
+  "materials": zod.string().regex(moveInquiryStageResponseTotalsMaterialsRegExp),
+  "labor": zod.string().regex(moveInquiryStageResponseTotalsLaborRegExp),
+  "hours": zod.string().regex(moveInquiryStageResponseTotalsHoursRegExp),
+  "overhead": zod.string().regex(moveInquiryStageResponseTotalsOverheadRegExp),
+  "cost": zod.string().regex(moveInquiryStageResponseTotalsCostRegExp),
+  "price": zod.string().regex(moveInquiryStageResponseTotalsPriceRegExp),
+  "vat": zod.string().regex(moveInquiryStageResponseTotalsVatRegExp),
+  "total": zod.string().regex(moveInquiryStageResponseTotalsTotalRegExp),
+  "profit": zod.string().regex(moveInquiryStageResponseTotalsProfitRegExp)
+}),
+  "plan_length": zod.int(),
+  "critical_path": zod.array(zod.uuid())
+})
+
+
+/**
+ * @summary Approve Stage
+ */
+export const ApproveInquiryStageParams = zod.object({
+  "inquiry_id": zod.uuid(),
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost'])
+})
+
+export const approveInquiryStageBodyCommentDefault = ``;
+
+export const ApproveInquiryStageBody = zod.object({
+  "comment": zod.string().default(approveInquiryStageBodyCommentDefault)
+})
+
+export const approveInquiryStageResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveInquiryStageResponseTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveInquiryStageResponseProbabilityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveInquiryStageResponseOverheadPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveInquiryStageResponseMarginPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveInquiryStageResponseVatPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveInquiryStageResponseMaterialsItemQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveInquiryStageResponseMaterialsItemPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveInquiryStageResponseMaterialsItemAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveInquiryStageResponseOperationsItemRateRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveInquiryStageResponseOperationsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveInquiryStageResponseTotalsMaterialsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveInquiryStageResponseTotalsLaborRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveInquiryStageResponseTotalsHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveInquiryStageResponseTotalsOverheadRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveInquiryStageResponseTotalsCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveInquiryStageResponseTotalsPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveInquiryStageResponseTotalsVatRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveInquiryStageResponseTotalsTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const approveInquiryStageResponseTotalsProfitRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const ApproveInquiryStageResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "customer_id": zod.uuid(),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(approveInquiryStageResponseQuantityRegExp),
+  "due_date": zod.iso.date(),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "total": zod.string().regex(approveInquiryStageResponseTotalRegExp),
+  "probability": zod.string().regex(approveInquiryStageResponseProbabilityRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "has_calc": zod.boolean(),
+  "has_plan": zod.boolean(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_edit_calculation": zod.boolean(),
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_launch": zod.boolean(),
+  "can_lose": zod.boolean()
+}),
+  "overhead_pct": zod.string().regex(approveInquiryStageResponseOverheadPctRegExp),
+  "margin_pct": zod.string().regex(approveInquiryStageResponseMarginPctRegExp),
+  "vat_pct": zod.string().regex(approveInquiryStageResponseVatPctRegExp),
+  "lost_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "lost_reason_name": zod.string(),
+  "lost_comment": zod.string(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "approvals": zod.array(zod.object({
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "approved_by_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string()
+})),
+  "materials": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "quantity": zod.string().regex(approveInquiryStageResponseMaterialsItemQuantityRegExp),
+  "price": zod.string().regex(approveInquiryStageResponseMaterialsItemPriceRegExp),
+  "amount": zod.string().regex(approveInquiryStageResponseMaterialsItemAmountRegExp)
+})),
+  "operations": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "rate": zod.string().regex(approveInquiryStageResponseOperationsItemRateRegExp),
+  "hours": zod.string().regex(approveInquiryStageResponseOperationsItemHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean()
+})),
+  "totals": zod.object({
+  "materials": zod.string().regex(approveInquiryStageResponseTotalsMaterialsRegExp),
+  "labor": zod.string().regex(approveInquiryStageResponseTotalsLaborRegExp),
+  "hours": zod.string().regex(approveInquiryStageResponseTotalsHoursRegExp),
+  "overhead": zod.string().regex(approveInquiryStageResponseTotalsOverheadRegExp),
+  "cost": zod.string().regex(approveInquiryStageResponseTotalsCostRegExp),
+  "price": zod.string().regex(approveInquiryStageResponseTotalsPriceRegExp),
+  "vat": zod.string().regex(approveInquiryStageResponseTotalsVatRegExp),
+  "total": zod.string().regex(approveInquiryStageResponseTotalsTotalRegExp),
+  "profit": zod.string().regex(approveInquiryStageResponseTotalsProfitRegExp)
+}),
+  "plan_length": zod.int(),
+  "critical_path": zod.array(zod.uuid())
+})
+
+
+/**
+ * @summary Set Stage Responsible
+ */
+export const SetInquiryStageResponsibleParams = zod.object({
+  "inquiry_id": zod.uuid(),
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost'])
+})
+
+export const SetInquiryStageResponsibleBody = zod.object({
+  "responsible_id": zod.uuid()
+})
+
+export const setInquiryStageResponsibleResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setInquiryStageResponsibleResponseTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setInquiryStageResponsibleResponseProbabilityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setInquiryStageResponsibleResponseOverheadPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setInquiryStageResponsibleResponseMarginPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setInquiryStageResponsibleResponseVatPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setInquiryStageResponsibleResponseMaterialsItemQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setInquiryStageResponsibleResponseMaterialsItemPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setInquiryStageResponsibleResponseMaterialsItemAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setInquiryStageResponsibleResponseOperationsItemRateRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setInquiryStageResponsibleResponseOperationsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setInquiryStageResponsibleResponseTotalsMaterialsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setInquiryStageResponsibleResponseTotalsLaborRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setInquiryStageResponsibleResponseTotalsHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setInquiryStageResponsibleResponseTotalsOverheadRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setInquiryStageResponsibleResponseTotalsCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setInquiryStageResponsibleResponseTotalsPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setInquiryStageResponsibleResponseTotalsVatRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setInquiryStageResponsibleResponseTotalsTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setInquiryStageResponsibleResponseTotalsProfitRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const SetInquiryStageResponsibleResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "customer_id": zod.uuid(),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(setInquiryStageResponsibleResponseQuantityRegExp),
+  "due_date": zod.iso.date(),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "total": zod.string().regex(setInquiryStageResponsibleResponseTotalRegExp),
+  "probability": zod.string().regex(setInquiryStageResponsibleResponseProbabilityRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "has_calc": zod.boolean(),
+  "has_plan": zod.boolean(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_edit_calculation": zod.boolean(),
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_launch": zod.boolean(),
+  "can_lose": zod.boolean()
+}),
+  "overhead_pct": zod.string().regex(setInquiryStageResponsibleResponseOverheadPctRegExp),
+  "margin_pct": zod.string().regex(setInquiryStageResponsibleResponseMarginPctRegExp),
+  "vat_pct": zod.string().regex(setInquiryStageResponsibleResponseVatPctRegExp),
+  "lost_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "lost_reason_name": zod.string(),
+  "lost_comment": zod.string(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "approvals": zod.array(zod.object({
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "approved_by_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string()
+})),
+  "materials": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "quantity": zod.string().regex(setInquiryStageResponsibleResponseMaterialsItemQuantityRegExp),
+  "price": zod.string().regex(setInquiryStageResponsibleResponseMaterialsItemPriceRegExp),
+  "amount": zod.string().regex(setInquiryStageResponsibleResponseMaterialsItemAmountRegExp)
+})),
+  "operations": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "rate": zod.string().regex(setInquiryStageResponsibleResponseOperationsItemRateRegExp),
+  "hours": zod.string().regex(setInquiryStageResponsibleResponseOperationsItemHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean()
+})),
+  "totals": zod.object({
+  "materials": zod.string().regex(setInquiryStageResponsibleResponseTotalsMaterialsRegExp),
+  "labor": zod.string().regex(setInquiryStageResponsibleResponseTotalsLaborRegExp),
+  "hours": zod.string().regex(setInquiryStageResponsibleResponseTotalsHoursRegExp),
+  "overhead": zod.string().regex(setInquiryStageResponsibleResponseTotalsOverheadRegExp),
+  "cost": zod.string().regex(setInquiryStageResponsibleResponseTotalsCostRegExp),
+  "price": zod.string().regex(setInquiryStageResponsibleResponseTotalsPriceRegExp),
+  "vat": zod.string().regex(setInquiryStageResponsibleResponseTotalsVatRegExp),
+  "total": zod.string().regex(setInquiryStageResponsibleResponseTotalsTotalRegExp),
+  "profit": zod.string().regex(setInquiryStageResponsibleResponseTotalsProfitRegExp)
+}),
+  "plan_length": zod.int(),
+  "critical_path": zod.array(zod.uuid())
+})
+
+
+/**
+ * @summary Launch
+ */
+export const LaunchInquiryParams = zod.object({
+  "inquiry_id": zod.uuid()
+})
+
+export const LaunchInquiryBody = zod.object({
+  "planned_start": zod.iso.date(),
+  "due_date": zod.iso.date()
+})
+
+export const LaunchInquiryResponse = zod.object({
+  "inquiry_id": zod.uuid(),
+  "order_id": zod.uuid(),
+  "warnings": zod.array(zod.string())
+})
+
+
+/**
+ * @summary Lose
+ */
+export const LoseInquiryParams = zod.object({
+  "inquiry_id": zod.uuid()
+})
+
+export const loseInquiryBodyCommentDefault = ``;
+
+export const LoseInquiryBody = zod.object({
+  "reason_id": zod.uuid(),
+  "comment": zod.string().default(loseInquiryBodyCommentDefault)
+})
+
+export const loseInquiryResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const loseInquiryResponseTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const loseInquiryResponseProbabilityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const loseInquiryResponseOverheadPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const loseInquiryResponseMarginPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const loseInquiryResponseVatPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const loseInquiryResponseMaterialsItemQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const loseInquiryResponseMaterialsItemPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const loseInquiryResponseMaterialsItemAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const loseInquiryResponseOperationsItemRateRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const loseInquiryResponseOperationsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const loseInquiryResponseTotalsMaterialsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const loseInquiryResponseTotalsLaborRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const loseInquiryResponseTotalsHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const loseInquiryResponseTotalsOverheadRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const loseInquiryResponseTotalsCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const loseInquiryResponseTotalsPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const loseInquiryResponseTotalsVatRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const loseInquiryResponseTotalsTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const loseInquiryResponseTotalsProfitRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const LoseInquiryResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "customer_id": zod.uuid(),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(loseInquiryResponseQuantityRegExp),
+  "due_date": zod.iso.date(),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "total": zod.string().regex(loseInquiryResponseTotalRegExp),
+  "probability": zod.string().regex(loseInquiryResponseProbabilityRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "has_calc": zod.boolean(),
+  "has_plan": zod.boolean(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_edit_calculation": zod.boolean(),
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_launch": zod.boolean(),
+  "can_lose": zod.boolean()
+}),
+  "overhead_pct": zod.string().regex(loseInquiryResponseOverheadPctRegExp),
+  "margin_pct": zod.string().regex(loseInquiryResponseMarginPctRegExp),
+  "vat_pct": zod.string().regex(loseInquiryResponseVatPctRegExp),
+  "lost_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "lost_reason_name": zod.string(),
+  "lost_comment": zod.string(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "approvals": zod.array(zod.object({
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "approved_by_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string()
+})),
+  "materials": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "quantity": zod.string().regex(loseInquiryResponseMaterialsItemQuantityRegExp),
+  "price": zod.string().regex(loseInquiryResponseMaterialsItemPriceRegExp),
+  "amount": zod.string().regex(loseInquiryResponseMaterialsItemAmountRegExp)
+})),
+  "operations": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "rate": zod.string().regex(loseInquiryResponseOperationsItemRateRegExp),
+  "hours": zod.string().regex(loseInquiryResponseOperationsItemHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean()
+})),
+  "totals": zod.object({
+  "materials": zod.string().regex(loseInquiryResponseTotalsMaterialsRegExp),
+  "labor": zod.string().regex(loseInquiryResponseTotalsLaborRegExp),
+  "hours": zod.string().regex(loseInquiryResponseTotalsHoursRegExp),
+  "overhead": zod.string().regex(loseInquiryResponseTotalsOverheadRegExp),
+  "cost": zod.string().regex(loseInquiryResponseTotalsCostRegExp),
+  "price": zod.string().regex(loseInquiryResponseTotalsPriceRegExp),
+  "vat": zod.string().regex(loseInquiryResponseTotalsVatRegExp),
+  "total": zod.string().regex(loseInquiryResponseTotalsTotalRegExp),
+  "profit": zod.string().regex(loseInquiryResponseTotalsProfitRegExp)
+}),
+  "plan_length": zod.int(),
+  "critical_path": zod.array(zod.uuid())
+})
+
+
+/**
+ * @summary Fill From Template
+ */
+export const FillInquiryFromTemplateParams = zod.object({
+  "inquiry_id": zod.uuid()
+})
+
+export const FillInquiryFromTemplateBody = zod.object({
+  "template_id": zod.union([zod.uuid(),zod.null()]).optional()
+})
+
+export const fillInquiryFromTemplateResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const fillInquiryFromTemplateResponseTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const fillInquiryFromTemplateResponseProbabilityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const fillInquiryFromTemplateResponseOverheadPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const fillInquiryFromTemplateResponseMarginPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const fillInquiryFromTemplateResponseVatPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const fillInquiryFromTemplateResponseMaterialsItemQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const fillInquiryFromTemplateResponseMaterialsItemPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const fillInquiryFromTemplateResponseMaterialsItemAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const fillInquiryFromTemplateResponseOperationsItemRateRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const fillInquiryFromTemplateResponseOperationsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const fillInquiryFromTemplateResponseTotalsMaterialsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const fillInquiryFromTemplateResponseTotalsLaborRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const fillInquiryFromTemplateResponseTotalsHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const fillInquiryFromTemplateResponseTotalsOverheadRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const fillInquiryFromTemplateResponseTotalsCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const fillInquiryFromTemplateResponseTotalsPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const fillInquiryFromTemplateResponseTotalsVatRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const fillInquiryFromTemplateResponseTotalsTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const fillInquiryFromTemplateResponseTotalsProfitRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const FillInquiryFromTemplateResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "customer_id": zod.uuid(),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(fillInquiryFromTemplateResponseQuantityRegExp),
+  "due_date": zod.iso.date(),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "total": zod.string().regex(fillInquiryFromTemplateResponseTotalRegExp),
+  "probability": zod.string().regex(fillInquiryFromTemplateResponseProbabilityRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "has_calc": zod.boolean(),
+  "has_plan": zod.boolean(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_edit_calculation": zod.boolean(),
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_launch": zod.boolean(),
+  "can_lose": zod.boolean()
+}),
+  "overhead_pct": zod.string().regex(fillInquiryFromTemplateResponseOverheadPctRegExp),
+  "margin_pct": zod.string().regex(fillInquiryFromTemplateResponseMarginPctRegExp),
+  "vat_pct": zod.string().regex(fillInquiryFromTemplateResponseVatPctRegExp),
+  "lost_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "lost_reason_name": zod.string(),
+  "lost_comment": zod.string(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "approvals": zod.array(zod.object({
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "approved_by_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string()
+})),
+  "materials": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "quantity": zod.string().regex(fillInquiryFromTemplateResponseMaterialsItemQuantityRegExp),
+  "price": zod.string().regex(fillInquiryFromTemplateResponseMaterialsItemPriceRegExp),
+  "amount": zod.string().regex(fillInquiryFromTemplateResponseMaterialsItemAmountRegExp)
+})),
+  "operations": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "rate": zod.string().regex(fillInquiryFromTemplateResponseOperationsItemRateRegExp),
+  "hours": zod.string().regex(fillInquiryFromTemplateResponseOperationsItemHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean()
+})),
+  "totals": zod.object({
+  "materials": zod.string().regex(fillInquiryFromTemplateResponseTotalsMaterialsRegExp),
+  "labor": zod.string().regex(fillInquiryFromTemplateResponseTotalsLaborRegExp),
+  "hours": zod.string().regex(fillInquiryFromTemplateResponseTotalsHoursRegExp),
+  "overhead": zod.string().regex(fillInquiryFromTemplateResponseTotalsOverheadRegExp),
+  "cost": zod.string().regex(fillInquiryFromTemplateResponseTotalsCostRegExp),
+  "price": zod.string().regex(fillInquiryFromTemplateResponseTotalsPriceRegExp),
+  "vat": zod.string().regex(fillInquiryFromTemplateResponseTotalsVatRegExp),
+  "total": zod.string().regex(fillInquiryFromTemplateResponseTotalsTotalRegExp),
+  "profit": zod.string().regex(fillInquiryFromTemplateResponseTotalsProfitRegExp)
+}),
+  "plan_length": zod.int(),
+  "critical_path": zod.array(zod.uuid())
+})
+
+
+/**
+ * @summary Add Material
+ */
+export const AddCalcMaterialParams = zod.object({
+  "inquiry_id": zod.uuid()
+})
+
+export const addCalcMaterialBodyQuantityTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcMaterialBodyPriceTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const AddCalcMaterialBody = zod.object({
+  "name": zod.string(),
+  "quantity": zod.union([zod.number(),zod.string().regex(addCalcMaterialBodyQuantityTwoRegExp)]),
+  "price": zod.union([zod.number(),zod.string().regex(addCalcMaterialBodyPriceTwoRegExp)])
+})
+
+export const addCalcMaterialResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcMaterialResponseTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcMaterialResponseProbabilityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcMaterialResponseOverheadPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcMaterialResponseMarginPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcMaterialResponseVatPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcMaterialResponseMaterialsItemQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcMaterialResponseMaterialsItemPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcMaterialResponseMaterialsItemAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcMaterialResponseOperationsItemRateRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcMaterialResponseOperationsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcMaterialResponseTotalsMaterialsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcMaterialResponseTotalsLaborRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcMaterialResponseTotalsHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcMaterialResponseTotalsOverheadRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcMaterialResponseTotalsCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcMaterialResponseTotalsPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcMaterialResponseTotalsVatRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcMaterialResponseTotalsTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcMaterialResponseTotalsProfitRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const AddCalcMaterialResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "customer_id": zod.uuid(),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(addCalcMaterialResponseQuantityRegExp),
+  "due_date": zod.iso.date(),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "total": zod.string().regex(addCalcMaterialResponseTotalRegExp),
+  "probability": zod.string().regex(addCalcMaterialResponseProbabilityRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "has_calc": zod.boolean(),
+  "has_plan": zod.boolean(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_edit_calculation": zod.boolean(),
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_launch": zod.boolean(),
+  "can_lose": zod.boolean()
+}),
+  "overhead_pct": zod.string().regex(addCalcMaterialResponseOverheadPctRegExp),
+  "margin_pct": zod.string().regex(addCalcMaterialResponseMarginPctRegExp),
+  "vat_pct": zod.string().regex(addCalcMaterialResponseVatPctRegExp),
+  "lost_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "lost_reason_name": zod.string(),
+  "lost_comment": zod.string(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "approvals": zod.array(zod.object({
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "approved_by_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string()
+})),
+  "materials": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "quantity": zod.string().regex(addCalcMaterialResponseMaterialsItemQuantityRegExp),
+  "price": zod.string().regex(addCalcMaterialResponseMaterialsItemPriceRegExp),
+  "amount": zod.string().regex(addCalcMaterialResponseMaterialsItemAmountRegExp)
+})),
+  "operations": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "rate": zod.string().regex(addCalcMaterialResponseOperationsItemRateRegExp),
+  "hours": zod.string().regex(addCalcMaterialResponseOperationsItemHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean()
+})),
+  "totals": zod.object({
+  "materials": zod.string().regex(addCalcMaterialResponseTotalsMaterialsRegExp),
+  "labor": zod.string().regex(addCalcMaterialResponseTotalsLaborRegExp),
+  "hours": zod.string().regex(addCalcMaterialResponseTotalsHoursRegExp),
+  "overhead": zod.string().regex(addCalcMaterialResponseTotalsOverheadRegExp),
+  "cost": zod.string().regex(addCalcMaterialResponseTotalsCostRegExp),
+  "price": zod.string().regex(addCalcMaterialResponseTotalsPriceRegExp),
+  "vat": zod.string().regex(addCalcMaterialResponseTotalsVatRegExp),
+  "total": zod.string().regex(addCalcMaterialResponseTotalsTotalRegExp),
+  "profit": zod.string().regex(addCalcMaterialResponseTotalsProfitRegExp)
+}),
+  "plan_length": zod.int(),
+  "critical_path": zod.array(zod.uuid())
+})
+
+
+/**
+ * @summary Update Material
+ */
+export const UpdateCalcMaterialParams = zod.object({
+  "material_id": zod.uuid()
+})
+
+export const updateCalcMaterialBodyQuantityTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcMaterialBodyPriceTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const UpdateCalcMaterialBody = zod.object({
+  "name": zod.string(),
+  "quantity": zod.union([zod.number(),zod.string().regex(updateCalcMaterialBodyQuantityTwoRegExp)]),
+  "price": zod.union([zod.number(),zod.string().regex(updateCalcMaterialBodyPriceTwoRegExp)])
+})
+
+export const updateCalcMaterialResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcMaterialResponseTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcMaterialResponseProbabilityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcMaterialResponseOverheadPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcMaterialResponseMarginPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcMaterialResponseVatPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcMaterialResponseMaterialsItemQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcMaterialResponseMaterialsItemPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcMaterialResponseMaterialsItemAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcMaterialResponseOperationsItemRateRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcMaterialResponseOperationsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcMaterialResponseTotalsMaterialsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcMaterialResponseTotalsLaborRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcMaterialResponseTotalsHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcMaterialResponseTotalsOverheadRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcMaterialResponseTotalsCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcMaterialResponseTotalsPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcMaterialResponseTotalsVatRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcMaterialResponseTotalsTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcMaterialResponseTotalsProfitRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const UpdateCalcMaterialResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "customer_id": zod.uuid(),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(updateCalcMaterialResponseQuantityRegExp),
+  "due_date": zod.iso.date(),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "total": zod.string().regex(updateCalcMaterialResponseTotalRegExp),
+  "probability": zod.string().regex(updateCalcMaterialResponseProbabilityRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "has_calc": zod.boolean(),
+  "has_plan": zod.boolean(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_edit_calculation": zod.boolean(),
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_launch": zod.boolean(),
+  "can_lose": zod.boolean()
+}),
+  "overhead_pct": zod.string().regex(updateCalcMaterialResponseOverheadPctRegExp),
+  "margin_pct": zod.string().regex(updateCalcMaterialResponseMarginPctRegExp),
+  "vat_pct": zod.string().regex(updateCalcMaterialResponseVatPctRegExp),
+  "lost_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "lost_reason_name": zod.string(),
+  "lost_comment": zod.string(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "approvals": zod.array(zod.object({
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "approved_by_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string()
+})),
+  "materials": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "quantity": zod.string().regex(updateCalcMaterialResponseMaterialsItemQuantityRegExp),
+  "price": zod.string().regex(updateCalcMaterialResponseMaterialsItemPriceRegExp),
+  "amount": zod.string().regex(updateCalcMaterialResponseMaterialsItemAmountRegExp)
+})),
+  "operations": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "rate": zod.string().regex(updateCalcMaterialResponseOperationsItemRateRegExp),
+  "hours": zod.string().regex(updateCalcMaterialResponseOperationsItemHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean()
+})),
+  "totals": zod.object({
+  "materials": zod.string().regex(updateCalcMaterialResponseTotalsMaterialsRegExp),
+  "labor": zod.string().regex(updateCalcMaterialResponseTotalsLaborRegExp),
+  "hours": zod.string().regex(updateCalcMaterialResponseTotalsHoursRegExp),
+  "overhead": zod.string().regex(updateCalcMaterialResponseTotalsOverheadRegExp),
+  "cost": zod.string().regex(updateCalcMaterialResponseTotalsCostRegExp),
+  "price": zod.string().regex(updateCalcMaterialResponseTotalsPriceRegExp),
+  "vat": zod.string().regex(updateCalcMaterialResponseTotalsVatRegExp),
+  "total": zod.string().regex(updateCalcMaterialResponseTotalsTotalRegExp),
+  "profit": zod.string().regex(updateCalcMaterialResponseTotalsProfitRegExp)
+}),
+  "plan_length": zod.int(),
+  "critical_path": zod.array(zod.uuid())
+})
+
+
+/**
+ * @summary Delete Material
+ */
+export const DeleteCalcMaterialParams = zod.object({
+  "material_id": zod.uuid()
+})
+
+export const deleteCalcMaterialResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcMaterialResponseTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcMaterialResponseProbabilityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcMaterialResponseOverheadPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcMaterialResponseMarginPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcMaterialResponseVatPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcMaterialResponseMaterialsItemQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcMaterialResponseMaterialsItemPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcMaterialResponseMaterialsItemAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcMaterialResponseOperationsItemRateRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcMaterialResponseOperationsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcMaterialResponseTotalsMaterialsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcMaterialResponseTotalsLaborRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcMaterialResponseTotalsHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcMaterialResponseTotalsOverheadRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcMaterialResponseTotalsCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcMaterialResponseTotalsPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcMaterialResponseTotalsVatRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcMaterialResponseTotalsTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcMaterialResponseTotalsProfitRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const DeleteCalcMaterialResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "customer_id": zod.uuid(),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(deleteCalcMaterialResponseQuantityRegExp),
+  "due_date": zod.iso.date(),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "total": zod.string().regex(deleteCalcMaterialResponseTotalRegExp),
+  "probability": zod.string().regex(deleteCalcMaterialResponseProbabilityRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "has_calc": zod.boolean(),
+  "has_plan": zod.boolean(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_edit_calculation": zod.boolean(),
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_launch": zod.boolean(),
+  "can_lose": zod.boolean()
+}),
+  "overhead_pct": zod.string().regex(deleteCalcMaterialResponseOverheadPctRegExp),
+  "margin_pct": zod.string().regex(deleteCalcMaterialResponseMarginPctRegExp),
+  "vat_pct": zod.string().regex(deleteCalcMaterialResponseVatPctRegExp),
+  "lost_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "lost_reason_name": zod.string(),
+  "lost_comment": zod.string(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "approvals": zod.array(zod.object({
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "approved_by_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string()
+})),
+  "materials": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "quantity": zod.string().regex(deleteCalcMaterialResponseMaterialsItemQuantityRegExp),
+  "price": zod.string().regex(deleteCalcMaterialResponseMaterialsItemPriceRegExp),
+  "amount": zod.string().regex(deleteCalcMaterialResponseMaterialsItemAmountRegExp)
+})),
+  "operations": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "rate": zod.string().regex(deleteCalcMaterialResponseOperationsItemRateRegExp),
+  "hours": zod.string().regex(deleteCalcMaterialResponseOperationsItemHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean()
+})),
+  "totals": zod.object({
+  "materials": zod.string().regex(deleteCalcMaterialResponseTotalsMaterialsRegExp),
+  "labor": zod.string().regex(deleteCalcMaterialResponseTotalsLaborRegExp),
+  "hours": zod.string().regex(deleteCalcMaterialResponseTotalsHoursRegExp),
+  "overhead": zod.string().regex(deleteCalcMaterialResponseTotalsOverheadRegExp),
+  "cost": zod.string().regex(deleteCalcMaterialResponseTotalsCostRegExp),
+  "price": zod.string().regex(deleteCalcMaterialResponseTotalsPriceRegExp),
+  "vat": zod.string().regex(deleteCalcMaterialResponseTotalsVatRegExp),
+  "total": zod.string().regex(deleteCalcMaterialResponseTotalsTotalRegExp),
+  "profit": zod.string().regex(deleteCalcMaterialResponseTotalsProfitRegExp)
+}),
+  "plan_length": zod.int(),
+  "critical_path": zod.array(zod.uuid())
+})
+
+
+/**
+ * @summary Add Operation
+ */
+export const AddCalcOperationParams = zod.object({
+  "inquiry_id": zod.uuid()
+})
+
+export const addCalcOperationBodyHoursTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcOperationBodyPeopleDefault = 1;
+
+export const AddCalcOperationBody = zod.object({
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "hours": zod.union([zod.number(),zod.string().regex(addCalcOperationBodyHoursTwoRegExp)]),
+  "people": zod.int().default(addCalcOperationBodyPeopleDefault),
+  "not_before": zod.union([zod.iso.date(),zod.null()]).optional()
+})
+
+export const addCalcOperationResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcOperationResponseTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcOperationResponseProbabilityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcOperationResponseOverheadPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcOperationResponseMarginPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcOperationResponseVatPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcOperationResponseMaterialsItemQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcOperationResponseMaterialsItemPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcOperationResponseMaterialsItemAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcOperationResponseOperationsItemRateRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcOperationResponseOperationsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcOperationResponseTotalsMaterialsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcOperationResponseTotalsLaborRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcOperationResponseTotalsHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcOperationResponseTotalsOverheadRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcOperationResponseTotalsCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcOperationResponseTotalsPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcOperationResponseTotalsVatRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcOperationResponseTotalsTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const addCalcOperationResponseTotalsProfitRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const AddCalcOperationResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "customer_id": zod.uuid(),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(addCalcOperationResponseQuantityRegExp),
+  "due_date": zod.iso.date(),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "total": zod.string().regex(addCalcOperationResponseTotalRegExp),
+  "probability": zod.string().regex(addCalcOperationResponseProbabilityRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "has_calc": zod.boolean(),
+  "has_plan": zod.boolean(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_edit_calculation": zod.boolean(),
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_launch": zod.boolean(),
+  "can_lose": zod.boolean()
+}),
+  "overhead_pct": zod.string().regex(addCalcOperationResponseOverheadPctRegExp),
+  "margin_pct": zod.string().regex(addCalcOperationResponseMarginPctRegExp),
+  "vat_pct": zod.string().regex(addCalcOperationResponseVatPctRegExp),
+  "lost_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "lost_reason_name": zod.string(),
+  "lost_comment": zod.string(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "approvals": zod.array(zod.object({
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "approved_by_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string()
+})),
+  "materials": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "quantity": zod.string().regex(addCalcOperationResponseMaterialsItemQuantityRegExp),
+  "price": zod.string().regex(addCalcOperationResponseMaterialsItemPriceRegExp),
+  "amount": zod.string().regex(addCalcOperationResponseMaterialsItemAmountRegExp)
+})),
+  "operations": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "rate": zod.string().regex(addCalcOperationResponseOperationsItemRateRegExp),
+  "hours": zod.string().regex(addCalcOperationResponseOperationsItemHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean()
+})),
+  "totals": zod.object({
+  "materials": zod.string().regex(addCalcOperationResponseTotalsMaterialsRegExp),
+  "labor": zod.string().regex(addCalcOperationResponseTotalsLaborRegExp),
+  "hours": zod.string().regex(addCalcOperationResponseTotalsHoursRegExp),
+  "overhead": zod.string().regex(addCalcOperationResponseTotalsOverheadRegExp),
+  "cost": zod.string().regex(addCalcOperationResponseTotalsCostRegExp),
+  "price": zod.string().regex(addCalcOperationResponseTotalsPriceRegExp),
+  "vat": zod.string().regex(addCalcOperationResponseTotalsVatRegExp),
+  "total": zod.string().regex(addCalcOperationResponseTotalsTotalRegExp),
+  "profit": zod.string().regex(addCalcOperationResponseTotalsProfitRegExp)
+}),
+  "plan_length": zod.int(),
+  "critical_path": zod.array(zod.uuid())
+})
+
+
+/**
+ * @summary Update Operation
+ */
+export const UpdateCalcOperationParams = zod.object({
+  "operation_id": zod.uuid()
+})
+
+export const updateCalcOperationBodyHoursTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcOperationBodyPeopleDefault = 1;
+
+export const UpdateCalcOperationBody = zod.object({
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "hours": zod.union([zod.number(),zod.string().regex(updateCalcOperationBodyHoursTwoRegExp)]),
+  "people": zod.int().default(updateCalcOperationBodyPeopleDefault),
+  "not_before": zod.union([zod.iso.date(),zod.null()]).optional()
+})
+
+export const updateCalcOperationResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcOperationResponseTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcOperationResponseProbabilityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcOperationResponseOverheadPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcOperationResponseMarginPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcOperationResponseVatPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcOperationResponseMaterialsItemQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcOperationResponseMaterialsItemPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcOperationResponseMaterialsItemAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcOperationResponseOperationsItemRateRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcOperationResponseOperationsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcOperationResponseTotalsMaterialsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcOperationResponseTotalsLaborRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcOperationResponseTotalsHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcOperationResponseTotalsOverheadRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcOperationResponseTotalsCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcOperationResponseTotalsPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcOperationResponseTotalsVatRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcOperationResponseTotalsTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateCalcOperationResponseTotalsProfitRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const UpdateCalcOperationResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "customer_id": zod.uuid(),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(updateCalcOperationResponseQuantityRegExp),
+  "due_date": zod.iso.date(),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "total": zod.string().regex(updateCalcOperationResponseTotalRegExp),
+  "probability": zod.string().regex(updateCalcOperationResponseProbabilityRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "has_calc": zod.boolean(),
+  "has_plan": zod.boolean(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_edit_calculation": zod.boolean(),
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_launch": zod.boolean(),
+  "can_lose": zod.boolean()
+}),
+  "overhead_pct": zod.string().regex(updateCalcOperationResponseOverheadPctRegExp),
+  "margin_pct": zod.string().regex(updateCalcOperationResponseMarginPctRegExp),
+  "vat_pct": zod.string().regex(updateCalcOperationResponseVatPctRegExp),
+  "lost_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "lost_reason_name": zod.string(),
+  "lost_comment": zod.string(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "approvals": zod.array(zod.object({
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "approved_by_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string()
+})),
+  "materials": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "quantity": zod.string().regex(updateCalcOperationResponseMaterialsItemQuantityRegExp),
+  "price": zod.string().regex(updateCalcOperationResponseMaterialsItemPriceRegExp),
+  "amount": zod.string().regex(updateCalcOperationResponseMaterialsItemAmountRegExp)
+})),
+  "operations": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "rate": zod.string().regex(updateCalcOperationResponseOperationsItemRateRegExp),
+  "hours": zod.string().regex(updateCalcOperationResponseOperationsItemHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean()
+})),
+  "totals": zod.object({
+  "materials": zod.string().regex(updateCalcOperationResponseTotalsMaterialsRegExp),
+  "labor": zod.string().regex(updateCalcOperationResponseTotalsLaborRegExp),
+  "hours": zod.string().regex(updateCalcOperationResponseTotalsHoursRegExp),
+  "overhead": zod.string().regex(updateCalcOperationResponseTotalsOverheadRegExp),
+  "cost": zod.string().regex(updateCalcOperationResponseTotalsCostRegExp),
+  "price": zod.string().regex(updateCalcOperationResponseTotalsPriceRegExp),
+  "vat": zod.string().regex(updateCalcOperationResponseTotalsVatRegExp),
+  "total": zod.string().regex(updateCalcOperationResponseTotalsTotalRegExp),
+  "profit": zod.string().regex(updateCalcOperationResponseTotalsProfitRegExp)
+}),
+  "plan_length": zod.int(),
+  "critical_path": zod.array(zod.uuid())
+})
+
+
+/**
+ * @summary Delete Operation
+ */
+export const DeleteCalcOperationParams = zod.object({
+  "operation_id": zod.uuid()
+})
+
+export const deleteCalcOperationResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcOperationResponseTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcOperationResponseProbabilityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcOperationResponseOverheadPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcOperationResponseMarginPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcOperationResponseVatPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcOperationResponseMaterialsItemQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcOperationResponseMaterialsItemPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcOperationResponseMaterialsItemAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcOperationResponseOperationsItemRateRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcOperationResponseOperationsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcOperationResponseTotalsMaterialsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcOperationResponseTotalsLaborRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcOperationResponseTotalsHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcOperationResponseTotalsOverheadRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcOperationResponseTotalsCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcOperationResponseTotalsPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcOperationResponseTotalsVatRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcOperationResponseTotalsTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const deleteCalcOperationResponseTotalsProfitRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const DeleteCalcOperationResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "customer_id": zod.uuid(),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(deleteCalcOperationResponseQuantityRegExp),
+  "due_date": zod.iso.date(),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "total": zod.string().regex(deleteCalcOperationResponseTotalRegExp),
+  "probability": zod.string().regex(deleteCalcOperationResponseProbabilityRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "has_calc": zod.boolean(),
+  "has_plan": zod.boolean(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_edit_calculation": zod.boolean(),
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_launch": zod.boolean(),
+  "can_lose": zod.boolean()
+}),
+  "overhead_pct": zod.string().regex(deleteCalcOperationResponseOverheadPctRegExp),
+  "margin_pct": zod.string().regex(deleteCalcOperationResponseMarginPctRegExp),
+  "vat_pct": zod.string().regex(deleteCalcOperationResponseVatPctRegExp),
+  "lost_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "lost_reason_name": zod.string(),
+  "lost_comment": zod.string(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "approvals": zod.array(zod.object({
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "approved_by_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string()
+})),
+  "materials": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "quantity": zod.string().regex(deleteCalcOperationResponseMaterialsItemQuantityRegExp),
+  "price": zod.string().regex(deleteCalcOperationResponseMaterialsItemPriceRegExp),
+  "amount": zod.string().regex(deleteCalcOperationResponseMaterialsItemAmountRegExp)
+})),
+  "operations": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "rate": zod.string().regex(deleteCalcOperationResponseOperationsItemRateRegExp),
+  "hours": zod.string().regex(deleteCalcOperationResponseOperationsItemHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean()
+})),
+  "totals": zod.object({
+  "materials": zod.string().regex(deleteCalcOperationResponseTotalsMaterialsRegExp),
+  "labor": zod.string().regex(deleteCalcOperationResponseTotalsLaborRegExp),
+  "hours": zod.string().regex(deleteCalcOperationResponseTotalsHoursRegExp),
+  "overhead": zod.string().regex(deleteCalcOperationResponseTotalsOverheadRegExp),
+  "cost": zod.string().regex(deleteCalcOperationResponseTotalsCostRegExp),
+  "price": zod.string().regex(deleteCalcOperationResponseTotalsPriceRegExp),
+  "vat": zod.string().regex(deleteCalcOperationResponseTotalsVatRegExp),
+  "total": zod.string().regex(deleteCalcOperationResponseTotalsTotalRegExp),
+  "profit": zod.string().regex(deleteCalcOperationResponseTotalsProfitRegExp)
+}),
+  "plan_length": zod.int(),
+  "critical_path": zod.array(zod.uuid())
+})
+
+
+/**
+ * @summary Set Predecessors
+ */
+export const SetCalcOperationPredecessorsParams = zod.object({
+  "operation_id": zod.uuid()
+})
+
+export const SetCalcOperationPredecessorsBody = zod.object({
+  "predecessor_ids": zod.array(zod.uuid())
+})
+
+export const setCalcOperationPredecessorsResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setCalcOperationPredecessorsResponseTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setCalcOperationPredecessorsResponseProbabilityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setCalcOperationPredecessorsResponseOverheadPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setCalcOperationPredecessorsResponseMarginPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setCalcOperationPredecessorsResponseVatPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setCalcOperationPredecessorsResponseMaterialsItemQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setCalcOperationPredecessorsResponseMaterialsItemPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setCalcOperationPredecessorsResponseMaterialsItemAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setCalcOperationPredecessorsResponseOperationsItemRateRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setCalcOperationPredecessorsResponseOperationsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setCalcOperationPredecessorsResponseTotalsMaterialsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setCalcOperationPredecessorsResponseTotalsLaborRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setCalcOperationPredecessorsResponseTotalsHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setCalcOperationPredecessorsResponseTotalsOverheadRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setCalcOperationPredecessorsResponseTotalsCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setCalcOperationPredecessorsResponseTotalsPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setCalcOperationPredecessorsResponseTotalsVatRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setCalcOperationPredecessorsResponseTotalsTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setCalcOperationPredecessorsResponseTotalsProfitRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const SetCalcOperationPredecessorsResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "customer_id": zod.uuid(),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(setCalcOperationPredecessorsResponseQuantityRegExp),
+  "due_date": zod.iso.date(),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "total": zod.string().regex(setCalcOperationPredecessorsResponseTotalRegExp),
+  "probability": zod.string().regex(setCalcOperationPredecessorsResponseProbabilityRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "has_calc": zod.boolean(),
+  "has_plan": zod.boolean(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_edit_calculation": zod.boolean(),
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_launch": zod.boolean(),
+  "can_lose": zod.boolean()
+}),
+  "overhead_pct": zod.string().regex(setCalcOperationPredecessorsResponseOverheadPctRegExp),
+  "margin_pct": zod.string().regex(setCalcOperationPredecessorsResponseMarginPctRegExp),
+  "vat_pct": zod.string().regex(setCalcOperationPredecessorsResponseVatPctRegExp),
+  "lost_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "lost_reason_name": zod.string(),
+  "lost_comment": zod.string(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "approvals": zod.array(zod.object({
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "approved_by_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string()
+})),
+  "materials": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "quantity": zod.string().regex(setCalcOperationPredecessorsResponseMaterialsItemQuantityRegExp),
+  "price": zod.string().regex(setCalcOperationPredecessorsResponseMaterialsItemPriceRegExp),
+  "amount": zod.string().regex(setCalcOperationPredecessorsResponseMaterialsItemAmountRegExp)
+})),
+  "operations": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "rate": zod.string().regex(setCalcOperationPredecessorsResponseOperationsItemRateRegExp),
+  "hours": zod.string().regex(setCalcOperationPredecessorsResponseOperationsItemHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean()
+})),
+  "totals": zod.object({
+  "materials": zod.string().regex(setCalcOperationPredecessorsResponseTotalsMaterialsRegExp),
+  "labor": zod.string().regex(setCalcOperationPredecessorsResponseTotalsLaborRegExp),
+  "hours": zod.string().regex(setCalcOperationPredecessorsResponseTotalsHoursRegExp),
+  "overhead": zod.string().regex(setCalcOperationPredecessorsResponseTotalsOverheadRegExp),
+  "cost": zod.string().regex(setCalcOperationPredecessorsResponseTotalsCostRegExp),
+  "price": zod.string().regex(setCalcOperationPredecessorsResponseTotalsPriceRegExp),
+  "vat": zod.string().regex(setCalcOperationPredecessorsResponseTotalsVatRegExp),
+  "total": zod.string().regex(setCalcOperationPredecessorsResponseTotalsTotalRegExp),
+  "profit": zod.string().regex(setCalcOperationPredecessorsResponseTotalsProfitRegExp)
+}),
+  "plan_length": zod.int(),
+  "critical_path": zod.array(zod.uuid())
+})
+
+
+/**
+ * @summary Link Sequential
+ */
+export const LinkCalcOperationsSequentiallyParams = zod.object({
+  "inquiry_id": zod.uuid()
+})
+
+export const linkCalcOperationsSequentiallyResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const linkCalcOperationsSequentiallyResponseTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const linkCalcOperationsSequentiallyResponseProbabilityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const linkCalcOperationsSequentiallyResponseOverheadPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const linkCalcOperationsSequentiallyResponseMarginPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const linkCalcOperationsSequentiallyResponseVatPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const linkCalcOperationsSequentiallyResponseMaterialsItemQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const linkCalcOperationsSequentiallyResponseMaterialsItemPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const linkCalcOperationsSequentiallyResponseMaterialsItemAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const linkCalcOperationsSequentiallyResponseOperationsItemRateRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const linkCalcOperationsSequentiallyResponseOperationsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const linkCalcOperationsSequentiallyResponseTotalsMaterialsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const linkCalcOperationsSequentiallyResponseTotalsLaborRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const linkCalcOperationsSequentiallyResponseTotalsHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const linkCalcOperationsSequentiallyResponseTotalsOverheadRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const linkCalcOperationsSequentiallyResponseTotalsCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const linkCalcOperationsSequentiallyResponseTotalsPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const linkCalcOperationsSequentiallyResponseTotalsVatRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const linkCalcOperationsSequentiallyResponseTotalsTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const linkCalcOperationsSequentiallyResponseTotalsProfitRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const LinkCalcOperationsSequentiallyResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "customer_id": zod.uuid(),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(linkCalcOperationsSequentiallyResponseQuantityRegExp),
+  "due_date": zod.iso.date(),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "total": zod.string().regex(linkCalcOperationsSequentiallyResponseTotalRegExp),
+  "probability": zod.string().regex(linkCalcOperationsSequentiallyResponseProbabilityRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "has_calc": zod.boolean(),
+  "has_plan": zod.boolean(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_edit_calculation": zod.boolean(),
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_launch": zod.boolean(),
+  "can_lose": zod.boolean()
+}),
+  "overhead_pct": zod.string().regex(linkCalcOperationsSequentiallyResponseOverheadPctRegExp),
+  "margin_pct": zod.string().regex(linkCalcOperationsSequentiallyResponseMarginPctRegExp),
+  "vat_pct": zod.string().regex(linkCalcOperationsSequentiallyResponseVatPctRegExp),
+  "lost_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "lost_reason_name": zod.string(),
+  "lost_comment": zod.string(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "approvals": zod.array(zod.object({
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "approved_by_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string()
+})),
+  "materials": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "quantity": zod.string().regex(linkCalcOperationsSequentiallyResponseMaterialsItemQuantityRegExp),
+  "price": zod.string().regex(linkCalcOperationsSequentiallyResponseMaterialsItemPriceRegExp),
+  "amount": zod.string().regex(linkCalcOperationsSequentiallyResponseMaterialsItemAmountRegExp)
+})),
+  "operations": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "rate": zod.string().regex(linkCalcOperationsSequentiallyResponseOperationsItemRateRegExp),
+  "hours": zod.string().regex(linkCalcOperationsSequentiallyResponseOperationsItemHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean()
+})),
+  "totals": zod.object({
+  "materials": zod.string().regex(linkCalcOperationsSequentiallyResponseTotalsMaterialsRegExp),
+  "labor": zod.string().regex(linkCalcOperationsSequentiallyResponseTotalsLaborRegExp),
+  "hours": zod.string().regex(linkCalcOperationsSequentiallyResponseTotalsHoursRegExp),
+  "overhead": zod.string().regex(linkCalcOperationsSequentiallyResponseTotalsOverheadRegExp),
+  "cost": zod.string().regex(linkCalcOperationsSequentiallyResponseTotalsCostRegExp),
+  "price": zod.string().regex(linkCalcOperationsSequentiallyResponseTotalsPriceRegExp),
+  "vat": zod.string().regex(linkCalcOperationsSequentiallyResponseTotalsVatRegExp),
+  "total": zod.string().regex(linkCalcOperationsSequentiallyResponseTotalsTotalRegExp),
+  "profit": zod.string().regex(linkCalcOperationsSequentiallyResponseTotalsProfitRegExp)
+}),
+  "plan_length": zod.int(),
+  "critical_path": zod.array(zod.uuid())
+})
+
+
+/**
+ * @summary Build Plan
+ */
+export const BuildInquiryPlanParams = zod.object({
+  "inquiry_id": zod.uuid()
+})
+
+export const BuildInquiryPlanBody = zod.object({
+  "planned_start": zod.union([zod.iso.date(),zod.null()]).optional()
+})
+
+export const buildInquiryPlanResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const buildInquiryPlanResponseTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const buildInquiryPlanResponseProbabilityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const buildInquiryPlanResponseOverheadPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const buildInquiryPlanResponseMarginPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const buildInquiryPlanResponseVatPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const buildInquiryPlanResponseMaterialsItemQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const buildInquiryPlanResponseMaterialsItemPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const buildInquiryPlanResponseMaterialsItemAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const buildInquiryPlanResponseOperationsItemRateRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const buildInquiryPlanResponseOperationsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const buildInquiryPlanResponseTotalsMaterialsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const buildInquiryPlanResponseTotalsLaborRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const buildInquiryPlanResponseTotalsHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const buildInquiryPlanResponseTotalsOverheadRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const buildInquiryPlanResponseTotalsCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const buildInquiryPlanResponseTotalsPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const buildInquiryPlanResponseTotalsVatRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const buildInquiryPlanResponseTotalsTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const buildInquiryPlanResponseTotalsProfitRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const BuildInquiryPlanResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "customer_id": zod.uuid(),
+  "customer_name": zod.string(),
+  "object_name": zod.string(),
+  "template_id": zod.union([zod.uuid(),zod.null()]),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(buildInquiryPlanResponseQuantityRegExp),
+  "due_date": zod.iso.date(),
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "total": zod.string().regex(buildInquiryPlanResponseTotalRegExp),
+  "probability": zod.string().regex(buildInquiryPlanResponseProbabilityRegExp),
+  "stage_responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "stage_responsible_name": zod.string(),
+  "stage_approved": zod.boolean(),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "has_calc": zod.boolean(),
+  "has_plan": zod.boolean(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_edit_calculation": zod.boolean(),
+  "can_move": zod.boolean(),
+  "can_approve_stage": zod.boolean(),
+  "can_launch": zod.boolean(),
+  "can_lose": zod.boolean()
+}),
+  "overhead_pct": zod.string().regex(buildInquiryPlanResponseOverheadPctRegExp),
+  "margin_pct": zod.string().regex(buildInquiryPlanResponseMarginPctRegExp),
+  "vat_pct": zod.string().regex(buildInquiryPlanResponseVatPctRegExp),
+  "lost_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "lost_reason_name": zod.string(),
+  "lost_comment": zod.string(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "approvals": zod.array(zod.object({
+  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage_label": zod.string(),
+  "responsible_id": zod.union([zod.uuid(),zod.null()]),
+  "responsible_name": zod.string(),
+  "approved_by_id": zod.union([zod.uuid(),zod.null()]),
+  "approved_by_name": zod.string(),
+  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string()
+})),
+  "materials": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "quantity": zod.string().regex(buildInquiryPlanResponseMaterialsItemQuantityRegExp),
+  "price": zod.string().regex(buildInquiryPlanResponseMaterialsItemPriceRegExp),
+  "amount": zod.string().regex(buildInquiryPlanResponseMaterialsItemAmountRegExp)
+})),
+  "operations": zod.array(zod.object({
+  "id": zod.uuid(),
+  "seq": zod.int(),
+  "name": zod.string(),
+  "work_center_id": zod.uuid(),
+  "work_center_short_name": zod.string(),
+  "work_center_name": zod.string(),
+  "is_supply": zod.boolean(),
+  "capacity": zod.int(),
+  "rate": zod.string().regex(buildInquiryPlanResponseOperationsItemRateRegExp),
+  "hours": zod.string().regex(buildInquiryPlanResponseOperationsItemHoursRegExp),
+  "people": zod.int(),
+  "duration": zod.int(),
+  "not_before": zod.union([zod.iso.date(),zod.null()]),
+  "planned_start": zod.union([zod.iso.date(),zod.null()]),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "predecessor_ids": zod.array(zod.uuid()),
+  "slack": zod.union([zod.int(),zod.null()]),
+  "is_critical": zod.boolean()
+})),
+  "totals": zod.object({
+  "materials": zod.string().regex(buildInquiryPlanResponseTotalsMaterialsRegExp),
+  "labor": zod.string().regex(buildInquiryPlanResponseTotalsLaborRegExp),
+  "hours": zod.string().regex(buildInquiryPlanResponseTotalsHoursRegExp),
+  "overhead": zod.string().regex(buildInquiryPlanResponseTotalsOverheadRegExp),
+  "cost": zod.string().regex(buildInquiryPlanResponseTotalsCostRegExp),
+  "price": zod.string().regex(buildInquiryPlanResponseTotalsPriceRegExp),
+  "vat": zod.string().regex(buildInquiryPlanResponseTotalsVatRegExp),
+  "total": zod.string().regex(buildInquiryPlanResponseTotalsTotalRegExp),
+  "profit": zod.string().regex(buildInquiryPlanResponseTotalsProfitRegExp)
+}),
+  "plan_length": zod.int(),
+  "critical_path": zod.array(zod.uuid())
 })
 
 
