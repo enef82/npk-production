@@ -15,9 +15,15 @@ from django.conf import settings
 from django.core.files.storage import default_storage, storages
 from django.utils.functional import empty
 
+from src.core.documents.models import DocumentType
 from src.core.numbering.models import Numerator
 from src.core.org.models import Position
-from tests.reference_data import CORE_NUMERATORS, CORE_TRADE_POSITIONS
+from tests.reference_data import (
+    CORE_DOCUMENT_TYPES,
+    CORE_NUMERATORS,
+    CORE_TRADE_POSITIONS,
+    DOCUMENT_MAX_SIZE_BYTES,
+)
 
 
 def ensure_core_reference_data() -> None:
@@ -53,6 +59,17 @@ def ensure_core_reference_data() -> None:
                 "template": template,
                 "legal_entity": None,
                 "reset_period": reset_period,
+                "is_active": True,
+            },
+        )
+
+    for code, name in CORE_DOCUMENT_TYPES:
+        DocumentType.objects.get_or_create(
+            code=code,
+            defaults={
+                "name": name,
+                "allowed_mime_types": [],
+                "max_size_bytes": DOCUMENT_MAX_SIZE_BYTES,
                 "is_active": True,
             },
         )

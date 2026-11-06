@@ -91,3 +91,51 @@
 - **payload:** нет дополнительных полей — причина архивации остаётся в
   pghistory-контексте (`actor_context(actor_id, reason=reason)`), не дублируется здесь.
 - **Подписчики:** нет постоянных.
+
+### sales.inquiry_launched
+
+- **Версия:** 1
+- **Публикует:** `src.sales`
+- **Когда:** заявка запущена в производство (`services.inquiry.launch_inquiry`) —
+  `Inquiry.stage` переходит `approval → launched`, в той же транзакции, что и создание
+  производственного заказа через `production.facade.create_order_from_inquiry`.
+- **aggregate_id:** `Inquiry.id`.
+- **payload:**
+  - `order_id` (UUID строкой) — созданный производственный заказ.
+- **Подписчики:** нет постоянных (журнал).
+
+### production.order_launched
+
+- **Версия:** 1
+- **Публикует:** `src.production`
+- **Когда:** создан производственный заказ из заявки (`services.order.create_order_from_inquiry`),
+  в транзакции запуска заявки.
+- **aggregate_id:** `ProductionOrder.id`.
+- **payload:**
+  - `inquiry_id` (UUID строкой или `null`) — заявка, из которой запущен заказ.
+  - `planned_start` (дата ISO) — дата запуска заказа.
+- **Подписчики:** `supply` — потребность в материалах, оснастке и расходниках (волна 2).
+
+### production.order_stage_changed
+
+- **Версия:** 1
+- **Публикует:** `src.production`
+- **Когда:** смена этапа заказа (`services.order.move_order_stage`) — вперёд после визы или
+  назад с причиной, в той же транзакции.
+- **aggregate_id:** `ProductionOrder.id`.
+- **payload:**
+  - `from_stage` (str) — этап до перехода: `launch` / `prep` / `prod` / `qc` / `done`.
+  - `to_stage` (str) — этап после перехода.
+- **Подписчики:** нет постоянных.
+
+### production.operation_approved
+
+- **Версия:** 1
+- **Публикует:** `src.production`
+- **Когда:** виза операции (`services.operation.approve_operation`) — операция переходит в
+  `done`, в той же транзакции.
+- **aggregate_id:** `Operation.id`.
+- **payload:**
+  - `order_id` (UUID строкой) — заказ операции.
+  - `work_center_id` (UUID строкой) — участок операции.
+- **Подписчики:** нет постоянных.

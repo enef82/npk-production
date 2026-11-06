@@ -747,6 +747,2373 @@
           }
         ]
       }
+    },
+    "/api/v1/production/work-centers": {
+      "get": {
+        "operationId": "listWorkCenters",
+        "summary": "List Work Centers",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/WorkCenterOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/templates": {
+      "get": {
+        "operationId": "listProductTemplates",
+        "summary": "List Templates",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TemplateListItem"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/templates/{code_or_id}": {
+      "get": {
+        "operationId": "getProductTemplate",
+        "summary": "Get Template",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code_or_id",
+            "schema": {
+              "title": "Code Or Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/settings": {
+      "get": {
+        "operationId": "getProductionSettings",
+        "summary": "Get Settings",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductionSettingsOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/document-kinds": {
+      "get": {
+        "operationId": "listDocumentKinds",
+        "summary": "List Document Kinds",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentKindOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/board": {
+      "get": {
+        "operationId": "getProductionBoard",
+        "summary": "Get Board",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "stage",
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/OrderStage"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "default": "",
+              "title": "Search",
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "active_only",
+            "schema": {
+              "default": false,
+              "title": "Active Only",
+              "type": "boolean"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OrderCardOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/gantt": {
+      "get": {
+        "operationId": "getProductionGantt",
+        "summary": "Get Gantt",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/GanttOrderOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/my-visas": {
+      "get": {
+        "operationId": "listMyProductionVisas",
+        "summary": "My Visas",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/VisaItemOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/orders/{order_id}": {
+      "get": {
+        "operationId": "getProductionOrder",
+        "summary": "Get Order",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Order Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "updateProductionOrder",
+        "summary": "Update Order",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Order Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderUpdateIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/orders/{order_id}/stage": {
+      "post": {
+        "operationId": "moveProductionOrderStage",
+        "summary": "Move Stage",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Order Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StageMoveIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/orders/{order_id}/stages/{stage}/approve": {
+      "post": {
+        "operationId": "approveProductionOrderStage",
+        "summary": "Approve Stage",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Order Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "stage",
+            "schema": {
+              "enum": [
+                "launch",
+                "prep",
+                "prod",
+                "qc",
+                "done"
+              ],
+              "title": "OrderStage",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StageApproveIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/orders/{order_id}/stages/{stage}": {
+      "patch": {
+        "operationId": "setProductionStageResponsible",
+        "summary": "Set Stage Responsible",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Order Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "stage",
+            "schema": {
+              "enum": [
+                "launch",
+                "prep",
+                "prod",
+                "qc",
+                "done"
+              ],
+              "title": "OrderStage",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StageResponsibleIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/orders/{order_id}/schedule": {
+      "get": {
+        "operationId": "getProductionOrderSchedule",
+        "summary": "Get Schedule",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Order Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduleOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/orders/{order_id}/replan": {
+      "post": {
+        "operationId": "replanProductionOrder",
+        "summary": "Replan",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Order Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduleOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplanIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/orders/{order_id}/shift": {
+      "post": {
+        "operationId": "shiftProductionOrder",
+        "summary": "Shift",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Order Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduleOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShiftIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/orders/{order_id}/journal": {
+      "get": {
+        "operationId": "listProductionJournal",
+        "summary": "List Journal",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Order Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "operation_id",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Operation Id"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "kind",
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/JournalKind"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "author_id",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Author Id"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/JournalEntryOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/orders/{order_id}/comments": {
+      "post": {
+        "operationId": "addProductionComment",
+        "summary": "Add Comment",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Order Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/orders/{order_id}/documents": {
+      "get": {
+        "operationId": "listProductionOrderDocuments",
+        "summary": "List Documents",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Order Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "uploadProductionOrderDocument",
+        "summary": "Upload Document",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Order Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "file": {
+                    "format": "binary",
+                    "title": "File",
+                    "type": "string"
+                  },
+                  "doc_type_code": {
+                    "title": "Doc Type Code",
+                    "type": "string"
+                  },
+                  "operation_id": {
+                    "anyOf": [
+                      {
+                        "format": "uuid",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "title": "Operation Id"
+                  },
+                  "description": {
+                    "default": "",
+                    "title": "Description",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "file",
+                  "doc_type_code"
+                ],
+                "title": "MultiPartBodyParams",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/orders/{order_id}/documents/{document_id}/approve": {
+      "post": {
+        "operationId": "approveProductionOrderDocument",
+        "summary": "Approve Document",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Order Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "document_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/orders/{order_id}/documents/{document_id}": {
+      "delete": {
+        "operationId": "annulProductionOrderDocument",
+        "summary": "Annul Document",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Order Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "document_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/operations/{operation_id}": {
+      "get": {
+        "operationId": "getProductionOperation",
+        "summary": "Get Operation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "operation_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Operation Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationCardOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "updateProductionOperation",
+        "summary": "Update Operation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "operation_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Operation Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationCardOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OperationUpdateIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/operations/{operation_id}/status": {
+      "post": {
+        "operationId": "setProductionOperationStatus",
+        "summary": "Set Status",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "operation_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Operation Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationCardOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OperationStatusIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/operations/{operation_id}/progress": {
+      "post": {
+        "operationId": "setProductionOperationProgress",
+        "summary": "Set Progress",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "operation_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Operation Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationCardOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OperationProgressIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/operations/{operation_id}/approve": {
+      "post": {
+        "operationId": "approveProductionOperation",
+        "summary": "Approve Operation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "operation_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Operation Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationCardOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OperationApproveIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/operations/{operation_id}/move": {
+      "post": {
+        "operationId": "moveProductionOperation",
+        "summary": "Move Operation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "operation_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Operation Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationCardOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OperationMoveIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/production/operations/{operation_id}/predecessors": {
+      "put": {
+        "operationId": "setProductionOperationPredecessors",
+        "summary": "Set Predecessors",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "operation_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Operation Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationCardOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "production"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PredecessorsIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sales/loss-reasons": {
+      "get": {
+        "operationId": "listLossReasons",
+        "summary": "List Loss Reasons",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/LossReasonOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sales"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sales/settings": {
+      "get": {
+        "operationId": "getSalesSettings",
+        "summary": "Get Settings",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SalesSettingsOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sales"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sales/board": {
+      "get": {
+        "operationId": "getSalesBoard",
+        "summary": "Get Board",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "stage",
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/InquiryStage"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "default": "",
+              "title": "Search",
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "include_closed",
+            "schema": {
+              "default": false,
+              "title": "Include Closed",
+              "type": "boolean"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/InquiryCardOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sales"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sales/my-visas": {
+      "get": {
+        "operationId": "listMySalesVisas",
+        "summary": "My Visas",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/VisaItemOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sales"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sales/inquiries": {
+      "post": {
+        "operationId": "createInquiry",
+        "summary": "Create Inquiry",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sales"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InquiryCreateIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sales/inquiries/{inquiry_id}": {
+      "get": {
+        "operationId": "getInquiry",
+        "summary": "Get Inquiry",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inquiry_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Inquiry Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sales"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "updateInquiry",
+        "summary": "Update Inquiry",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inquiry_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Inquiry Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sales"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InquiryUpdateIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sales/inquiries/{inquiry_id}/stage": {
+      "post": {
+        "operationId": "moveInquiryStage",
+        "summary": "Move Stage",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inquiry_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Inquiry Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sales"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StageMoveIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sales/inquiries/{inquiry_id}/stages/{stage}/approve": {
+      "post": {
+        "operationId": "approveInquiryStage",
+        "summary": "Approve Stage",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inquiry_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Inquiry Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "stage",
+            "schema": {
+              "enum": [
+                "new",
+                "calc",
+                "approval",
+                "launched",
+                "lost"
+              ],
+              "title": "InquiryStage",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sales"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StageApproveIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sales/inquiries/{inquiry_id}/stages/{stage}": {
+      "patch": {
+        "operationId": "setInquiryStageResponsible",
+        "summary": "Set Stage Responsible",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inquiry_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Inquiry Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "stage",
+            "schema": {
+              "enum": [
+                "new",
+                "calc",
+                "approval",
+                "launched",
+                "lost"
+              ],
+              "title": "InquiryStage",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sales"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StageResponsibleIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sales/inquiries/{inquiry_id}/launch": {
+      "post": {
+        "operationId": "launchInquiry",
+        "summary": "Launch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inquiry_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Inquiry Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LaunchOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sales"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LaunchIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sales/inquiries/{inquiry_id}/lose": {
+      "post": {
+        "operationId": "loseInquiry",
+        "summary": "Lose",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inquiry_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Inquiry Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sales"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoseIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sales/inquiries/{inquiry_id}/fill-from-template": {
+      "post": {
+        "operationId": "fillInquiryFromTemplate",
+        "summary": "Fill From Template",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inquiry_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Inquiry Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sales"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FillFromTemplateIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sales/inquiries/{inquiry_id}/materials": {
+      "post": {
+        "operationId": "addCalcMaterial",
+        "summary": "Add Material",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inquiry_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Inquiry Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sales"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MaterialIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sales/materials/{material_id}": {
+      "patch": {
+        "operationId": "updateCalcMaterial",
+        "summary": "Update Material",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "material_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Material Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sales"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MaterialIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "deleteCalcMaterial",
+        "summary": "Delete Material",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "material_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Material Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sales"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sales/inquiries/{inquiry_id}/operations": {
+      "post": {
+        "operationId": "addCalcOperation",
+        "summary": "Add Operation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inquiry_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Inquiry Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sales"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalcOperationIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sales/operations/{operation_id}": {
+      "patch": {
+        "operationId": "updateCalcOperation",
+        "summary": "Update Operation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "operation_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Operation Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sales"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalcOperationIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "deleteCalcOperation",
+        "summary": "Delete Operation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "operation_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Operation Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sales"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sales/operations/{operation_id}/predecessors": {
+      "put": {
+        "operationId": "setCalcOperationPredecessors",
+        "summary": "Set Predecessors",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "operation_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Operation Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sales"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PredecessorsIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sales/inquiries/{inquiry_id}/link-sequential": {
+      "post": {
+        "operationId": "linkCalcOperationsSequentially",
+        "summary": "Link Sequential",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inquiry_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Inquiry Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sales"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sales/inquiries/{inquiry_id}/plan": {
+      "post": {
+        "operationId": "buildInquiryPlan",
+        "summary": "Build Plan",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inquiry_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Inquiry Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sales"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -808,57 +3175,76 @@
       },
       "DocumentOut": {
         "properties": {
-          "id": {
+          "document_id": {
             "format": "uuid",
-            "title": "Id",
+            "title": "Document Id",
             "type": "string"
           },
-          "original_name": {
-            "title": "Original Name",
+          "name": {
+            "title": "Name",
             "type": "string"
           },
-          "size_bytes": {
-            "title": "Size Bytes",
-            "type": "integer"
-          },
-          "mime_type": {
-            "title": "Mime Type",
+          "doc_type_code": {
+            "title": "Doc Type Code",
             "type": "string"
           },
-          "checksum": {
-            "title": "Checksum",
-            "type": "string"
-          },
-          "doc_type_id": {
-            "format": "uuid",
-            "title": "Doc Type Id",
+          "doc_type_name": {
+            "title": "Doc Type Name",
             "type": "string"
           },
           "version": {
             "title": "Version",
             "type": "integer"
           },
-          "uploaded_by": {
-            "format": "uuid",
-            "title": "Uploaded By",
+          "size_bytes": {
+            "title": "Size Bytes",
+            "type": "integer"
+          },
+          "uploaded_at": {
+            "format": "date-time",
+            "title": "Uploaded At",
             "type": "string"
           },
-          "created_at": {
-            "format": "date-time",
-            "title": "Created At",
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "approved_by_name": {
+            "title": "Approved By Name",
             "type": "string"
+          },
+          "approved_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved At"
           }
         },
         "required": [
-          "id",
-          "original_name",
-          "size_bytes",
-          "mime_type",
-          "checksum",
-          "doc_type_id",
+          "document_id",
+          "name",
+          "doc_type_code",
+          "doc_type_name",
           "version",
-          "uploaded_by",
-          "created_at"
+          "size_bytes",
+          "uploaded_at",
+          "operation_id",
+          "approved_by_name",
+          "approved_at"
         ],
         "title": "DocumentOut",
         "type": "object"
@@ -1325,6 +3711,3038 @@
           "created_at"
         ],
         "title": "ItemListItem",
+        "type": "object"
+      },
+      "WorkCenterOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "short_name": {
+            "title": "Short Name",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "hourly_rate": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Hourly Rate",
+            "type": "string"
+          },
+          "capacity": {
+            "title": "Capacity",
+            "type": "integer"
+          },
+          "phase": {
+            "title": "Phase",
+            "type": "string"
+          },
+          "is_supply": {
+            "title": "Is Supply",
+            "type": "boolean"
+          },
+          "responsible_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Responsible Id"
+          },
+          "responsible_name": {
+            "title": "Responsible Name",
+            "type": "string"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "requires_inspection": {
+            "title": "Requires Inspection",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "short_name",
+          "name",
+          "hourly_rate",
+          "capacity",
+          "phase",
+          "is_supply",
+          "responsible_id",
+          "responsible_name",
+          "is_active",
+          "requires_inspection"
+        ],
+        "title": "WorkCenterOut",
+        "type": "object"
+      },
+      "TemplateListItem": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "is_active"
+        ],
+        "title": "TemplateListItem",
+        "type": "object"
+      },
+      "TemplateMaterialOut": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "qty_per_unit": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Qty Per Unit",
+            "type": "string"
+          },
+          "price": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Price",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "qty_per_unit",
+          "price"
+        ],
+        "title": "TemplateMaterialOut",
+        "type": "object"
+      },
+      "TemplateOperationOut": {
+        "properties": {
+          "seq": {
+            "title": "Seq",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "work_center_id": {
+            "format": "uuid",
+            "title": "Work Center Id",
+            "type": "string"
+          },
+          "hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Hours",
+            "type": "string"
+          },
+          "scales_with_qty": {
+            "title": "Scales With Qty",
+            "type": "boolean"
+          },
+          "people": {
+            "title": "People",
+            "type": "integer"
+          },
+          "predecessor_indexes": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Predecessor Indexes",
+            "type": "array"
+          }
+        },
+        "required": [
+          "seq",
+          "name",
+          "work_center_id",
+          "hours",
+          "scales_with_qty",
+          "people",
+          "predecessor_indexes"
+        ],
+        "title": "TemplateOperationOut",
+        "type": "object"
+      },
+      "TemplateOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "materials": {
+            "items": {
+              "$ref": "#/components/schemas/TemplateMaterialOut"
+            },
+            "title": "Materials",
+            "type": "array"
+          },
+          "operations": {
+            "items": {
+              "$ref": "#/components/schemas/TemplateOperationOut"
+            },
+            "title": "Operations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "is_active",
+          "materials",
+          "operations"
+        ],
+        "title": "TemplateOut",
+        "type": "object"
+      },
+      "OrderStage": {
+        "enum": [
+          "launch",
+          "prep",
+          "prod",
+          "qc",
+          "done"
+        ],
+        "title": "OrderStage",
+        "type": "string"
+      },
+      "ProductionSettingsOut": {
+        "properties": {
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/StageResponsibleOut"
+            },
+            "title": "Stages",
+            "type": "array"
+          }
+        },
+        "required": [
+          "stages"
+        ],
+        "title": "ProductionSettingsOut",
+        "type": "object"
+      },
+      "StageResponsibleOut": {
+        "properties": {
+          "stage": {
+            "$ref": "#/components/schemas/OrderStage"
+          },
+          "stage_label": {
+            "title": "Stage Label",
+            "type": "string"
+          },
+          "responsible_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Responsible Id"
+          },
+          "responsible_name": {
+            "title": "Responsible Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "stage",
+          "stage_label",
+          "responsible_id",
+          "responsible_name"
+        ],
+        "title": "StageResponsibleOut",
+        "type": "object"
+      },
+      "DocumentKindOut": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ],
+        "title": "DocumentKindOut",
+        "type": "object"
+      },
+      "BoardAbilitiesOut": {
+        "properties": {
+          "can_move": {
+            "title": "Can Move",
+            "type": "boolean"
+          },
+          "can_approve_stage": {
+            "title": "Can Approve Stage",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "can_move",
+          "can_approve_stage"
+        ],
+        "title": "BoardAbilitiesOut",
+        "type": "object"
+      },
+      "HealthOut": {
+        "properties": {
+          "color": {
+            "title": "Color",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "days": {
+            "title": "Days",
+            "type": "integer"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "color",
+          "status",
+          "days",
+          "text"
+        ],
+        "title": "HealthOut",
+        "type": "object"
+      },
+      "OrderCardOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "number": {
+            "title": "Number",
+            "type": "string"
+          },
+          "inquiry_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inquiry Id"
+          },
+          "inquiry_number": {
+            "title": "Inquiry Number",
+            "type": "string"
+          },
+          "customer_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Id"
+          },
+          "customer_name": {
+            "title": "Customer Name",
+            "type": "string"
+          },
+          "object_name": {
+            "title": "Object Name",
+            "type": "string"
+          },
+          "product_name": {
+            "title": "Product Name",
+            "type": "string"
+          },
+          "quantity": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Quantity",
+            "type": "string"
+          },
+          "manager_id": {
+            "format": "uuid",
+            "title": "Manager Id",
+            "type": "string"
+          },
+          "manager_name": {
+            "title": "Manager Name",
+            "type": "string"
+          },
+          "planned_start": {
+            "format": "date",
+            "title": "Planned Start",
+            "type": "string"
+          },
+          "planned_finish": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planned Finish"
+          },
+          "due_date": {
+            "format": "date",
+            "title": "Due Date",
+            "type": "string"
+          },
+          "stage": {
+            "$ref": "#/components/schemas/OrderStage"
+          },
+          "derived_stage": {
+            "$ref": "#/components/schemas/OrderStage"
+          },
+          "health": {
+            "$ref": "#/components/schemas/HealthOut"
+          },
+          "progress": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Progress",
+            "type": "string"
+          },
+          "stage_responsible_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage Responsible Id"
+          },
+          "stage_responsible_name": {
+            "title": "Stage Responsible Name",
+            "type": "string"
+          },
+          "stage_approved": {
+            "title": "Stage Approved",
+            "type": "boolean"
+          },
+          "contract_total": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Contract Total",
+            "type": "string"
+          },
+          "operations_total": {
+            "title": "Operations Total",
+            "type": "integer"
+          },
+          "operations_done": {
+            "title": "Operations Done",
+            "type": "integer"
+          },
+          "abilities": {
+            "$ref": "#/components/schemas/BoardAbilitiesOut"
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "inquiry_id",
+          "inquiry_number",
+          "customer_id",
+          "customer_name",
+          "object_name",
+          "product_name",
+          "quantity",
+          "manager_id",
+          "manager_name",
+          "planned_start",
+          "planned_finish",
+          "due_date",
+          "stage",
+          "derived_stage",
+          "health",
+          "progress",
+          "stage_responsible_id",
+          "stage_responsible_name",
+          "stage_approved",
+          "contract_total",
+          "operations_total",
+          "operations_done",
+          "abilities"
+        ],
+        "title": "OrderCardOut",
+        "type": "object"
+      },
+      "GanttOperationOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "seq": {
+            "title": "Seq",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "work_center_id": {
+            "format": "uuid",
+            "title": "Work Center Id",
+            "type": "string"
+          },
+          "work_center_short_name": {
+            "title": "Work Center Short Name",
+            "type": "string"
+          },
+          "is_supply": {
+            "title": "Is Supply",
+            "type": "boolean"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OperationStatus"
+          },
+          "progress": {
+            "title": "Progress",
+            "type": "integer"
+          },
+          "responsible_name": {
+            "title": "Responsible Name",
+            "type": "string"
+          },
+          "planned_start": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planned Start"
+          },
+          "planned_finish": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planned Finish"
+          },
+          "predecessor_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Predecessor Ids",
+            "type": "array"
+          },
+          "is_critical": {
+            "title": "Is Critical",
+            "type": "boolean"
+          },
+          "violates_dependency": {
+            "title": "Violates Dependency",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "seq",
+          "name",
+          "work_center_id",
+          "work_center_short_name",
+          "is_supply",
+          "status",
+          "progress",
+          "responsible_name",
+          "planned_start",
+          "planned_finish",
+          "predecessor_ids",
+          "is_critical",
+          "violates_dependency"
+        ],
+        "title": "GanttOperationOut",
+        "type": "object"
+      },
+      "GanttOrderOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "number": {
+            "title": "Number",
+            "type": "string"
+          },
+          "customer_name": {
+            "title": "Customer Name",
+            "type": "string"
+          },
+          "product_name": {
+            "title": "Product Name",
+            "type": "string"
+          },
+          "quantity": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Quantity",
+            "type": "string"
+          },
+          "stage": {
+            "$ref": "#/components/schemas/OrderStage"
+          },
+          "due_date": {
+            "format": "date",
+            "title": "Due Date",
+            "type": "string"
+          },
+          "planned_start": {
+            "format": "date",
+            "title": "Planned Start",
+            "type": "string"
+          },
+          "planned_finish": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planned Finish"
+          },
+          "health": {
+            "$ref": "#/components/schemas/HealthOut"
+          },
+          "can_plan": {
+            "title": "Can Plan",
+            "type": "boolean"
+          },
+          "operations": {
+            "items": {
+              "$ref": "#/components/schemas/GanttOperationOut"
+            },
+            "title": "Operations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "customer_name",
+          "product_name",
+          "quantity",
+          "stage",
+          "due_date",
+          "planned_start",
+          "planned_finish",
+          "health",
+          "can_plan",
+          "operations"
+        ],
+        "title": "GanttOrderOut",
+        "type": "object"
+      },
+      "OperationStatus": {
+        "enum": [
+          "wait",
+          "work",
+          "check",
+          "done"
+        ],
+        "title": "OperationStatus",
+        "type": "string"
+      },
+      "VisaItemOut": {
+        "properties": {
+          "inquiry_id": {
+            "format": "uuid",
+            "title": "Inquiry Id",
+            "type": "string"
+          },
+          "number": {
+            "title": "Number",
+            "type": "string"
+          },
+          "customer_name": {
+            "title": "Customer Name",
+            "type": "string"
+          },
+          "product_name": {
+            "title": "Product Name",
+            "type": "string"
+          },
+          "quantity": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Quantity",
+            "type": "string"
+          },
+          "due_date": {
+            "format": "date",
+            "title": "Due Date",
+            "type": "string"
+          },
+          "stage": {
+            "$ref": "#/components/schemas/InquiryStage"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "inquiry_id",
+          "number",
+          "customer_name",
+          "product_name",
+          "quantity",
+          "due_date",
+          "stage",
+          "text"
+        ],
+        "title": "VisaItemOut",
+        "type": "object"
+      },
+      "OrderAbilitiesOut": {
+        "properties": {
+          "can_move": {
+            "title": "Can Move",
+            "type": "boolean"
+          },
+          "can_approve_stage": {
+            "title": "Can Approve Stage",
+            "type": "boolean"
+          },
+          "can_edit": {
+            "title": "Can Edit",
+            "type": "boolean"
+          },
+          "can_plan": {
+            "title": "Can Plan",
+            "type": "boolean"
+          },
+          "can_manage_documents": {
+            "title": "Can Manage Documents",
+            "type": "boolean"
+          },
+          "can_comment": {
+            "title": "Can Comment",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "can_move",
+          "can_approve_stage",
+          "can_edit",
+          "can_plan",
+          "can_manage_documents",
+          "can_comment"
+        ],
+        "title": "OrderAbilitiesOut",
+        "type": "object"
+      },
+      "OrderOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "number": {
+            "title": "Number",
+            "type": "string"
+          },
+          "inquiry_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inquiry Id"
+          },
+          "inquiry_number": {
+            "title": "Inquiry Number",
+            "type": "string"
+          },
+          "customer_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Id"
+          },
+          "customer_name": {
+            "title": "Customer Name",
+            "type": "string"
+          },
+          "object_name": {
+            "title": "Object Name",
+            "type": "string"
+          },
+          "product_name": {
+            "title": "Product Name",
+            "type": "string"
+          },
+          "quantity": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Quantity",
+            "type": "string"
+          },
+          "manager_id": {
+            "format": "uuid",
+            "title": "Manager Id",
+            "type": "string"
+          },
+          "manager_name": {
+            "title": "Manager Name",
+            "type": "string"
+          },
+          "planned_start": {
+            "format": "date",
+            "title": "Planned Start",
+            "type": "string"
+          },
+          "planned_finish": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planned Finish"
+          },
+          "due_date": {
+            "format": "date",
+            "title": "Due Date",
+            "type": "string"
+          },
+          "stage": {
+            "$ref": "#/components/schemas/OrderStage"
+          },
+          "derived_stage": {
+            "$ref": "#/components/schemas/OrderStage"
+          },
+          "health": {
+            "$ref": "#/components/schemas/HealthOut"
+          },
+          "progress": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Progress",
+            "type": "string"
+          },
+          "stage_responsible_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage Responsible Id"
+          },
+          "stage_responsible_name": {
+            "title": "Stage Responsible Name",
+            "type": "string"
+          },
+          "stage_approved": {
+            "title": "Stage Approved",
+            "type": "boolean"
+          },
+          "contract_total": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Contract Total",
+            "type": "string"
+          },
+          "operations_total": {
+            "title": "Operations Total",
+            "type": "integer"
+          },
+          "operations_done": {
+            "title": "Operations Done",
+            "type": "integer"
+          },
+          "abilities": {
+            "$ref": "#/components/schemas/BoardAbilitiesOut"
+          },
+          "template_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Template Id"
+          },
+          "labor_cost_planned": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Labor Cost Planned",
+            "type": "string"
+          },
+          "shipped_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shipped At"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "approvals": {
+            "items": {
+              "$ref": "#/components/schemas/StageApprovalOut"
+            },
+            "title": "Approvals",
+            "type": "array"
+          },
+          "hours_total": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Hours Total",
+            "type": "string"
+          },
+          "earned_total": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Earned Total",
+            "type": "string"
+          },
+          "has_kd": {
+            "title": "Has Kd",
+            "type": "boolean"
+          },
+          "order_abilities": {
+            "$ref": "#/components/schemas/OrderAbilitiesOut"
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "inquiry_id",
+          "inquiry_number",
+          "customer_id",
+          "customer_name",
+          "object_name",
+          "product_name",
+          "quantity",
+          "manager_id",
+          "manager_name",
+          "planned_start",
+          "planned_finish",
+          "due_date",
+          "stage",
+          "derived_stage",
+          "health",
+          "progress",
+          "stage_responsible_id",
+          "stage_responsible_name",
+          "stage_approved",
+          "contract_total",
+          "operations_total",
+          "operations_done",
+          "abilities",
+          "template_id",
+          "labor_cost_planned",
+          "shipped_at",
+          "created_at",
+          "approvals",
+          "hours_total",
+          "earned_total",
+          "has_kd",
+          "order_abilities"
+        ],
+        "title": "OrderOut",
+        "type": "object"
+      },
+      "StageApprovalOut": {
+        "properties": {
+          "stage": {
+            "$ref": "#/components/schemas/InquiryStage"
+          },
+          "stage_label": {
+            "title": "Stage Label",
+            "type": "string"
+          },
+          "responsible_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Responsible Id"
+          },
+          "responsible_name": {
+            "title": "Responsible Name",
+            "type": "string"
+          },
+          "approved_by_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved By Id"
+          },
+          "approved_by_name": {
+            "title": "Approved By Name",
+            "type": "string"
+          },
+          "approved_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved At"
+          },
+          "comment": {
+            "title": "Comment",
+            "type": "string"
+          }
+        },
+        "required": [
+          "stage",
+          "stage_label",
+          "responsible_id",
+          "responsible_name",
+          "approved_by_id",
+          "approved_by_name",
+          "approved_at",
+          "comment"
+        ],
+        "title": "StageApprovalOut",
+        "type": "object"
+      },
+      "OrderUpdateIn": {
+        "properties": {
+          "due_date": {
+            "format": "date",
+            "title": "Due Date",
+            "type": "string"
+          },
+          "manager_id": {
+            "format": "uuid",
+            "title": "Manager Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "due_date",
+          "manager_id"
+        ],
+        "title": "OrderUpdateIn",
+        "type": "object"
+      },
+      "StageMoveIn": {
+        "properties": {
+          "to": {
+            "$ref": "#/components/schemas/InquiryStage"
+          },
+          "comment": {
+            "default": "",
+            "title": "Comment",
+            "type": "string"
+          }
+        },
+        "required": [
+          "to"
+        ],
+        "title": "StageMoveIn",
+        "type": "object"
+      },
+      "StageApproveIn": {
+        "properties": {
+          "comment": {
+            "default": "",
+            "title": "Comment",
+            "type": "string"
+          }
+        },
+        "title": "StageApproveIn",
+        "type": "object"
+      },
+      "StageResponsibleIn": {
+        "properties": {
+          "responsible_id": {
+            "format": "uuid",
+            "title": "Responsible Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "responsible_id"
+        ],
+        "title": "StageResponsibleIn",
+        "type": "object"
+      },
+      "OperationAbilitiesOut": {
+        "properties": {
+          "can_change_status": {
+            "title": "Can Change Status",
+            "type": "boolean"
+          },
+          "can_set_progress": {
+            "title": "Can Set Progress",
+            "type": "boolean"
+          },
+          "can_approve": {
+            "title": "Can Approve",
+            "type": "boolean"
+          },
+          "can_edit_plan": {
+            "title": "Can Edit Plan",
+            "type": "boolean"
+          },
+          "can_set_responsible": {
+            "title": "Can Set Responsible",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "can_change_status",
+          "can_set_progress",
+          "can_approve",
+          "can_edit_plan",
+          "can_set_responsible"
+        ],
+        "title": "OperationAbilitiesOut",
+        "type": "object"
+      },
+      "OperationRowOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "order_id": {
+            "format": "uuid",
+            "title": "Order Id",
+            "type": "string"
+          },
+          "seq": {
+            "title": "Seq",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "work_center_id": {
+            "format": "uuid",
+            "title": "Work Center Id",
+            "type": "string"
+          },
+          "work_center_short_name": {
+            "title": "Work Center Short Name",
+            "type": "string"
+          },
+          "work_center_name": {
+            "title": "Work Center Name",
+            "type": "string"
+          },
+          "phase": {
+            "title": "Phase",
+            "type": "string"
+          },
+          "is_supply": {
+            "title": "Is Supply",
+            "type": "boolean"
+          },
+          "capacity": {
+            "title": "Capacity",
+            "type": "integer"
+          },
+          "hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Hours",
+            "type": "string"
+          },
+          "people": {
+            "title": "People",
+            "type": "integer"
+          },
+          "duration": {
+            "title": "Duration",
+            "type": "integer"
+          },
+          "responsible_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Responsible Id"
+          },
+          "responsible_name": {
+            "title": "Responsible Name",
+            "type": "string"
+          },
+          "not_before": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Not Before"
+          },
+          "planned_start": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planned Start"
+          },
+          "planned_finish": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planned Finish"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OperationStatus"
+          },
+          "progress": {
+            "title": "Progress",
+            "type": "integer"
+          },
+          "earned_hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Earned Hours",
+            "type": "string"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "approved_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved At"
+          },
+          "approved_by_name": {
+            "title": "Approved By Name",
+            "type": "string"
+          },
+          "approved_for_name": {
+            "title": "Approved For Name",
+            "type": "string"
+          },
+          "predecessor_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Predecessor Ids",
+            "type": "array"
+          },
+          "slack": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slack"
+          },
+          "is_critical": {
+            "title": "Is Critical",
+            "type": "boolean"
+          },
+          "violates_dependency": {
+            "title": "Violates Dependency",
+            "type": "boolean"
+          },
+          "requires_inspection": {
+            "title": "Requires Inspection",
+            "type": "boolean"
+          },
+          "abilities": {
+            "$ref": "#/components/schemas/OperationAbilitiesOut"
+          }
+        },
+        "required": [
+          "id",
+          "order_id",
+          "seq",
+          "name",
+          "work_center_id",
+          "work_center_short_name",
+          "work_center_name",
+          "phase",
+          "is_supply",
+          "capacity",
+          "hours",
+          "people",
+          "duration",
+          "responsible_id",
+          "responsible_name",
+          "not_before",
+          "planned_start",
+          "planned_finish",
+          "status",
+          "progress",
+          "earned_hours",
+          "started_at",
+          "approved_at",
+          "approved_by_name",
+          "approved_for_name",
+          "predecessor_ids",
+          "slack",
+          "is_critical",
+          "violates_dependency",
+          "requires_inspection",
+          "abilities"
+        ],
+        "title": "OperationRowOut",
+        "type": "object"
+      },
+      "ScheduleOut": {
+        "properties": {
+          "order_id": {
+            "format": "uuid",
+            "title": "Order Id",
+            "type": "string"
+          },
+          "planned_start": {
+            "format": "date",
+            "title": "Planned Start",
+            "type": "string"
+          },
+          "planned_finish": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planned Finish"
+          },
+          "due_date": {
+            "format": "date",
+            "title": "Due Date",
+            "type": "string"
+          },
+          "length": {
+            "title": "Length",
+            "type": "integer"
+          },
+          "critical_path": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Critical Path",
+            "type": "array"
+          },
+          "has_violations": {
+            "title": "Has Violations",
+            "type": "boolean"
+          },
+          "operations": {
+            "items": {
+              "$ref": "#/components/schemas/OperationRowOut"
+            },
+            "title": "Operations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "order_id",
+          "planned_start",
+          "planned_finish",
+          "due_date",
+          "length",
+          "critical_path",
+          "has_violations",
+          "operations"
+        ],
+        "title": "ScheduleOut",
+        "type": "object"
+      },
+      "ReplanIn": {
+        "properties": {
+          "planned_start": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planned Start"
+          }
+        },
+        "title": "ReplanIn",
+        "type": "object"
+      },
+      "ShiftIn": {
+        "properties": {
+          "days": {
+            "title": "Days",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "days"
+        ],
+        "title": "ShiftIn",
+        "type": "object"
+      },
+      "JournalKind": {
+        "enum": [
+          "stage",
+          "visa",
+          "status",
+          "plan",
+          "comment",
+          "qc",
+          "proc",
+          "doc"
+        ],
+        "title": "JournalKind",
+        "type": "string"
+      },
+      "JournalEntryOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/JournalKind"
+          },
+          "kind_label": {
+            "title": "Kind Label",
+            "type": "string"
+          },
+          "stage": {
+            "title": "Stage",
+            "type": "string"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "operation_label": {
+            "title": "Operation Label",
+            "type": "string"
+          },
+          "author_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Author Id"
+          },
+          "author_name": {
+            "title": "Author Name",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "created_at",
+          "kind",
+          "kind_label",
+          "stage",
+          "operation_id",
+          "operation_label",
+          "author_id",
+          "author_name",
+          "text"
+        ],
+        "title": "JournalEntryOut",
+        "type": "object"
+      },
+      "CreatedOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "title": "CreatedOut",
+        "type": "object"
+      },
+      "CommentIn": {
+        "properties": {
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "title": "CommentIn",
+        "type": "object"
+      },
+      "OperationCardOut": {
+        "properties": {
+          "operation": {
+            "$ref": "#/components/schemas/OperationRowOut"
+          },
+          "order": {
+            "$ref": "#/components/schemas/OrderCardOut"
+          },
+          "predecessors": {
+            "items": {
+              "$ref": "#/components/schemas/OperationLinkOut"
+            },
+            "title": "Predecessors",
+            "type": "array"
+          },
+          "successors": {
+            "items": {
+              "$ref": "#/components/schemas/OperationLinkOut"
+            },
+            "title": "Successors",
+            "type": "array"
+          },
+          "documents": {
+            "items": {
+              "$ref": "#/components/schemas/DocumentOut"
+            },
+            "title": "Documents",
+            "type": "array"
+          },
+          "journal": {
+            "items": {
+              "$ref": "#/components/schemas/JournalEntryOut"
+            },
+            "title": "Journal",
+            "type": "array"
+          },
+          "has_inspection": {
+            "title": "Has Inspection",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "operation",
+          "order",
+          "predecessors",
+          "successors",
+          "documents",
+          "journal",
+          "has_inspection"
+        ],
+        "title": "OperationCardOut",
+        "type": "object"
+      },
+      "OperationLinkOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "seq": {
+            "title": "Seq",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OperationStatus"
+          },
+          "planned_start": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planned Start"
+          },
+          "planned_finish": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planned Finish"
+          }
+        },
+        "required": [
+          "id",
+          "seq",
+          "name",
+          "status",
+          "planned_start",
+          "planned_finish"
+        ],
+        "title": "OperationLinkOut",
+        "type": "object"
+      },
+      "OperationUpdateIn": {
+        "description": "Правка плана операции: передаются только меняемые поля. `not_before: null` —\nснять ограничение.",
+        "properties": {
+          "people": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "People"
+          },
+          "not_before": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Not Before"
+          },
+          "responsible_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Responsible Id"
+          }
+        },
+        "title": "OperationUpdateIn",
+        "type": "object"
+      },
+      "OperationStatusIn": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/OperationStatus"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "OperationStatusIn",
+        "type": "object"
+      },
+      "OperationProgressIn": {
+        "properties": {
+          "progress": {
+            "title": "Progress",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "progress"
+        ],
+        "title": "OperationProgressIn",
+        "type": "object"
+      },
+      "OperationApproveIn": {
+        "properties": {
+          "comment": {
+            "default": "",
+            "title": "Comment",
+            "type": "string"
+          }
+        },
+        "title": "OperationApproveIn",
+        "type": "object"
+      },
+      "OperationMoveIn": {
+        "properties": {
+          "start": {
+            "format": "date",
+            "title": "Start",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start"
+        ],
+        "title": "OperationMoveIn",
+        "type": "object"
+      },
+      "PredecessorsIn": {
+        "properties": {
+          "predecessor_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Predecessor Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "predecessor_ids"
+        ],
+        "title": "PredecessorsIn",
+        "type": "object"
+      },
+      "LossReasonOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "LossReasonOut",
+        "type": "object"
+      },
+      "SalesSettingsOut": {
+        "properties": {
+          "economist_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Economist Id"
+          },
+          "economist_name": {
+            "title": "Economist Name",
+            "type": "string"
+          },
+          "prob_new": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Prob New",
+            "type": "string"
+          },
+          "prob_calc": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Prob Calc",
+            "type": "string"
+          },
+          "prob_approval": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Prob Approval",
+            "type": "string"
+          }
+        },
+        "required": [
+          "economist_id",
+          "economist_name",
+          "prob_new",
+          "prob_calc",
+          "prob_approval"
+        ],
+        "title": "SalesSettingsOut",
+        "type": "object"
+      },
+      "InquiryStage": {
+        "enum": [
+          "new",
+          "calc",
+          "approval",
+          "launched",
+          "lost"
+        ],
+        "title": "InquiryStage",
+        "type": "string"
+      },
+      "InquiryAbilitiesOut": {
+        "properties": {
+          "can_edit": {
+            "title": "Can Edit",
+            "type": "boolean"
+          },
+          "can_edit_calculation": {
+            "title": "Can Edit Calculation",
+            "type": "boolean"
+          },
+          "can_move": {
+            "title": "Can Move",
+            "type": "boolean"
+          },
+          "can_approve_stage": {
+            "title": "Can Approve Stage",
+            "type": "boolean"
+          },
+          "can_launch": {
+            "title": "Can Launch",
+            "type": "boolean"
+          },
+          "can_lose": {
+            "title": "Can Lose",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "can_edit",
+          "can_edit_calculation",
+          "can_move",
+          "can_approve_stage",
+          "can_launch",
+          "can_lose"
+        ],
+        "title": "InquiryAbilitiesOut",
+        "type": "object"
+      },
+      "InquiryCardOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "number": {
+            "title": "Number",
+            "type": "string"
+          },
+          "customer_id": {
+            "format": "uuid",
+            "title": "Customer Id",
+            "type": "string"
+          },
+          "customer_name": {
+            "title": "Customer Name",
+            "type": "string"
+          },
+          "object_name": {
+            "title": "Object Name",
+            "type": "string"
+          },
+          "template_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Template Id"
+          },
+          "product_name": {
+            "title": "Product Name",
+            "type": "string"
+          },
+          "quantity": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Quantity",
+            "type": "string"
+          },
+          "due_date": {
+            "format": "date",
+            "title": "Due Date",
+            "type": "string"
+          },
+          "manager_id": {
+            "format": "uuid",
+            "title": "Manager Id",
+            "type": "string"
+          },
+          "manager_name": {
+            "title": "Manager Name",
+            "type": "string"
+          },
+          "stage": {
+            "$ref": "#/components/schemas/InquiryStage"
+          },
+          "health": {
+            "$ref": "#/components/schemas/HealthOut"
+          },
+          "total": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Total",
+            "type": "string"
+          },
+          "probability": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Probability",
+            "type": "string"
+          },
+          "stage_responsible_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage Responsible Id"
+          },
+          "stage_responsible_name": {
+            "title": "Stage Responsible Name",
+            "type": "string"
+          },
+          "stage_approved": {
+            "title": "Stage Approved",
+            "type": "boolean"
+          },
+          "planned_start": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planned Start"
+          },
+          "planned_finish": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planned Finish"
+          },
+          "has_calc": {
+            "title": "Has Calc",
+            "type": "boolean"
+          },
+          "has_plan": {
+            "title": "Has Plan",
+            "type": "boolean"
+          },
+          "order_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Id"
+          },
+          "abilities": {
+            "$ref": "#/components/schemas/InquiryAbilitiesOut"
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "customer_id",
+          "customer_name",
+          "object_name",
+          "template_id",
+          "product_name",
+          "quantity",
+          "due_date",
+          "manager_id",
+          "manager_name",
+          "stage",
+          "health",
+          "total",
+          "probability",
+          "stage_responsible_id",
+          "stage_responsible_name",
+          "stage_approved",
+          "planned_start",
+          "planned_finish",
+          "has_calc",
+          "has_plan",
+          "order_id",
+          "abilities"
+        ],
+        "title": "InquiryCardOut",
+        "type": "object"
+      },
+      "CalcOperationOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "seq": {
+            "title": "Seq",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "work_center_id": {
+            "format": "uuid",
+            "title": "Work Center Id",
+            "type": "string"
+          },
+          "work_center_short_name": {
+            "title": "Work Center Short Name",
+            "type": "string"
+          },
+          "work_center_name": {
+            "title": "Work Center Name",
+            "type": "string"
+          },
+          "is_supply": {
+            "title": "Is Supply",
+            "type": "boolean"
+          },
+          "capacity": {
+            "title": "Capacity",
+            "type": "integer"
+          },
+          "rate": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Rate",
+            "type": "string"
+          },
+          "hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Hours",
+            "type": "string"
+          },
+          "people": {
+            "title": "People",
+            "type": "integer"
+          },
+          "duration": {
+            "title": "Duration",
+            "type": "integer"
+          },
+          "not_before": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Not Before"
+          },
+          "planned_start": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planned Start"
+          },
+          "planned_finish": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planned Finish"
+          },
+          "predecessor_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Predecessor Ids",
+            "type": "array"
+          },
+          "slack": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slack"
+          },
+          "is_critical": {
+            "title": "Is Critical",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "seq",
+          "name",
+          "work_center_id",
+          "work_center_short_name",
+          "work_center_name",
+          "is_supply",
+          "capacity",
+          "rate",
+          "hours",
+          "people",
+          "duration",
+          "not_before",
+          "planned_start",
+          "planned_finish",
+          "predecessor_ids",
+          "slack",
+          "is_critical"
+        ],
+        "title": "CalcOperationOut",
+        "type": "object"
+      },
+      "InquiryOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "number": {
+            "title": "Number",
+            "type": "string"
+          },
+          "customer_id": {
+            "format": "uuid",
+            "title": "Customer Id",
+            "type": "string"
+          },
+          "customer_name": {
+            "title": "Customer Name",
+            "type": "string"
+          },
+          "object_name": {
+            "title": "Object Name",
+            "type": "string"
+          },
+          "template_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Template Id"
+          },
+          "product_name": {
+            "title": "Product Name",
+            "type": "string"
+          },
+          "quantity": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Quantity",
+            "type": "string"
+          },
+          "due_date": {
+            "format": "date",
+            "title": "Due Date",
+            "type": "string"
+          },
+          "manager_id": {
+            "format": "uuid",
+            "title": "Manager Id",
+            "type": "string"
+          },
+          "manager_name": {
+            "title": "Manager Name",
+            "type": "string"
+          },
+          "stage": {
+            "$ref": "#/components/schemas/InquiryStage"
+          },
+          "health": {
+            "$ref": "#/components/schemas/HealthOut"
+          },
+          "total": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Total",
+            "type": "string"
+          },
+          "probability": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Probability",
+            "type": "string"
+          },
+          "stage_responsible_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage Responsible Id"
+          },
+          "stage_responsible_name": {
+            "title": "Stage Responsible Name",
+            "type": "string"
+          },
+          "stage_approved": {
+            "title": "Stage Approved",
+            "type": "boolean"
+          },
+          "planned_start": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planned Start"
+          },
+          "planned_finish": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planned Finish"
+          },
+          "has_calc": {
+            "title": "Has Calc",
+            "type": "boolean"
+          },
+          "has_plan": {
+            "title": "Has Plan",
+            "type": "boolean"
+          },
+          "order_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Id"
+          },
+          "abilities": {
+            "$ref": "#/components/schemas/InquiryAbilitiesOut"
+          },
+          "overhead_pct": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Overhead Pct",
+            "type": "string"
+          },
+          "margin_pct": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Margin Pct",
+            "type": "string"
+          },
+          "vat_pct": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Vat Pct",
+            "type": "string"
+          },
+          "lost_reason_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lost Reason Id"
+          },
+          "lost_reason_name": {
+            "title": "Lost Reason Name",
+            "type": "string"
+          },
+          "lost_comment": {
+            "title": "Lost Comment",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "approvals": {
+            "items": {
+              "$ref": "#/components/schemas/StageApprovalOut"
+            },
+            "title": "Approvals",
+            "type": "array"
+          },
+          "materials": {
+            "items": {
+              "$ref": "#/components/schemas/MaterialOut"
+            },
+            "title": "Materials",
+            "type": "array"
+          },
+          "operations": {
+            "items": {
+              "$ref": "#/components/schemas/CalcOperationOut"
+            },
+            "title": "Operations",
+            "type": "array"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/TotalsOut"
+          },
+          "plan_length": {
+            "title": "Plan Length",
+            "type": "integer"
+          },
+          "critical_path": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Critical Path",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "customer_id",
+          "customer_name",
+          "object_name",
+          "template_id",
+          "product_name",
+          "quantity",
+          "due_date",
+          "manager_id",
+          "manager_name",
+          "stage",
+          "health",
+          "total",
+          "probability",
+          "stage_responsible_id",
+          "stage_responsible_name",
+          "stage_approved",
+          "planned_start",
+          "planned_finish",
+          "has_calc",
+          "has_plan",
+          "order_id",
+          "abilities",
+          "overhead_pct",
+          "margin_pct",
+          "vat_pct",
+          "lost_reason_id",
+          "lost_reason_name",
+          "lost_comment",
+          "created_at",
+          "approvals",
+          "materials",
+          "operations",
+          "totals",
+          "plan_length",
+          "critical_path"
+        ],
+        "title": "InquiryOut",
+        "type": "object"
+      },
+      "MaterialOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "quantity": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Quantity",
+            "type": "string"
+          },
+          "price": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Price",
+            "type": "string"
+          },
+          "amount": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Amount",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "quantity",
+          "price",
+          "amount"
+        ],
+        "title": "MaterialOut",
+        "type": "object"
+      },
+      "TotalsOut": {
+        "properties": {
+          "materials": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Materials",
+            "type": "string"
+          },
+          "labor": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Labor",
+            "type": "string"
+          },
+          "hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Hours",
+            "type": "string"
+          },
+          "overhead": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Overhead",
+            "type": "string"
+          },
+          "cost": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Cost",
+            "type": "string"
+          },
+          "price": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Price",
+            "type": "string"
+          },
+          "vat": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Vat",
+            "type": "string"
+          },
+          "total": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Total",
+            "type": "string"
+          },
+          "profit": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Profit",
+            "type": "string"
+          }
+        },
+        "required": [
+          "materials",
+          "labor",
+          "hours",
+          "overhead",
+          "cost",
+          "price",
+          "vat",
+          "total",
+          "profit"
+        ],
+        "title": "TotalsOut",
+        "type": "object"
+      },
+      "InquiryCreateIn": {
+        "description": "Заказчик — выбранный контрагент (`customer_id`) или новый (`new_customer`):\nпри похожем на существующего ответ 409 `duplicates_found` с кандидатами.",
+        "properties": {
+          "customer_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Id"
+          },
+          "new_customer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NewCustomerIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "object_name": {
+            "title": "Object Name",
+            "type": "string"
+          },
+          "template_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Template Id"
+          },
+          "product_name": {
+            "default": "",
+            "title": "Product Name",
+            "type": "string"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "due_date": {
+            "format": "date",
+            "title": "Due Date",
+            "type": "string"
+          },
+          "manager_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manager Id"
+          }
+        },
+        "required": [
+          "object_name",
+          "quantity",
+          "due_date"
+        ],
+        "title": "InquiryCreateIn",
+        "type": "object"
+      },
+      "NewCustomerIn": {
+        "properties": {
+          "short_name": {
+            "title": "Short Name",
+            "type": "string"
+          },
+          "inn": {
+            "default": "",
+            "title": "Inn",
+            "type": "string"
+          }
+        },
+        "required": [
+          "short_name"
+        ],
+        "title": "NewCustomerIn",
+        "type": "object"
+      },
+      "InquiryUpdateIn": {
+        "properties": {
+          "object_name": {
+            "title": "Object Name",
+            "type": "string"
+          },
+          "product_name": {
+            "title": "Product Name",
+            "type": "string"
+          },
+          "template_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Template Id"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "due_date": {
+            "format": "date",
+            "title": "Due Date",
+            "type": "string"
+          },
+          "manager_id": {
+            "format": "uuid",
+            "title": "Manager Id",
+            "type": "string"
+          },
+          "overhead_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Overhead Pct"
+          },
+          "margin_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Margin Pct"
+          },
+          "vat_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Vat Pct"
+          }
+        },
+        "required": [
+          "object_name",
+          "product_name",
+          "quantity",
+          "due_date",
+          "manager_id",
+          "overhead_pct",
+          "margin_pct",
+          "vat_pct"
+        ],
+        "title": "InquiryUpdateIn",
+        "type": "object"
+      },
+      "LaunchOut": {
+        "properties": {
+          "inquiry_id": {
+            "format": "uuid",
+            "title": "Inquiry Id",
+            "type": "string"
+          },
+          "order_id": {
+            "format": "uuid",
+            "title": "Order Id",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "inquiry_id",
+          "order_id",
+          "warnings"
+        ],
+        "title": "LaunchOut",
+        "type": "object"
+      },
+      "LaunchIn": {
+        "properties": {
+          "planned_start": {
+            "format": "date",
+            "title": "Planned Start",
+            "type": "string"
+          },
+          "due_date": {
+            "format": "date",
+            "title": "Due Date",
+            "type": "string"
+          }
+        },
+        "required": [
+          "planned_start",
+          "due_date"
+        ],
+        "title": "LaunchIn",
+        "type": "object"
+      },
+      "LoseIn": {
+        "properties": {
+          "reason_id": {
+            "format": "uuid",
+            "title": "Reason Id",
+            "type": "string"
+          },
+          "comment": {
+            "default": "",
+            "title": "Comment",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason_id"
+        ],
+        "title": "LoseIn",
+        "type": "object"
+      },
+      "FillFromTemplateIn": {
+        "properties": {
+          "template_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Template Id"
+          }
+        },
+        "title": "FillFromTemplateIn",
+        "type": "object"
+      },
+      "MaterialIn": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Price"
+          }
+        },
+        "required": [
+          "name",
+          "quantity",
+          "price"
+        ],
+        "title": "MaterialIn",
+        "type": "object"
+      },
+      "CalcOperationIn": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "work_center_id": {
+            "format": "uuid",
+            "title": "Work Center Id",
+            "type": "string"
+          },
+          "hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Hours"
+          },
+          "people": {
+            "default": 1,
+            "title": "People",
+            "type": "integer"
+          },
+          "not_before": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Not Before"
+          }
+        },
+        "required": [
+          "name",
+          "work_center_id",
+          "hours"
+        ],
+        "title": "CalcOperationIn",
+        "type": "object"
+      },
+      "PlanIn": {
+        "properties": {
+          "planned_start": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planned Start"
+          }
+        },
+        "title": "PlanIn",
         "type": "object"
       }
     },

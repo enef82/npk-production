@@ -13,7 +13,7 @@ def document_upload_to(instance: "Document", filename: str) -> str:
 @track()
 class Document(TimeStampedModel, UUIDPrimaryKeyModel):
     original_name = models.CharField("Имя файла", max_length=255)
-    # Свободное описание файла вместо справочника типов вложений (спецификация CRM ИС (IS_ERP, 10-crm) §3.10,
+    # Свободное описание файла вместо справочника типов вложений (спецификация CRM ИС §3.10,
     # docs/adr/0016-vlozheniya-bez-spravochnika-tipov-i-antivirusa.md): «ТЗ ред. 2», «архив ПД».
     # Поле на документе, а не на привязке: описание принадлежит файлу и переезжает с ним,
     # если тот же комплект позже привяжется к договору.
@@ -29,7 +29,7 @@ class Document(TimeStampedModel, UUIDPrimaryKeyModel):
         related_name="documents",
     )
     version = models.PositiveSmallIntegerField("Версия", default=1)
-    # Что изменилось в этой редакции относительно предыдущей (спецификация CRM ИС (IS_ERP, 10-crm) §3.10).
+    # Что изменилось в этой редакции относительно предыдущей (спецификация CRM ИС §3.10).
     # Пустой у первой загрузки, обязателен при перевыпуске: реестр редакций без описания
     # изменений бесполезен. Ссылку на официальное письмо сюда не писать — по CLAUDE.md §5
     # письмо всегда запись журнала переписки (срез 1б), а не текст «по письму № …».

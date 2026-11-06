@@ -61,12 +61,18 @@ SEED_GROUP_NAMES = (
 # осталась бы вне синхронизации (см. докстринг модуля).
 SEED_GROUP_PERMISSIONS: dict[str, tuple[str, ...]] = {
     ADMINISTRATOR: (),
-    PROJECT_MANAGER: (),
-    ESTIMATOR: (),
-    DESIGNER: (),
-    TECHNOLOGIST: (),
+    PROJECT_MANAGER: ("sales.manage_inquiries",),
+    ESTIMATOR: ("sales.manage_calculation",),
+    DESIGNER: ("production.manage_documents",),
+    TECHNOLOGIST: ("production.manage_documents",),
     PROCUREMENT_OFFICER: (),
-    PRODUCTION_HEAD: (),
+    PRODUCTION_HEAD: (
+        "production.manage_orders",
+        "production.plan_operations",
+        "production.approve_any",
+        "production.manage_reference",
+        "sales.launch_inquiry",
+    ),
     WAREHOUSE_HEAD: (),
     FOREMAN: (),
     QC_ENGINEER: (),
