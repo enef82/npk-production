@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict
+from datetime import date
 from typing import Any
 from uuid import UUID
 
@@ -25,24 +26,25 @@ from src.sales.services import inquiry as inquiry_services
 
 from .schemas import (
     CalcOperationIn,
+    CalcPredecessorsIn,
     FillFromTemplateIn,
     InquiryAbilitiesOut,
     InquiryCardOut,
     InquiryCreateIn,
     InquiryOut,
+    InquiryStageApproveIn,
+    InquiryStageMoveIn,
+    InquiryStageResponsibleIn,
     InquiryUpdateIn,
+    InquiryVisaItemOut,
     LaunchIn,
     LaunchOut,
+    LaunchPreviewOut,
     LoseIn,
     LossReasonOut,
     MaterialIn,
     PlanIn,
-    PredecessorsIn,
     SalesSettingsOut,
-    StageApproveIn,
-    StageMoveIn,
-    StageResponsibleIn,
-    VisaItemOut,
 )
 
 router = Router(tags=["sales"])
@@ -127,7 +129,7 @@ def get_board(
     ]
 
 
-@router.get("/my-visas", response=list[VisaItemOut], operation_id="listMySalesVisas")
+@router.get("/my-visas", response=list[InquiryVisaItemOut], operation_id="listMySalesVisas")
 def my_visas(request: AuthenticatedHttpRequest) -> list[Any]:
     employee_id = rules.employee_id_of(request.auth)
     if employee_id is None:
@@ -187,7 +189,7 @@ def update_inquiry(
 
 @router.post("/inquiries/{inquiry_id}/stage", response=InquiryOut, operation_id="moveInquiryStage")
 def move_stage(
-    request: AuthenticatedHttpRequest, inquiry_id: UUID, data: StageMoveIn
+    request: AuthenticatedHttpRequest, inquiry_id: UUID, data: InquiryStageMoveIn
 ) -> dict[str, Any]:
     detail = _detail(inquiry_id)
     if not rules.can_move_inquiry(request.auth, detail, detail.stage_responsible_id):
@@ -209,7 +211,10 @@ def move_stage(
     operation_id="approveInquiryStage",
 )
 def approve_stage(
-    request: AuthenticatedHttpRequest, inquiry_id: UUID, stage: InquiryStage, data: StageApproveIn
+    request: AuthenticatedHttpRequest,
+    inquiry_id: UUID,
+    stage: InquiryStage,
+    data: InquiryStageApproveIn,
 ) -> dict[str, Any]:
     approval = selectors.get_stage_approval(inquiry_id, stage)
     if approval is None:
@@ -234,7 +239,7 @@ def set_stage_responsible(
     request: AuthenticatedHttpRequest,
     inquiry_id: UUID,
     stage: InquiryStage,
-    data: StageResponsibleIn,
+    data: InquiryStageResponsibleIn,
 ) -> dict[str, Any]:
     _require_edit(request, inquiry_id)
     inquiry_services.set_inquiry_stage_responsible(
@@ -257,6 +262,20 @@ def launch(request: AuthenticatedHttpRequest, inquiry_id: UUID, data: LaunchIn) 
         may_approve=rules.can_approve_stage(request.auth, detail.stage_responsible_id),
     )
     return {"inquiry_id": inquiry_id, "order_id": result.order_id, "warnings": result.warnings}
+
+
+@router.get(
+    "/inquiries/{inquiry_id}/launch-preview",
+    response=LaunchPreviewOut,
+    operation_id="previewInquiryLaunch",
+)
+def launch_preview(
+    request: AuthenticatedHttpRequest, inquiry_id: UUID, planned_start: date, due_date: date
+) -> Any:
+    preview = selectors.launch_preview(inquiry_id, planned_start, due_date)
+    if preview is None:
+        raise Http404
+    return preview
 
 
 @router.post("/inquiries/{inquiry_id}/lose", response=InquiryOut, operation_id="loseInquiry")
@@ -354,7 +373,7 @@ def delete_operation(request: AuthenticatedHttpRequest, operation_id: UUID) -> d
     operation_id="setCalcOperationPredecessors",
 )
 def set_predecessors(
-    request: AuthenticatedHttpRequest, operation_id: UUID, data: PredecessorsIn
+    request: AuthenticatedHttpRequest, operation_id: UUID, data: CalcPredecessorsIn
 ) -> dict[str, Any]:
     inquiry_id = _require_calc(request, selectors.inquiry_id_of_operation(operation_id))
     calc_services.set_predecessors(operation_id, data.predecessor_ids, actor_id=request.auth.id)

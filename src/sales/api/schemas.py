@@ -11,7 +11,7 @@ from ninja import Schema
 from src.sales.models import InquiryStage
 
 
-class HealthOut(Schema):
+class InquiryHealthOut(Schema):
     color: str
     status: str
     days: int
@@ -40,7 +40,7 @@ class InquiryCardOut(Schema):
     manager_id: UUID
     manager_name: str
     stage: InquiryStage
-    health: HealthOut
+    health: InquiryHealthOut
     total: Decimal
     probability: Decimal
     stage_responsible_id: UUID | None
@@ -54,7 +54,7 @@ class InquiryCardOut(Schema):
     abilities: InquiryAbilitiesOut
 
 
-class StageApprovalOut(Schema):
+class InquiryStageApprovalOut(Schema):
     stage: InquiryStage
     stage_label: str
     responsible_id: UUID | None
@@ -114,7 +114,7 @@ class InquiryOut(InquiryCardOut):
     lost_reason_name: str
     lost_comment: str
     created_at: datetime
-    approvals: list[StageApprovalOut]
+    approvals: list[InquiryStageApprovalOut]
     materials: list[MaterialOut]
     operations: list[CalcOperationOut]
     totals: TotalsOut
@@ -171,7 +171,7 @@ class CalcOperationIn(Schema):
     not_before: date | None = None
 
 
-class PredecessorsIn(Schema):
+class CalcPredecessorsIn(Schema):
     predecessor_ids: list[UUID]
 
 
@@ -179,16 +179,16 @@ class PlanIn(Schema):
     planned_start: date | None = None
 
 
-class StageMoveIn(Schema):
+class InquiryStageMoveIn(Schema):
     to: InquiryStage
     comment: str = ""
 
 
-class StageApproveIn(Schema):
+class InquiryStageApproveIn(Schema):
     comment: str = ""
 
 
-class StageResponsibleIn(Schema):
+class InquiryStageResponsibleIn(Schema):
     responsible_id: UUID
 
 
@@ -201,6 +201,14 @@ class LaunchOut(Schema):
     inquiry_id: UUID
     order_id: UUID
     warnings: list[str]
+
+
+class LaunchPreviewOut(Schema):
+    planned_start: date
+    planned_finish: date | None
+    length: int
+    days_late: int
+    critical_path: list[str]
 
 
 class LoseIn(Schema):
@@ -221,7 +229,7 @@ class SalesSettingsOut(Schema):
     prob_approval: Decimal
 
 
-class VisaItemOut(Schema):
+class InquiryVisaItemOut(Schema):
     inquiry_id: UUID
     number: str
     customer_name: str

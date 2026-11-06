@@ -33,31 +33,32 @@ from .schemas import (
     CommentIn,
     CreatedOut,
     DocumentKindOut,
-    DocumentOut,
+    EmployeeOptionOut,
     GanttOrderOut,
     JournalEntryOut,
     OperationAbilitiesOut,
     OperationApproveIn,
     OperationCardOut,
     OperationMoveIn,
+    OperationPredecessorsIn,
     OperationProgressIn,
     OperationStatusIn,
     OperationUpdateIn,
     OrderAbilitiesOut,
     OrderCardOut,
+    OrderDocumentOut,
     OrderOut,
+    OrderStageApproveIn,
+    OrderStageMoveIn,
+    OrderStageResponsibleIn,
     OrderUpdateIn,
-    PredecessorsIn,
     ProductionSettingsOut,
+    ProductionVisaItemOut,
     ReplanIn,
     ScheduleOut,
     ShiftIn,
-    StageApproveIn,
-    StageMoveIn,
-    StageResponsibleIn,
     TemplateListItem,
     TemplateOut,
-    VisaItemOut,
     WorkCenterOut,
 )
 
@@ -220,6 +221,11 @@ def get_settings(request: AuthenticatedHttpRequest) -> dict[str, Any]:
     }
 
 
+@router.get("/employees", response=list[EmployeeOptionOut], operation_id="listProductionEmployees")
+def list_employees(request: AuthenticatedHttpRequest) -> list[Any]:
+    return selectors.list_employees()
+
+
 @router.get("/document-kinds", response=list[DocumentKindOut], operation_id="listDocumentKinds")
 def list_document_kinds(request: AuthenticatedHttpRequest) -> list[dict[str, str]]:
     return [{"code": code, "name": name} for code, name in selectors.DOCUMENT_TYPE_CODES.items()]
@@ -247,7 +253,7 @@ def get_gantt(request: AuthenticatedHttpRequest) -> list[dict[str, Any]]:
     return [{**asdict(order), "can_plan": can_plan} for order in selectors.list_gantt()]
 
 
-@router.get("/my-visas", response=list[VisaItemOut], operation_id="listMyProductionVisas")
+@router.get("/my-visas", response=list[ProductionVisaItemOut], operation_id="listMyProductionVisas")
 def my_visas(request: AuthenticatedHttpRequest) -> list[Any]:
     employee_id = _employee(request)
     if employee_id is None:
@@ -282,7 +288,7 @@ def update_order(
 
 @router.post("/orders/{order_id}/stage", response=OrderOut, operation_id="moveProductionOrderStage")
 def move_stage(
-    request: AuthenticatedHttpRequest, order_id: UUID, data: StageMoveIn
+    request: AuthenticatedHttpRequest, order_id: UUID, data: OrderStageMoveIn
 ) -> dict[str, Any]:
     order = selectors.get_order(order_id)
     if order is None:
@@ -310,7 +316,7 @@ def move_stage(
     operation_id="approveProductionOrderStage",
 )
 def approve_stage(
-    request: AuthenticatedHttpRequest, order_id: UUID, stage: OrderStage, data: StageApproveIn
+    request: AuthenticatedHttpRequest, order_id: UUID, stage: OrderStage, data: OrderStageApproveIn
 ) -> dict[str, Any]:
     approval = selectors.get_stage_approval(order_id, stage)
     if approval is None:
@@ -333,7 +339,10 @@ def approve_stage(
     operation_id="setProductionStageResponsible",
 )
 def set_stage_responsible(
-    request: AuthenticatedHttpRequest, order_id: UUID, stage: OrderStage, data: StageResponsibleIn
+    request: AuthenticatedHttpRequest,
+    order_id: UUID,
+    stage: OrderStage,
+    data: OrderStageResponsibleIn,
 ) -> dict[str, Any]:
     _card_or_404(order_id)
     if not rules.can_manage_orders(request.auth):
@@ -437,7 +446,7 @@ def add_comment(
 
 @router.get(
     "/orders/{order_id}/documents",
-    response=list[DocumentOut],
+    response=list[OrderDocumentOut],
     operation_id="listProductionOrderDocuments",
 )
 def list_documents(request: AuthenticatedHttpRequest, order_id: UUID) -> list[Any]:
@@ -455,7 +464,7 @@ def _require_documents_right(request: AuthenticatedHttpRequest, order_id: UUID) 
 
 @router.post(
     "/orders/{order_id}/documents",
-    response=list[DocumentOut],
+    response=list[OrderDocumentOut],
     operation_id="uploadProductionOrderDocument",
 )
 def upload_document(
@@ -481,7 +490,7 @@ def upload_document(
 
 @router.post(
     "/orders/{order_id}/documents/{document_id}/approve",
-    response=list[DocumentOut],
+    response=list[OrderDocumentOut],
     operation_id="approveProductionOrderDocument",
 )
 def approve_document(
@@ -496,7 +505,7 @@ def approve_document(
 
 @router.delete(
     "/orders/{order_id}/documents/{document_id}",
-    response=list[DocumentOut],
+    response=list[OrderDocumentOut],
     operation_id="annulProductionOrderDocument",
 )
 def annul_document(
@@ -654,7 +663,7 @@ def move_operation(
     operation_id="setProductionOperationPredecessors",
 )
 def set_predecessors(
-    request: AuthenticatedHttpRequest, operation_id: UUID, data: PredecessorsIn
+    request: AuthenticatedHttpRequest, operation_id: UUID, data: OperationPredecessorsIn
 ) -> dict[str, Any]:
     _operation_or_404(operation_id)
     if not rules.can_plan_operations(request.auth):

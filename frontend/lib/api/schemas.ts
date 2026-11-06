@@ -62,16 +62,15 @@ export const SrcCoreDocumentsApiRoutersUploadBody = zod.object({
 })
 
 export const SrcCoreDocumentsApiRoutersUploadResponse = zod.object({
-  "document_id": zod.uuid(),
-  "name": zod.string(),
-  "doc_type_code": zod.string(),
-  "doc_type_name": zod.string(),
-  "version": zod.int(),
+  "id": zod.uuid(),
+  "original_name": zod.string(),
   "size_bytes": zod.int(),
-  "uploaded_at": zod.iso.datetime({"offset":true}),
-  "operation_id": zod.union([zod.uuid(),zod.null()]),
-  "approved_by_name": zod.string(),
-  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()])
+  "mime_type": zod.string(),
+  "checksum": zod.string(),
+  "doc_type_id": zod.uuid(),
+  "version": zod.int(),
+  "uploaded_by": zod.uuid(),
+  "created_at": zod.iso.datetime({"offset":true})
 })
 
 
@@ -116,16 +115,15 @@ export const SrcCoreDocumentsApiRoutersListForEntityParams = zod.object({
 })
 
 export const SrcCoreDocumentsApiRoutersListForEntityResponseItem = zod.object({
-  "document_id": zod.uuid(),
-  "name": zod.string(),
-  "doc_type_code": zod.string(),
-  "doc_type_name": zod.string(),
-  "version": zod.int(),
+  "id": zod.uuid(),
+  "original_name": zod.string(),
   "size_bytes": zod.int(),
-  "uploaded_at": zod.iso.datetime({"offset":true}),
-  "operation_id": zod.union([zod.uuid(),zod.null()]),
-  "approved_by_name": zod.string(),
-  "approved_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()])
+  "mime_type": zod.string(),
+  "checksum": zod.string(),
+  "doc_type_id": zod.uuid(),
+  "version": zod.int(),
+  "uploaded_by": zod.uuid(),
+  "created_at": zod.iso.datetime({"offset":true})
 })
 export const SrcCoreDocumentsApiRoutersListForEntityResponse = zod.array(SrcCoreDocumentsApiRoutersListForEntityResponseItem)
 
@@ -2146,6 +2144,16 @@ export const GetProductionSettingsResponse = zod.object({
 
 
 /**
+ * @summary List Employees
+ */
+export const ListProductionEmployeesResponseItem = zod.object({
+  "id": zod.uuid(),
+  "full_name": zod.string()
+})
+export const ListProductionEmployeesResponse = zod.array(ListProductionEmployeesResponseItem)
+
+
+/**
  * @summary List Document Kinds
  */
 export const ListDocumentKindsResponseItem = zod.object({
@@ -2260,13 +2268,23 @@ export const listMyProductionVisasResponseQuantityRegExp = new RegExp('^(?!^[-+.
 
 
 export const ListMyProductionVisasResponseItem = zod.object({
-  "inquiry_id": zod.uuid(),
-  "number": zod.string(),
-  "customer_name": zod.string(),
+  "kind": zod.string(),
+  "order_id": zod.uuid(),
+  "order_number": zod.string(),
   "product_name": zod.string(),
+  "customer_name": zod.string(),
   "quantity": zod.string().regex(listMyProductionVisasResponseQuantityRegExp),
   "due_date": zod.iso.date(),
-  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "health": zod.object({
+  "color": zod.string(),
+  "status": zod.string(),
+  "days": zod.int(),
+  "text": zod.string()
+}),
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_name": zod.string(),
+  "operation_status": zod.string(),
   "text": zod.string()
 })
 export const ListMyProductionVisasResponse = zod.array(ListMyProductionVisasResponseItem)
@@ -2326,7 +2344,7 @@ export const GetProductionOrderResponse = zod.object({
   "shipped_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
   "created_at": zod.iso.datetime({"offset":true}),
   "approvals": zod.array(zod.object({
-  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
   "stage_label": zod.string(),
   "responsible_id": zod.union([zod.uuid(),zod.null()]),
   "responsible_name": zod.string(),
@@ -2408,7 +2426,7 @@ export const UpdateProductionOrderResponse = zod.object({
   "shipped_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
   "created_at": zod.iso.datetime({"offset":true}),
   "approvals": zod.array(zod.object({
-  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
   "stage_label": zod.string(),
   "responsible_id": zod.union([zod.uuid(),zod.null()]),
   "responsible_name": zod.string(),
@@ -2441,7 +2459,7 @@ export const MoveProductionOrderStageParams = zod.object({
 export const moveProductionOrderStageBodyCommentDefault = ``;
 
 export const MoveProductionOrderStageBody = zod.object({
-  "to": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "to": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
   "comment": zod.string().default(moveProductionOrderStageBodyCommentDefault)
 })
 
@@ -2492,7 +2510,7 @@ export const MoveProductionOrderStageResponse = zod.object({
   "shipped_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
   "created_at": zod.iso.datetime({"offset":true}),
   "approvals": zod.array(zod.object({
-  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
   "stage_label": zod.string(),
   "responsible_id": zod.union([zod.uuid(),zod.null()]),
   "responsible_name": zod.string(),
@@ -2576,7 +2594,7 @@ export const ApproveProductionOrderStageResponse = zod.object({
   "shipped_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
   "created_at": zod.iso.datetime({"offset":true}),
   "approvals": zod.array(zod.object({
-  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
   "stage_label": zod.string(),
   "responsible_id": zod.union([zod.uuid(),zod.null()]),
   "responsible_name": zod.string(),
@@ -2658,7 +2676,7 @@ export const SetProductionStageResponsibleResponse = zod.object({
   "shipped_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
   "created_at": zod.iso.datetime({"offset":true}),
   "approvals": zod.array(zod.object({
-  "stage": zod.enum(['new', 'calc', 'approval', 'launched', 'lost']),
+  "stage": zod.enum(['launch', 'prep', 'prod', 'qc', 'done']),
   "stage_label": zod.string(),
   "responsible_id": zod.union([zod.uuid(),zod.null()]),
   "responsible_name": zod.string(),
@@ -4903,6 +4921,27 @@ export const LaunchInquiryResponse = zod.object({
   "inquiry_id": zod.uuid(),
   "order_id": zod.uuid(),
   "warnings": zod.array(zod.string())
+})
+
+
+/**
+ * @summary Launch Preview
+ */
+export const PreviewInquiryLaunchParams = zod.object({
+  "inquiry_id": zod.uuid()
+})
+
+export const PreviewInquiryLaunchQueryParams = zod.object({
+  "planned_start": zod.iso.date(),
+  "due_date": zod.iso.date()
+})
+
+export const PreviewInquiryLaunchResponse = zod.object({
+  "planned_start": zod.iso.date(),
+  "planned_finish": zod.union([zod.iso.date(),zod.null()]),
+  "length": zod.int(),
+  "days_late": zod.int(),
+  "critical_path": zod.array(zod.string())
 })
 
 

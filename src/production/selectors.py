@@ -27,6 +27,7 @@ from src.core.common.scheduling import (
     assess_health,
 )
 from src.core.documents import facade as documents
+from src.core.org import selectors as org_selectors
 from src.core.org.models import Employee
 from src.production.models import (
     DocumentRelease,
@@ -77,6 +78,12 @@ def _name(employee: Employee | None) -> str:
 
 
 # --- Справочники -------------------------------------------------------------------
+
+
+def list_employees() -> list[org_selectors.EmployeeBrief]:
+    """Работающие сотрудники для выбора ответственных за этапы и операции."""
+
+    return org_selectors.list_active_employees()
 
 
 def list_work_centers(*, active_only: bool = False) -> list[WorkCenter]:

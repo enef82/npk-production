@@ -38,16 +38,15 @@ export interface LoginIn {
 }
 
 export interface DocumentOut {
-  document_id: string;
-  name: string;
-  doc_type_code: string;
-  doc_type_name: string;
-  version: number;
+  id: string;
+  original_name: string;
   size_bytes: number;
-  uploaded_at: string;
-  operation_id: string | null;
-  approved_by_name: string;
-  approved_at: string | null;
+  mime_type: string;
+  checksum: string;
+  doc_type_id: string;
+  version: number;
+  uploaded_by: string;
+  created_at: string;
 }
 
 export interface DownloadLinkOut {
@@ -858,6 +857,11 @@ export interface ProductionSettingsOut {
   stages: StageResponsibleOut[];
 }
 
+export interface EmployeeOptionOut {
+  id: string;
+  full_name: string;
+}
+
 export interface DocumentKindOut {
   code: string;
   name: string;
@@ -868,7 +872,7 @@ export interface BoardAbilitiesOut {
   can_approve_stage: boolean;
 }
 
-export interface HealthOut {
+export interface OrderHealthOut {
   color: string;
   status: string;
   days: number;
@@ -893,7 +897,7 @@ export interface OrderCardOut {
   due_date: string;
   stage: OrderStage;
   derived_stage: OrderStage;
-  health: HealthOut;
+  health: OrderHealthOut;
   /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
   progress: string;
   stage_responsible_id: string | null;
@@ -944,31 +948,25 @@ export interface GanttOrderOut {
   due_date: string;
   planned_start: string;
   planned_finish: string | null;
-  health: HealthOut;
+  health: OrderHealthOut;
   can_plan: boolean;
   operations: GanttOperationOut[];
 }
 
-export type InquiryStage = typeof InquiryStage[keyof typeof InquiryStage];
-
-
-export const InquiryStage = {
-  new: 'new',
-  calc: 'calc',
-  approval: 'approval',
-  launched: 'launched',
-  lost: 'lost',
-} as const;
-
-export interface VisaItemOut {
-  inquiry_id: string;
-  number: string;
-  customer_name: string;
+export interface ProductionVisaItemOut {
+  kind: string;
+  order_id: string;
+  order_number: string;
   product_name: string;
+  customer_name: string;
   /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
   quantity: string;
   due_date: string;
-  stage: InquiryStage;
+  health: OrderHealthOut;
+  stage: OrderStage;
+  operation_id: string | null;
+  operation_name: string;
+  operation_status: string;
   text: string;
 }
 
@@ -981,8 +979,8 @@ export interface OrderAbilitiesOut {
   can_comment: boolean;
 }
 
-export interface StageApprovalOut {
-  stage: InquiryStage;
+export interface OrderStageApprovalOut {
+  stage: OrderStage;
   stage_label: string;
   responsible_id: string | null;
   responsible_name: string;
@@ -1010,7 +1008,7 @@ export interface OrderOut {
   due_date: string;
   stage: OrderStage;
   derived_stage: OrderStage;
-  health: HealthOut;
+  health: OrderHealthOut;
   /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
   progress: string;
   stage_responsible_id: string | null;
@@ -1026,7 +1024,7 @@ export interface OrderOut {
   labor_cost_planned: string;
   shipped_at: string | null;
   created_at: string;
-  approvals: StageApprovalOut[];
+  approvals: OrderStageApprovalOut[];
   /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
   hours_total: string;
   /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
@@ -1040,16 +1038,16 @@ export interface OrderUpdateIn {
   manager_id: string;
 }
 
-export interface StageMoveIn {
-  to: InquiryStage;
+export interface OrderStageMoveIn {
+  to: OrderStage;
   comment?: string;
 }
 
-export interface StageApproveIn {
+export interface OrderStageApproveIn {
   comment?: string;
 }
 
-export interface StageResponsibleIn {
+export interface OrderStageResponsibleIn {
   responsible_id: string;
 }
 
@@ -1152,6 +1150,19 @@ export interface CommentIn {
   operation_id?: string | null;
 }
 
+export interface OrderDocumentOut {
+  document_id: string;
+  name: string;
+  doc_type_code: string;
+  doc_type_name: string;
+  version: number;
+  size_bytes: number;
+  uploaded_at: string;
+  operation_id: string | null;
+  approved_by_name: string;
+  approved_at: string | null;
+}
+
 export interface OperationLinkOut {
   id: string;
   seq: number;
@@ -1166,7 +1177,7 @@ export interface OperationCardOut {
   order: OrderCardOut;
   predecessors: OperationLinkOut[];
   successors: OperationLinkOut[];
-  documents: DocumentOut[];
+  documents: OrderDocumentOut[];
   journal: JournalEntryOut[];
   has_inspection: boolean;
 }
@@ -1197,7 +1208,7 @@ export interface OperationMoveIn {
   start: string;
 }
 
-export interface PredecessorsIn {
+export interface OperationPredecessorsIn {
   predecessor_ids: string[];
 }
 
@@ -1217,6 +1228,17 @@ export interface SalesSettingsOut {
   prob_approval: string;
 }
 
+export type InquiryStage = typeof InquiryStage[keyof typeof InquiryStage];
+
+
+export const InquiryStage = {
+  new: 'new',
+  calc: 'calc',
+  approval: 'approval',
+  launched: 'launched',
+  lost: 'lost',
+} as const;
+
 export interface InquiryAbilitiesOut {
   can_edit: boolean;
   can_edit_calculation: boolean;
@@ -1224,6 +1246,13 @@ export interface InquiryAbilitiesOut {
   can_approve_stage: boolean;
   can_launch: boolean;
   can_lose: boolean;
+}
+
+export interface InquiryHealthOut {
+  color: string;
+  status: string;
+  days: number;
+  text: string;
 }
 
 export interface InquiryCardOut {
@@ -1240,7 +1269,7 @@ export interface InquiryCardOut {
   manager_id: string;
   manager_name: string;
   stage: InquiryStage;
-  health: HealthOut;
+  health: InquiryHealthOut;
   /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
   total: string;
   /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
@@ -1254,6 +1283,18 @@ export interface InquiryCardOut {
   has_plan: boolean;
   order_id: string | null;
   abilities: InquiryAbilitiesOut;
+}
+
+export interface InquiryVisaItemOut {
+  inquiry_id: string;
+  number: string;
+  customer_name: string;
+  product_name: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  quantity: string;
+  due_date: string;
+  stage: InquiryStage;
+  text: string;
 }
 
 export interface CalcOperationOut {
@@ -1277,6 +1318,17 @@ export interface CalcOperationOut {
   predecessor_ids: string[];
   slack: number | null;
   is_critical: boolean;
+}
+
+export interface InquiryStageApprovalOut {
+  stage: InquiryStage;
+  stage_label: string;
+  responsible_id: string | null;
+  responsible_name: string;
+  approved_by_id: string | null;
+  approved_by_name: string;
+  approved_at: string | null;
+  comment: string;
 }
 
 export interface MaterialOut {
@@ -1325,7 +1377,7 @@ export interface InquiryOut {
   manager_id: string;
   manager_name: string;
   stage: InquiryStage;
-  health: HealthOut;
+  health: InquiryHealthOut;
   /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
   total: string;
   /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
@@ -1349,7 +1401,7 @@ export interface InquiryOut {
   lost_reason_name: string;
   lost_comment: string;
   created_at: string;
-  approvals: StageApprovalOut[];
+  approvals: InquiryStageApprovalOut[];
   materials: MaterialOut[];
   operations: CalcOperationOut[];
   totals: TotalsOut;
@@ -1389,6 +1441,19 @@ export interface InquiryUpdateIn {
   vat_pct: number | string;
 }
 
+export interface InquiryStageMoveIn {
+  to: InquiryStage;
+  comment?: string;
+}
+
+export interface InquiryStageApproveIn {
+  comment?: string;
+}
+
+export interface InquiryStageResponsibleIn {
+  responsible_id: string;
+}
+
 export interface LaunchOut {
   inquiry_id: string;
   order_id: string;
@@ -1398,6 +1463,14 @@ export interface LaunchOut {
 export interface LaunchIn {
   planned_start: string;
   due_date: string;
+}
+
+export interface LaunchPreviewOut {
+  planned_start: string;
+  planned_finish: string | null;
+  length: number;
+  days_late: number;
+  critical_path: string[];
 }
 
 export interface LoseIn {
@@ -1421,6 +1494,10 @@ export interface CalcOperationIn {
   hours: number | string;
   people?: number;
   not_before?: string | null;
+}
+
+export interface CalcPredecessorsIn {
+  predecessor_ids: string[];
 }
 
 export interface PlanIn {
@@ -1840,6 +1917,11 @@ export type GetSalesBoardParams = {
 stage?: InquiryStage | null;
 search?: string;
 include_closed?: boolean;
+};
+
+export type PreviewInquiryLaunchParams = {
+planned_start: string;
+due_date: string;
 };
 
 export type ListTimesheetDepartmentsParams = {
@@ -6593,6 +6675,107 @@ export function useGetProductionSettings<TData = Awaited<ReturnType<typeof getPr
 
 
 
+export const getListProductionEmployeesUrl = () => {
+
+
+
+
+  return `/api/v1/production/employees`
+}
+
+/**
+ * @summary List Employees
+ */
+export const listProductionEmployees = async ( options?: Parameters<typeof customFetch>[1]): Promise<EmployeeOptionOut[]> => {
+
+  return customFetch<EmployeeOptionOut[]>(getListProductionEmployeesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListProductionEmployeesQueryKey = () => {
+    return [
+    `/api/v1/production/employees`
+    ] as const;
+    }
+
+
+export const getListProductionEmployeesQueryOptions = <TData = Awaited<ReturnType<typeof listProductionEmployees>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listProductionEmployees>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListProductionEmployeesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listProductionEmployees>>> = ({ signal }) => listProductionEmployees({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listProductionEmployees>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListProductionEmployeesQueryResult = NonNullable<Awaited<ReturnType<typeof listProductionEmployees>>>
+export type ListProductionEmployeesQueryError = unknown
+
+
+export function useListProductionEmployees<TData = Awaited<ReturnType<typeof listProductionEmployees>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listProductionEmployees>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listProductionEmployees>>,
+          TError,
+          Awaited<ReturnType<typeof listProductionEmployees>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListProductionEmployees<TData = Awaited<ReturnType<typeof listProductionEmployees>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listProductionEmployees>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listProductionEmployees>>,
+          TError,
+          Awaited<ReturnType<typeof listProductionEmployees>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListProductionEmployees<TData = Awaited<ReturnType<typeof listProductionEmployees>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listProductionEmployees>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List Employees
+ */
+
+export function useListProductionEmployees<TData = Awaited<ReturnType<typeof listProductionEmployees>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listProductionEmployees>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListProductionEmployeesQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
 export const getListDocumentKindsUrl = () => {
 
 
@@ -6914,9 +7097,9 @@ export const getListMyProductionVisasUrl = () => {
 /**
  * @summary My Visas
  */
-export const listMyProductionVisas = async ( options?: Parameters<typeof customFetch>[1]): Promise<VisaItemOut[]> => {
+export const listMyProductionVisas = async ( options?: Parameters<typeof customFetch>[1]): Promise<ProductionVisaItemOut[]> => {
 
-  return customFetch<VisaItemOut[]>(getListMyProductionVisasUrl(),
+  return customFetch<ProductionVisaItemOut[]>(getListMyProductionVisasUrl(),
   {
     ...options,
     method: 'GET'
@@ -7189,14 +7372,14 @@ export const getMoveProductionOrderStageUrl = (orderId: string,) => {
  * @summary Move Stage
  */
 export const moveProductionOrderStage = async (orderId: string,
-    stageMoveIn: StageMoveIn, options?: Parameters<typeof customFetch>[1]): Promise<OrderOut> => {
+    orderStageMoveIn: OrderStageMoveIn, options?: Parameters<typeof customFetch>[1]): Promise<OrderOut> => {
 
   return customFetch<OrderOut>(getMoveProductionOrderStageUrl(orderId),
   {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(stageMoveIn)
+    body: JSON.stringify(orderStageMoveIn)
   }
 );}
 
@@ -7205,8 +7388,8 @@ export const moveProductionOrderStage = async (orderId: string,
 
 
 export const getMoveProductionOrderStageMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof moveProductionOrderStage>>, TError,{orderId: string;data: StageMoveIn}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof moveProductionOrderStage>>, TError,{orderId: string;data: StageMoveIn}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof moveProductionOrderStage>>, TError,{orderId: string;data: OrderStageMoveIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof moveProductionOrderStage>>, TError,{orderId: string;data: OrderStageMoveIn}, TContext> => {
 
 const mutationKey = ['moveProductionOrderStage'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -7218,7 +7401,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof moveProductionOrderStage>>, {orderId: string;data: StageMoveIn}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof moveProductionOrderStage>>, {orderId: string;data: OrderStageMoveIn}> = (props) => {
           const {orderId,data} = props ?? {};
 
           return  moveProductionOrderStage(orderId,data,requestOptions)
@@ -7232,18 +7415,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type MoveProductionOrderStageMutationResult = NonNullable<Awaited<ReturnType<typeof moveProductionOrderStage>>>
-    export type MoveProductionOrderStageMutationBody = StageMoveIn
+    export type MoveProductionOrderStageMutationBody = OrderStageMoveIn
     export type MoveProductionOrderStageMutationError = unknown
 
     /**
  * @summary Move Stage
  */
 export const useMoveProductionOrderStage = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof moveProductionOrderStage>>, TError,{orderId: string;data: StageMoveIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof moveProductionOrderStage>>, TError,{orderId: string;data: OrderStageMoveIn}, TContext>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof moveProductionOrderStage>>,
         TError,
-        {orderId: string;data: StageMoveIn},
+        {orderId: string;data: OrderStageMoveIn},
         TContext
       > => {
       return useMutation(getMoveProductionOrderStageMutationOptions(options), queryClient);
@@ -7263,14 +7446,14 @@ export const getApproveProductionOrderStageUrl = (orderId: string,
  */
 export const approveProductionOrderStage = async (orderId: string,
     stage: 'launch' | 'prep' | 'prod' | 'qc' | 'done',
-    stageApproveIn: StageApproveIn, options?: Parameters<typeof customFetch>[1]): Promise<OrderOut> => {
+    orderStageApproveIn: OrderStageApproveIn, options?: Parameters<typeof customFetch>[1]): Promise<OrderOut> => {
 
   return customFetch<OrderOut>(getApproveProductionOrderStageUrl(orderId,stage),
   {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(stageApproveIn)
+    body: JSON.stringify(orderStageApproveIn)
   }
 );}
 
@@ -7279,8 +7462,8 @@ export const approveProductionOrderStage = async (orderId: string,
 
 
 export const getApproveProductionOrderStageMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof approveProductionOrderStage>>, TError,{orderId: string;stage: 'launch' | 'prep' | 'prod' | 'qc' | 'done';data: StageApproveIn}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof approveProductionOrderStage>>, TError,{orderId: string;stage: 'launch' | 'prep' | 'prod' | 'qc' | 'done';data: StageApproveIn}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof approveProductionOrderStage>>, TError,{orderId: string;stage: 'launch' | 'prep' | 'prod' | 'qc' | 'done';data: OrderStageApproveIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof approveProductionOrderStage>>, TError,{orderId: string;stage: 'launch' | 'prep' | 'prod' | 'qc' | 'done';data: OrderStageApproveIn}, TContext> => {
 
 const mutationKey = ['approveProductionOrderStage'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -7292,7 +7475,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof approveProductionOrderStage>>, {orderId: string;stage: 'launch' | 'prep' | 'prod' | 'qc' | 'done';data: StageApproveIn}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof approveProductionOrderStage>>, {orderId: string;stage: 'launch' | 'prep' | 'prod' | 'qc' | 'done';data: OrderStageApproveIn}> = (props) => {
           const {orderId,stage,data} = props ?? {};
 
           return  approveProductionOrderStage(orderId,stage,data,requestOptions)
@@ -7306,18 +7489,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type ApproveProductionOrderStageMutationResult = NonNullable<Awaited<ReturnType<typeof approveProductionOrderStage>>>
-    export type ApproveProductionOrderStageMutationBody = StageApproveIn
+    export type ApproveProductionOrderStageMutationBody = OrderStageApproveIn
     export type ApproveProductionOrderStageMutationError = unknown
 
     /**
  * @summary Approve Stage
  */
 export const useApproveProductionOrderStage = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof approveProductionOrderStage>>, TError,{orderId: string;stage: 'launch' | 'prep' | 'prod' | 'qc' | 'done';data: StageApproveIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof approveProductionOrderStage>>, TError,{orderId: string;stage: 'launch' | 'prep' | 'prod' | 'qc' | 'done';data: OrderStageApproveIn}, TContext>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof approveProductionOrderStage>>,
         TError,
-        {orderId: string;stage: 'launch' | 'prep' | 'prod' | 'qc' | 'done';data: StageApproveIn},
+        {orderId: string;stage: 'launch' | 'prep' | 'prod' | 'qc' | 'done';data: OrderStageApproveIn},
         TContext
       > => {
       return useMutation(getApproveProductionOrderStageMutationOptions(options), queryClient);
@@ -7337,14 +7520,14 @@ export const getSetProductionStageResponsibleUrl = (orderId: string,
  */
 export const setProductionStageResponsible = async (orderId: string,
     stage: 'launch' | 'prep' | 'prod' | 'qc' | 'done',
-    stageResponsibleIn: StageResponsibleIn, options?: Parameters<typeof customFetch>[1]): Promise<OrderOut> => {
+    orderStageResponsibleIn: OrderStageResponsibleIn, options?: Parameters<typeof customFetch>[1]): Promise<OrderOut> => {
 
   return customFetch<OrderOut>(getSetProductionStageResponsibleUrl(orderId,stage),
   {
     ...options,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(stageResponsibleIn)
+    body: JSON.stringify(orderStageResponsibleIn)
   }
 );}
 
@@ -7353,8 +7536,8 @@ export const setProductionStageResponsible = async (orderId: string,
 
 
 export const getSetProductionStageResponsibleMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setProductionStageResponsible>>, TError,{orderId: string;stage: 'launch' | 'prep' | 'prod' | 'qc' | 'done';data: StageResponsibleIn}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof setProductionStageResponsible>>, TError,{orderId: string;stage: 'launch' | 'prep' | 'prod' | 'qc' | 'done';data: StageResponsibleIn}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setProductionStageResponsible>>, TError,{orderId: string;stage: 'launch' | 'prep' | 'prod' | 'qc' | 'done';data: OrderStageResponsibleIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setProductionStageResponsible>>, TError,{orderId: string;stage: 'launch' | 'prep' | 'prod' | 'qc' | 'done';data: OrderStageResponsibleIn}, TContext> => {
 
 const mutationKey = ['setProductionStageResponsible'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -7366,7 +7549,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setProductionStageResponsible>>, {orderId: string;stage: 'launch' | 'prep' | 'prod' | 'qc' | 'done';data: StageResponsibleIn}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setProductionStageResponsible>>, {orderId: string;stage: 'launch' | 'prep' | 'prod' | 'qc' | 'done';data: OrderStageResponsibleIn}> = (props) => {
           const {orderId,stage,data} = props ?? {};
 
           return  setProductionStageResponsible(orderId,stage,data,requestOptions)
@@ -7380,18 +7563,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type SetProductionStageResponsibleMutationResult = NonNullable<Awaited<ReturnType<typeof setProductionStageResponsible>>>
-    export type SetProductionStageResponsibleMutationBody = StageResponsibleIn
+    export type SetProductionStageResponsibleMutationBody = OrderStageResponsibleIn
     export type SetProductionStageResponsibleMutationError = unknown
 
     /**
  * @summary Set Stage Responsible
  */
 export const useSetProductionStageResponsible = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setProductionStageResponsible>>, TError,{orderId: string;stage: 'launch' | 'prep' | 'prod' | 'qc' | 'done';data: StageResponsibleIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setProductionStageResponsible>>, TError,{orderId: string;stage: 'launch' | 'prep' | 'prod' | 'qc' | 'done';data: OrderStageResponsibleIn}, TContext>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof setProductionStageResponsible>>,
         TError,
-        {orderId: string;stage: 'launch' | 'prep' | 'prod' | 'qc' | 'done';data: StageResponsibleIn},
+        {orderId: string;stage: 'launch' | 'prep' | 'prod' | 'qc' | 'done';data: OrderStageResponsibleIn},
         TContext
       > => {
       return useMutation(getSetProductionStageResponsibleMutationOptions(options), queryClient);
@@ -7841,9 +8024,9 @@ export const getListProductionOrderDocumentsUrl = (orderId: string,) => {
 /**
  * @summary List Documents
  */
-export const listProductionOrderDocuments = async (orderId: string, options?: Parameters<typeof customFetch>[1]): Promise<DocumentOut[]> => {
+export const listProductionOrderDocuments = async (orderId: string, options?: Parameters<typeof customFetch>[1]): Promise<OrderDocumentOut[]> => {
 
-  return customFetch<DocumentOut[]>(getListProductionOrderDocumentsUrl(orderId),
+  return customFetch<OrderDocumentOut[]>(getListProductionOrderDocumentsUrl(orderId),
   {
     ...options,
     method: 'GET'
@@ -7943,7 +8126,7 @@ export const getUploadProductionOrderDocumentUrl = (orderId: string,) => {
  * @summary Upload Document
  */
 export const uploadProductionOrderDocument = async (orderId: string,
-    uploadProductionOrderDocumentBody: UploadProductionOrderDocumentBody, options?: Parameters<typeof customFetch>[1]): Promise<DocumentOut[]> => {
+    uploadProductionOrderDocumentBody: UploadProductionOrderDocumentBody, options?: Parameters<typeof customFetch>[1]): Promise<OrderDocumentOut[]> => {
     const formData = new FormData();
 formData.append(`file`, uploadProductionOrderDocumentBody.file);
 formData.append(`doc_type_code`, uploadProductionOrderDocumentBody.doc_type_code);
@@ -7954,7 +8137,7 @@ if(uploadProductionOrderDocumentBody.description !== undefined) {
  formData.append(`description`, uploadProductionOrderDocumentBody.description);
  }
 
-  return customFetch<DocumentOut[]>(getUploadProductionOrderDocumentUrl(orderId),
+  return customFetch<OrderDocumentOut[]>(getUploadProductionOrderDocumentUrl(orderId),
   {
     ...options,
     method: 'POST'
@@ -8025,9 +8208,9 @@ export const getApproveProductionOrderDocumentUrl = (orderId: string,
  * @summary Approve Document
  */
 export const approveProductionOrderDocument = async (orderId: string,
-    documentId: string, options?: Parameters<typeof customFetch>[1]): Promise<DocumentOut[]> => {
+    documentId: string, options?: Parameters<typeof customFetch>[1]): Promise<OrderDocumentOut[]> => {
 
-  return customFetch<DocumentOut[]>(getApproveProductionOrderDocumentUrl(orderId,documentId),
+  return customFetch<OrderDocumentOut[]>(getApproveProductionOrderDocumentUrl(orderId,documentId),
   {
     ...options,
     method: 'POST'
@@ -8098,9 +8281,9 @@ export const getAnnulProductionOrderDocumentUrl = (orderId: string,
  * @summary Annul Document
  */
 export const annulProductionOrderDocument = async (orderId: string,
-    documentId: string, options?: Parameters<typeof customFetch>[1]): Promise<DocumentOut[]> => {
+    documentId: string, options?: Parameters<typeof customFetch>[1]): Promise<OrderDocumentOut[]> => {
 
-  return customFetch<DocumentOut[]>(getAnnulProductionOrderDocumentUrl(orderId,documentId),
+  return customFetch<OrderDocumentOut[]>(getAnnulProductionOrderDocumentUrl(orderId,documentId),
   {
     ...options,
     method: 'DELETE'
@@ -8631,14 +8814,14 @@ export const getSetProductionOperationPredecessorsUrl = (operationId: string,) =
  * @summary Set Predecessors
  */
 export const setProductionOperationPredecessors = async (operationId: string,
-    predecessorsIn: PredecessorsIn, options?: Parameters<typeof customFetch>[1]): Promise<OperationCardOut> => {
+    operationPredecessorsIn: OperationPredecessorsIn, options?: Parameters<typeof customFetch>[1]): Promise<OperationCardOut> => {
 
   return customFetch<OperationCardOut>(getSetProductionOperationPredecessorsUrl(operationId),
   {
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(predecessorsIn)
+    body: JSON.stringify(operationPredecessorsIn)
   }
 );}
 
@@ -8647,8 +8830,8 @@ export const setProductionOperationPredecessors = async (operationId: string,
 
 
 export const getSetProductionOperationPredecessorsMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setProductionOperationPredecessors>>, TError,{operationId: string;data: PredecessorsIn}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof setProductionOperationPredecessors>>, TError,{operationId: string;data: PredecessorsIn}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setProductionOperationPredecessors>>, TError,{operationId: string;data: OperationPredecessorsIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setProductionOperationPredecessors>>, TError,{operationId: string;data: OperationPredecessorsIn}, TContext> => {
 
 const mutationKey = ['setProductionOperationPredecessors'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -8660,7 +8843,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setProductionOperationPredecessors>>, {operationId: string;data: PredecessorsIn}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setProductionOperationPredecessors>>, {operationId: string;data: OperationPredecessorsIn}> = (props) => {
           const {operationId,data} = props ?? {};
 
           return  setProductionOperationPredecessors(operationId,data,requestOptions)
@@ -8674,18 +8857,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type SetProductionOperationPredecessorsMutationResult = NonNullable<Awaited<ReturnType<typeof setProductionOperationPredecessors>>>
-    export type SetProductionOperationPredecessorsMutationBody = PredecessorsIn
+    export type SetProductionOperationPredecessorsMutationBody = OperationPredecessorsIn
     export type SetProductionOperationPredecessorsMutationError = unknown
 
     /**
  * @summary Set Predecessors
  */
 export const useSetProductionOperationPredecessors = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setProductionOperationPredecessors>>, TError,{operationId: string;data: PredecessorsIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setProductionOperationPredecessors>>, TError,{operationId: string;data: OperationPredecessorsIn}, TContext>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof setProductionOperationPredecessors>>,
         TError,
-        {operationId: string;data: PredecessorsIn},
+        {operationId: string;data: OperationPredecessorsIn},
         TContext
       > => {
       return useMutation(getSetProductionOperationPredecessorsMutationOptions(options), queryClient);
@@ -9012,9 +9195,9 @@ export const getListMySalesVisasUrl = () => {
 /**
  * @summary My Visas
  */
-export const listMySalesVisas = async ( options?: Parameters<typeof customFetch>[1]): Promise<VisaItemOut[]> => {
+export const listMySalesVisas = async ( options?: Parameters<typeof customFetch>[1]): Promise<InquiryVisaItemOut[]> => {
 
-  return customFetch<VisaItemOut[]>(getListMySalesVisasUrl(),
+  return customFetch<InquiryVisaItemOut[]>(getListMySalesVisasUrl(),
   {
     ...options,
     method: 'GET'
@@ -9358,14 +9541,14 @@ export const getMoveInquiryStageUrl = (inquiryId: string,) => {
  * @summary Move Stage
  */
 export const moveInquiryStage = async (inquiryId: string,
-    stageMoveIn: StageMoveIn, options?: Parameters<typeof customFetch>[1]): Promise<InquiryOut> => {
+    inquiryStageMoveIn: InquiryStageMoveIn, options?: Parameters<typeof customFetch>[1]): Promise<InquiryOut> => {
 
   return customFetch<InquiryOut>(getMoveInquiryStageUrl(inquiryId),
   {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(stageMoveIn)
+    body: JSON.stringify(inquiryStageMoveIn)
   }
 );}
 
@@ -9374,8 +9557,8 @@ export const moveInquiryStage = async (inquiryId: string,
 
 
 export const getMoveInquiryStageMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof moveInquiryStage>>, TError,{inquiryId: string;data: StageMoveIn}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof moveInquiryStage>>, TError,{inquiryId: string;data: StageMoveIn}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof moveInquiryStage>>, TError,{inquiryId: string;data: InquiryStageMoveIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof moveInquiryStage>>, TError,{inquiryId: string;data: InquiryStageMoveIn}, TContext> => {
 
 const mutationKey = ['moveInquiryStage'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -9387,7 +9570,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof moveInquiryStage>>, {inquiryId: string;data: StageMoveIn}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof moveInquiryStage>>, {inquiryId: string;data: InquiryStageMoveIn}> = (props) => {
           const {inquiryId,data} = props ?? {};
 
           return  moveInquiryStage(inquiryId,data,requestOptions)
@@ -9401,18 +9584,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type MoveInquiryStageMutationResult = NonNullable<Awaited<ReturnType<typeof moveInquiryStage>>>
-    export type MoveInquiryStageMutationBody = StageMoveIn
+    export type MoveInquiryStageMutationBody = InquiryStageMoveIn
     export type MoveInquiryStageMutationError = unknown
 
     /**
  * @summary Move Stage
  */
 export const useMoveInquiryStage = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof moveInquiryStage>>, TError,{inquiryId: string;data: StageMoveIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof moveInquiryStage>>, TError,{inquiryId: string;data: InquiryStageMoveIn}, TContext>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof moveInquiryStage>>,
         TError,
-        {inquiryId: string;data: StageMoveIn},
+        {inquiryId: string;data: InquiryStageMoveIn},
         TContext
       > => {
       return useMutation(getMoveInquiryStageMutationOptions(options), queryClient);
@@ -9432,14 +9615,14 @@ export const getApproveInquiryStageUrl = (inquiryId: string,
  */
 export const approveInquiryStage = async (inquiryId: string,
     stage: 'new' | 'calc' | 'approval' | 'launched' | 'lost',
-    stageApproveIn: StageApproveIn, options?: Parameters<typeof customFetch>[1]): Promise<InquiryOut> => {
+    inquiryStageApproveIn: InquiryStageApproveIn, options?: Parameters<typeof customFetch>[1]): Promise<InquiryOut> => {
 
   return customFetch<InquiryOut>(getApproveInquiryStageUrl(inquiryId,stage),
   {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(stageApproveIn)
+    body: JSON.stringify(inquiryStageApproveIn)
   }
 );}
 
@@ -9448,8 +9631,8 @@ export const approveInquiryStage = async (inquiryId: string,
 
 
 export const getApproveInquiryStageMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof approveInquiryStage>>, TError,{inquiryId: string;stage: 'new' | 'calc' | 'approval' | 'launched' | 'lost';data: StageApproveIn}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof approveInquiryStage>>, TError,{inquiryId: string;stage: 'new' | 'calc' | 'approval' | 'launched' | 'lost';data: StageApproveIn}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof approveInquiryStage>>, TError,{inquiryId: string;stage: 'new' | 'calc' | 'approval' | 'launched' | 'lost';data: InquiryStageApproveIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof approveInquiryStage>>, TError,{inquiryId: string;stage: 'new' | 'calc' | 'approval' | 'launched' | 'lost';data: InquiryStageApproveIn}, TContext> => {
 
 const mutationKey = ['approveInquiryStage'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -9461,7 +9644,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof approveInquiryStage>>, {inquiryId: string;stage: 'new' | 'calc' | 'approval' | 'launched' | 'lost';data: StageApproveIn}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof approveInquiryStage>>, {inquiryId: string;stage: 'new' | 'calc' | 'approval' | 'launched' | 'lost';data: InquiryStageApproveIn}> = (props) => {
           const {inquiryId,stage,data} = props ?? {};
 
           return  approveInquiryStage(inquiryId,stage,data,requestOptions)
@@ -9475,18 +9658,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type ApproveInquiryStageMutationResult = NonNullable<Awaited<ReturnType<typeof approveInquiryStage>>>
-    export type ApproveInquiryStageMutationBody = StageApproveIn
+    export type ApproveInquiryStageMutationBody = InquiryStageApproveIn
     export type ApproveInquiryStageMutationError = unknown
 
     /**
  * @summary Approve Stage
  */
 export const useApproveInquiryStage = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof approveInquiryStage>>, TError,{inquiryId: string;stage: 'new' | 'calc' | 'approval' | 'launched' | 'lost';data: StageApproveIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof approveInquiryStage>>, TError,{inquiryId: string;stage: 'new' | 'calc' | 'approval' | 'launched' | 'lost';data: InquiryStageApproveIn}, TContext>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof approveInquiryStage>>,
         TError,
-        {inquiryId: string;stage: 'new' | 'calc' | 'approval' | 'launched' | 'lost';data: StageApproveIn},
+        {inquiryId: string;stage: 'new' | 'calc' | 'approval' | 'launched' | 'lost';data: InquiryStageApproveIn},
         TContext
       > => {
       return useMutation(getApproveInquiryStageMutationOptions(options), queryClient);
@@ -9506,14 +9689,14 @@ export const getSetInquiryStageResponsibleUrl = (inquiryId: string,
  */
 export const setInquiryStageResponsible = async (inquiryId: string,
     stage: 'new' | 'calc' | 'approval' | 'launched' | 'lost',
-    stageResponsibleIn: StageResponsibleIn, options?: Parameters<typeof customFetch>[1]): Promise<InquiryOut> => {
+    inquiryStageResponsibleIn: InquiryStageResponsibleIn, options?: Parameters<typeof customFetch>[1]): Promise<InquiryOut> => {
 
   return customFetch<InquiryOut>(getSetInquiryStageResponsibleUrl(inquiryId,stage),
   {
     ...options,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(stageResponsibleIn)
+    body: JSON.stringify(inquiryStageResponsibleIn)
   }
 );}
 
@@ -9522,8 +9705,8 @@ export const setInquiryStageResponsible = async (inquiryId: string,
 
 
 export const getSetInquiryStageResponsibleMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setInquiryStageResponsible>>, TError,{inquiryId: string;stage: 'new' | 'calc' | 'approval' | 'launched' | 'lost';data: StageResponsibleIn}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof setInquiryStageResponsible>>, TError,{inquiryId: string;stage: 'new' | 'calc' | 'approval' | 'launched' | 'lost';data: StageResponsibleIn}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setInquiryStageResponsible>>, TError,{inquiryId: string;stage: 'new' | 'calc' | 'approval' | 'launched' | 'lost';data: InquiryStageResponsibleIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setInquiryStageResponsible>>, TError,{inquiryId: string;stage: 'new' | 'calc' | 'approval' | 'launched' | 'lost';data: InquiryStageResponsibleIn}, TContext> => {
 
 const mutationKey = ['setInquiryStageResponsible'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -9535,7 +9718,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setInquiryStageResponsible>>, {inquiryId: string;stage: 'new' | 'calc' | 'approval' | 'launched' | 'lost';data: StageResponsibleIn}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setInquiryStageResponsible>>, {inquiryId: string;stage: 'new' | 'calc' | 'approval' | 'launched' | 'lost';data: InquiryStageResponsibleIn}> = (props) => {
           const {inquiryId,stage,data} = props ?? {};
 
           return  setInquiryStageResponsible(inquiryId,stage,data,requestOptions)
@@ -9549,18 +9732,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type SetInquiryStageResponsibleMutationResult = NonNullable<Awaited<ReturnType<typeof setInquiryStageResponsible>>>
-    export type SetInquiryStageResponsibleMutationBody = StageResponsibleIn
+    export type SetInquiryStageResponsibleMutationBody = InquiryStageResponsibleIn
     export type SetInquiryStageResponsibleMutationError = unknown
 
     /**
  * @summary Set Stage Responsible
  */
 export const useSetInquiryStageResponsible = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setInquiryStageResponsible>>, TError,{inquiryId: string;stage: 'new' | 'calc' | 'approval' | 'launched' | 'lost';data: StageResponsibleIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setInquiryStageResponsible>>, TError,{inquiryId: string;stage: 'new' | 'calc' | 'approval' | 'launched' | 'lost';data: InquiryStageResponsibleIn}, TContext>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof setInquiryStageResponsible>>,
         TError,
-        {inquiryId: string;stage: 'new' | 'calc' | 'approval' | 'launched' | 'lost';data: StageResponsibleIn},
+        {inquiryId: string;stage: 'new' | 'calc' | 'approval' | 'launched' | 'lost';data: InquiryStageResponsibleIn},
         TContext
       > => {
       return useMutation(getSetInquiryStageResponsibleMutationOptions(options), queryClient);
@@ -9637,6 +9820,122 @@ export const useLaunchInquiry = <TError = unknown,
       > => {
       return useMutation(getLaunchInquiryMutationOptions(options), queryClient);
     }
+
+export const getPreviewInquiryLaunchUrl = (inquiryId: string,
+    params: PreviewInquiryLaunchParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/sales/inquiries/${inquiryId}/launch-preview?${stringifiedParams}` : `/api/v1/sales/inquiries/${inquiryId}/launch-preview`
+}
+
+/**
+ * @summary Launch Preview
+ */
+export const previewInquiryLaunch = async (inquiryId: string,
+    params: PreviewInquiryLaunchParams, options?: Parameters<typeof customFetch>[1]): Promise<LaunchPreviewOut> => {
+
+  return customFetch<LaunchPreviewOut>(getPreviewInquiryLaunchUrl(inquiryId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getPreviewInquiryLaunchQueryKey = (inquiryId: string,
+    params?: PreviewInquiryLaunchParams,) => {
+    return [
+    `/api/v1/sales/inquiries/${inquiryId}/launch-preview`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getPreviewInquiryLaunchQueryOptions = <TData = Awaited<ReturnType<typeof previewInquiryLaunch>>, TError = unknown>(inquiryId: string,
+    params: PreviewInquiryLaunchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof previewInquiryLaunch>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getPreviewInquiryLaunchQueryKey(inquiryId,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof previewInquiryLaunch>>> = ({ signal }) => previewInquiryLaunch(inquiryId,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: inquiryId !== null && inquiryId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof previewInquiryLaunch>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type PreviewInquiryLaunchQueryResult = NonNullable<Awaited<ReturnType<typeof previewInquiryLaunch>>>
+export type PreviewInquiryLaunchQueryError = unknown
+
+
+export function usePreviewInquiryLaunch<TData = Awaited<ReturnType<typeof previewInquiryLaunch>>, TError = unknown>(
+ inquiryId: string,
+    params: PreviewInquiryLaunchParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof previewInquiryLaunch>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof previewInquiryLaunch>>,
+          TError,
+          Awaited<ReturnType<typeof previewInquiryLaunch>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePreviewInquiryLaunch<TData = Awaited<ReturnType<typeof previewInquiryLaunch>>, TError = unknown>(
+ inquiryId: string,
+    params: PreviewInquiryLaunchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof previewInquiryLaunch>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof previewInquiryLaunch>>,
+          TError,
+          Awaited<ReturnType<typeof previewInquiryLaunch>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePreviewInquiryLaunch<TData = Awaited<ReturnType<typeof previewInquiryLaunch>>, TError = unknown>(
+ inquiryId: string,
+    params: PreviewInquiryLaunchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof previewInquiryLaunch>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Launch Preview
+ */
+
+export function usePreviewInquiryLaunch<TData = Awaited<ReturnType<typeof previewInquiryLaunch>>, TError = unknown>(
+ inquiryId: string,
+    params: PreviewInquiryLaunchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof previewInquiryLaunch>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getPreviewInquiryLaunchQueryOptions(inquiryId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getLoseInquiryUrl = (inquiryId: string,) => {
 
@@ -10224,14 +10523,14 @@ export const getSetCalcOperationPredecessorsUrl = (operationId: string,) => {
  * @summary Set Predecessors
  */
 export const setCalcOperationPredecessors = async (operationId: string,
-    predecessorsIn: PredecessorsIn, options?: Parameters<typeof customFetch>[1]): Promise<InquiryOut> => {
+    calcPredecessorsIn: CalcPredecessorsIn, options?: Parameters<typeof customFetch>[1]): Promise<InquiryOut> => {
 
   return customFetch<InquiryOut>(getSetCalcOperationPredecessorsUrl(operationId),
   {
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(predecessorsIn)
+    body: JSON.stringify(calcPredecessorsIn)
   }
 );}
 
@@ -10240,8 +10539,8 @@ export const setCalcOperationPredecessors = async (operationId: string,
 
 
 export const getSetCalcOperationPredecessorsMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setCalcOperationPredecessors>>, TError,{operationId: string;data: PredecessorsIn}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof setCalcOperationPredecessors>>, TError,{operationId: string;data: PredecessorsIn}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setCalcOperationPredecessors>>, TError,{operationId: string;data: CalcPredecessorsIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setCalcOperationPredecessors>>, TError,{operationId: string;data: CalcPredecessorsIn}, TContext> => {
 
 const mutationKey = ['setCalcOperationPredecessors'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -10253,7 +10552,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setCalcOperationPredecessors>>, {operationId: string;data: PredecessorsIn}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setCalcOperationPredecessors>>, {operationId: string;data: CalcPredecessorsIn}> = (props) => {
           const {operationId,data} = props ?? {};
 
           return  setCalcOperationPredecessors(operationId,data,requestOptions)
@@ -10267,18 +10566,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type SetCalcOperationPredecessorsMutationResult = NonNullable<Awaited<ReturnType<typeof setCalcOperationPredecessors>>>
-    export type SetCalcOperationPredecessorsMutationBody = PredecessorsIn
+    export type SetCalcOperationPredecessorsMutationBody = CalcPredecessorsIn
     export type SetCalcOperationPredecessorsMutationError = unknown
 
     /**
  * @summary Set Predecessors
  */
 export const useSetCalcOperationPredecessors = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setCalcOperationPredecessors>>, TError,{operationId: string;data: PredecessorsIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setCalcOperationPredecessors>>, TError,{operationId: string;data: CalcPredecessorsIn}, TContext>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof setCalcOperationPredecessors>>,
         TError,
-        {operationId: string;data: PredecessorsIn},
+        {operationId: string;data: CalcPredecessorsIn},
         TContext
       > => {
       return useMutation(getSetCalcOperationPredecessorsMutationOptions(options), queryClient);

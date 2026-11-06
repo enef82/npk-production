@@ -13,6 +13,8 @@ from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
 from src.core.accounts.groups import DESIGNER, PRODUCTION_HEAD, PROJECT_MANAGER
+from src.core.org.models import EmployeeStatus
+from src.core.org.tests.factories import EmployeeFactory
 from src.production.models import (
     Operation,
     OperationStatus,
@@ -220,3 +222,15 @@ def test_списки_не_делают_n_plus_1(url: str) -> None:
     _orders(6)
     many = _count(client, f"{BASE}{url}")
     assert many == few
+
+
+def test_список_сотрудников_для_выбора_ответственного_только_работающие() -> None:
+    user, me = user_with_employee()
+    dismissed = EmployeeFactory.create(status=EmployeeStatus.DISMISSED)
+
+    rows = client_for(user).get(f"{BASE}/employees").json()
+
+    ids = {row["id"] for row in rows}
+    assert str(me.id) in ids
+    assert str(dismissed.id) not in ids
+    assert Client().get(f"{BASE}/employees").status_code == 401
