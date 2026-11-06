@@ -38,7 +38,7 @@ export function LoginForm() {
     mutation: {
       meta: { skipGlobalErrorToast: true },
       onSuccess: () => {
-        const next = searchParams.get("next") || "/parties";
+        const next = searchParams.get("next") || "/board";
         router.push(next);
         router.refresh();
       },

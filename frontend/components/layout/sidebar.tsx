@@ -44,7 +44,7 @@ export function Sidebar() {
       className="flex h-full w-60 shrink-0 flex-col gap-6 overflow-y-auto border-r bg-sidebar px-3 py-4"
       aria-label="Разделы системы"
     >
-      <Link href="/parties" className="px-3 text-lg font-semibold tracking-tight">
+      <Link href="/board" className="px-3 text-lg font-semibold tracking-tight">
         НПК Производство
       </Link>
 
