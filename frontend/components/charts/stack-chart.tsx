@@ -3,6 +3,8 @@
  * прототипа). Числа здесь только для геометрии и подписей, денежных расчётов нет.
  */
 export type StackSeries = { name: string; color: string; values: number[] };
+/** Линия поверх столбцов (мощность, план) — пунктир, как `opt.line` прототипа. */
+export type StackLine = { name: string; values: number[]; color?: string };
 
 export function StackChart({
   categories,
@@ -13,6 +15,8 @@ export function StackChart({
   highlight,
   onCategoryClick,
   width = 780,
+  line,
+  topLabels,
 }: {
   categories: string[];
   series: StackSeries[];
@@ -23,6 +27,9 @@ export function StackChart({
   onCategoryClick?: (index: number) => void;
   /** Ширина viewBox: для узких панелей меньше, чтобы подписи не мельчили. */
   width?: number;
+  line?: StackLine;
+  /** Подпись над столбцом вместо суммы (например, доля от плана). */
+  topLabels?: string[];
 }) {
   const W = width;
   const ml = 58;
@@ -35,7 +42,7 @@ export function StackChart({
   const step = iw / n;
   const bw = Math.min(54, step * 0.62);
   const totals = categories.map((_, i) => series.reduce((s, se) => s + Math.max(0, se.values[i] ?? 0), 0));
-  const max = Math.max(1, ...totals) * 1.12;
+  const max = Math.max(1, ...totals, ...(line?.values ?? [])) * 1.12;
   const y = (v: number) => mt + ih - (v / max) * ih;
   const ticks = [0, 1, 2, 3, 4].map((k) => ((max / 1.12) * k) / 4);
   const labelEvery = Math.ceil(categories.length / Math.max(4, Math.floor(W / 50)));
@@ -72,9 +79,9 @@ export function StackChart({
                   </rect>
                 );
               })}
-              {showTotals && acc > 0 && (
+              {(topLabels ? Boolean(topLabels[i]) : showTotals && acc > 0) && (
                 <text x={x + bw / 2} y={y(acc) - 5} textAnchor="middle" fontSize="10.5" fontWeight={600} fill="currentColor">
-                  {format(acc)}
+                  {topLabels ? topLabels[i] : format(acc)}
                 </text>
               )}
               {i % labelEvery === 0 && (
@@ -92,6 +99,17 @@ export function StackChart({
             </g>
           );
         })}
+        {line && (
+          <polyline
+            points={line.values.map((v, i) => `${ml + step * i + step / 2},${y(v)}`).join(" ")}
+            fill="none"
+            stroke={line.color ?? "#c53030"}
+            strokeWidth={2}
+            strokeDasharray="5 3"
+          >
+            <title>{line.name}</title>
+          </polyline>
+        )}
       </svg>
       <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
         {series.map((se) => (
@@ -100,6 +118,12 @@ export function StackChart({
             {se.name}
           </span>
         ))}
+        {line && (
+          <span className="inline-flex items-center gap-1.5">
+            <i className="inline-block w-4 border-t-2 border-dashed" style={{ borderColor: line.color ?? "#c53030" }} />
+            {line.name}
+          </span>
+        )}
       </div>
     </div>
   );

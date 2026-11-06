@@ -896,6 +896,7 @@ def list_operations(
     *,
     ids: Iterable[UUID] | None = None,
     order_id: UUID | None = None,
+    order_ids: Iterable[UUID] | None = None,
     work_center_id: UUID | None = None,
     active_orders_only: bool = False,
 ) -> list[Operation]:
@@ -904,11 +905,26 @@ def list_operations(
         qs = qs.filter(id__in=list(ids))
     if order_id is not None:
         qs = qs.filter(order_id=order_id)
+    if order_ids is not None:
+        qs = qs.filter(order_id__in=list(order_ids))
     if work_center_id is not None:
         qs = qs.filter(work_center_id=work_center_id)
     if active_orders_only:
         qs = qs.filter(order__stage__in=(OrderStage.LAUNCH, *WORK_STAGES))
     return list(qs.order_by("order_id", "seq"))
+
+
+def list_shipped_orders(date_from: date, date_to: date) -> list[ProductionOrder]:
+    """Отгруженные заказы с датой отгрузки в [from, to] (по местному времени)."""
+
+    qs = ProductionOrder.objects.prefetch_related(
+        Prefetch("operations", queryset=Operation.objects.select_related("work_center"))
+    ).filter(
+        stage=OrderStage.DONE,
+        shipped_at__date__gte=date_from,
+        shipped_at__date__lte=date_to,
+    )
+    return list(qs.order_by("shipped_at", "number"))
 
 
 def list_earnings(date_from: date, date_to: date) -> list[tuple[OperationEarning, UUID, UUID]]:

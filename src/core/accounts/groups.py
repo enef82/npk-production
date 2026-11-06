@@ -73,6 +73,7 @@ SEED_GROUP_PERMISSIONS: dict[str, tuple[str, ...]] = {
         "production.manage_reference",
         "sales.launch_inquiry",
         "supply.store_lines",
+        "analytics.close_cutoff",
         "equipment.manage_equipment",
         "timesheet.edit_any",
     ),

@@ -10,15 +10,18 @@ from decimal import Decimal
 from uuid import UUID
 
 from src.sales import selectors
+from src.sales.models import InquiryStage
 from src.sales.services import demo as demo_services
 
 __all__ = [
     "CalcMaterialBrief",
     "InquiryBrief",
+    "InquiryStage",
     "OpenInquiry",
     "PlanOperationBrief",
     "get_calc_materials",
     "get_inquiries_brief",
+    "get_stage_probabilities",
     "list_open_inquiries",
     "seed_demo",
 ]
@@ -111,6 +114,13 @@ def list_open_inquiries() -> list[OpenInquiry]:
         )
         for item in selectors.list_inquiries_with_plan(open_only=True)
     ]
+
+
+def get_stage_probabilities() -> dict[str, Decimal]:
+    """Вероятность этапа заявки, % (`SalesSettings`: новые, просчёт, согласование КП) —
+    подписи портфеля."""
+
+    return selectors.stage_probabilities()
 
 
 def get_calc_materials(inquiry_id: UUID) -> list[CalcMaterialBrief]:

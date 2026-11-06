@@ -6,6 +6,323 @@
     "description": ""
   },
   "paths": {
+    "/api/v1/analytics/cutoffs": {
+      "get": {
+        "operationId": "getAnalyticsCutoffs",
+        "summary": "Get Cutoffs",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "week",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Week"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "weeks",
+            "schema": {
+              "default": 9,
+              "maximum": 13,
+              "minimum": 2,
+              "title": "Weeks",
+              "type": "integer"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyticsCutoffsOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "analytics"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "closeAnalyticsCutoff",
+        "summary": "Close Cutoff",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyticsCutoffActionOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "analytics"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalyticsCloseCutoffIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/analytics/cutoffs/{week_start}/reopen": {
+      "post": {
+        "operationId": "reopenAnalyticsCutoff",
+        "summary": "Reopen Cutoff",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "week_start",
+            "schema": {
+              "format": "date",
+              "title": "Week Start",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyticsCutoffActionOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "analytics"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalyticsReopenCutoffIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/analytics/load": {
+      "get": {
+        "operationId": "getAnalyticsLoad",
+        "summary": "Get Load",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyticsLoadOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "analytics"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/analytics/portfolio": {
+      "get": {
+        "operationId": "getAnalyticsPortfolio",
+        "summary": "Get Portfolio",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyticsPortfolioOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "analytics"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/analytics/employees": {
+      "get": {
+        "operationId": "getAnalyticsEmployees",
+        "summary": "Get Employees",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "period",
+            "schema": {
+              "allOf": [
+                {
+                  "description": "Период выработки сотрудников (`empPeriod` прототипа).",
+                  "enum": [
+                    "4w",
+                    "m0",
+                    "m1"
+                  ],
+                  "title": "EmployeePeriod",
+                  "type": "string"
+                }
+              ],
+              "default": "4w"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "department_id",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Department Id"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyticsEmployeesOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "analytics"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/analytics/employees/{employee_id}": {
+      "get": {
+        "operationId": "getAnalyticsEmployee",
+        "summary": "Get Employee",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employee_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Employee Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "period",
+            "schema": {
+              "allOf": [
+                {
+                  "description": "Период выработки сотрудников (`empPeriod` прототипа).",
+                  "enum": [
+                    "4w",
+                    "m0",
+                    "m1"
+                  ],
+                  "title": "EmployeePeriod",
+                  "type": "string"
+                }
+              ],
+              "default": "4w"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyticsEmployeeCardOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "analytics"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/accounts/csrf": {
       "get": {
         "operationId": "getCsrf",
@@ -6931,6 +7248,1404 @@
   },
   "components": {
     "schemas": {
+      "AnalyticsCutoffFilters": {
+        "description": "Окно истории — `weeks` недель по текущую включительно (прототип: 8 прошлых и\nтекущая); `week` — выбранная неделя (понедельник), по умолчанию текущая.",
+        "properties": {
+          "week": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Week"
+          },
+          "weeks": {
+            "default": 9,
+            "maximum": 13,
+            "minimum": 2,
+            "title": "Weeks",
+            "type": "integer"
+          }
+        },
+        "title": "AnalyticsCutoffFilters",
+        "type": "object"
+      },
+      "AnalyticsCutoffAbilitiesOut": {
+        "properties": {
+          "can_close": {
+            "title": "Can Close",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "can_close"
+        ],
+        "title": "AnalyticsCutoffAbilitiesOut",
+        "type": "object"
+      },
+      "AnalyticsCutoffEventOut": {
+        "properties": {
+          "action": {
+            "title": "Action",
+            "type": "string"
+          },
+          "action_label": {
+            "title": "Action Label",
+            "type": "string"
+          },
+          "actor_name": {
+            "title": "Actor Name",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "action_label",
+          "actor_name",
+          "created_at",
+          "text"
+        ],
+        "title": "AnalyticsCutoffEventOut",
+        "type": "object"
+      },
+      "AnalyticsCutoffRowOut": {
+        "properties": {
+          "work_center_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "None — строка «Итого»",
+            "title": "Work Center Id"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "capacity": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Capacity",
+            "type": "string"
+          },
+          "planned": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Planned",
+            "type": "string"
+          },
+          "earned": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Earned",
+            "type": "string"
+          },
+          "worked": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Worked"
+          },
+          "plan_pct": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan Pct"
+          },
+          "output_pct": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Pct"
+          },
+          "load_pct": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Load Pct"
+          },
+          "checked": {
+            "title": "Checked",
+            "type": "integer"
+          },
+          "defects": {
+            "title": "Defects",
+            "type": "integer"
+          },
+          "defect_pct": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Defect Pct"
+          }
+        },
+        "required": [
+          "work_center_id",
+          "name",
+          "capacity",
+          "planned",
+          "earned",
+          "worked",
+          "plan_pct",
+          "output_pct",
+          "load_pct",
+          "checked",
+          "defects",
+          "defect_pct"
+        ],
+        "title": "AnalyticsCutoffRowOut",
+        "type": "object"
+      },
+      "AnalyticsCutoffWeekOut": {
+        "properties": {
+          "week_start": {
+            "format": "date",
+            "title": "Week Start",
+            "type": "string"
+          },
+          "status": {
+            "description": "current / open / closed",
+            "title": "Status",
+            "type": "string"
+          },
+          "closed_by_name": {
+            "title": "Closed By Name",
+            "type": "string"
+          },
+          "closed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Closed At"
+          },
+          "comment": {
+            "title": "Comment",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsCutoffRowOut"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "total": {
+            "$ref": "#/components/schemas/AnalyticsCutoffRowOut"
+          }
+        },
+        "required": [
+          "week_start",
+          "status",
+          "closed_by_name",
+          "closed_at",
+          "comment",
+          "rows",
+          "total"
+        ],
+        "title": "AnalyticsCutoffWeekOut",
+        "type": "object"
+      },
+      "AnalyticsCutoffsOut": {
+        "properties": {
+          "current_week": {
+            "format": "date",
+            "title": "Current Week",
+            "type": "string"
+          },
+          "selected_week": {
+            "format": "date",
+            "title": "Selected Week",
+            "type": "string"
+          },
+          "weeks": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsCutoffWeekOut"
+            },
+            "title": "Weeks",
+            "type": "array"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsCutoffEventOut"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "abilities": {
+            "$ref": "#/components/schemas/AnalyticsCutoffAbilitiesOut"
+          }
+        },
+        "required": [
+          "current_week",
+          "selected_week",
+          "weeks",
+          "events",
+          "abilities"
+        ],
+        "title": "AnalyticsCutoffsOut",
+        "type": "object"
+      },
+      "AnalyticsCutoffActionOut": {
+        "properties": {
+          "week_start": {
+            "format": "date",
+            "title": "Week Start",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "week_start",
+          "status"
+        ],
+        "title": "AnalyticsCutoffActionOut",
+        "type": "object"
+      },
+      "AnalyticsCloseCutoffIn": {
+        "properties": {
+          "week_start": {
+            "format": "date",
+            "title": "Week Start",
+            "type": "string"
+          },
+          "comment": {
+            "default": "",
+            "title": "Comment",
+            "type": "string"
+          },
+          "worked": {
+            "description": "Правка отработанных часов поверх табеля",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsWorkedHoursIn"
+            },
+            "title": "Worked",
+            "type": "array"
+          }
+        },
+        "required": [
+          "week_start"
+        ],
+        "title": "AnalyticsCloseCutoffIn",
+        "type": "object"
+      },
+      "AnalyticsWorkedHoursIn": {
+        "properties": {
+          "work_center_id": {
+            "format": "uuid",
+            "title": "Work Center Id",
+            "type": "string"
+          },
+          "hours": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,8}|(?=[\\d.]{1,11}0*$)\\d{0,8}\\.\\d{0,2}0*$)",
+                "type": "string"
+              }
+            ],
+            "title": "Hours"
+          }
+        },
+        "required": [
+          "work_center_id",
+          "hours"
+        ],
+        "title": "AnalyticsWorkedHoursIn",
+        "type": "object"
+      },
+      "AnalyticsReopenCutoffIn": {
+        "properties": {
+          "reason": {
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "AnalyticsReopenCutoffIn",
+        "type": "object"
+      },
+      "AnalyticsLoadCellOut": {
+        "properties": {
+          "firm": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Firm",
+            "type": "string"
+          },
+          "tentative": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Tentative",
+            "type": "string"
+          },
+          "total": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Total",
+            "type": "string"
+          },
+          "pct": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pct"
+          }
+        },
+        "required": [
+          "firm",
+          "tentative",
+          "total",
+          "pct"
+        ],
+        "title": "AnalyticsLoadCellOut",
+        "type": "object"
+      },
+      "AnalyticsLoadOut": {
+        "properties": {
+          "weeks": {
+            "items": {
+              "format": "date",
+              "type": "string"
+            },
+            "title": "Weeks",
+            "type": "array"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsLoadRowOut"
+            },
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "weeks",
+          "rows"
+        ],
+        "title": "AnalyticsLoadOut",
+        "type": "object"
+      },
+      "AnalyticsLoadRowOut": {
+        "properties": {
+          "work_center_id": {
+            "format": "uuid",
+            "title": "Work Center Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "short_name": {
+            "title": "Short Name",
+            "type": "string"
+          },
+          "capacity": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Capacity",
+            "type": "string"
+          },
+          "cells": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsLoadCellOut"
+            },
+            "title": "Cells",
+            "type": "array"
+          }
+        },
+        "required": [
+          "work_center_id",
+          "name",
+          "short_name",
+          "capacity",
+          "cells"
+        ],
+        "title": "AnalyticsLoadRowOut",
+        "type": "object"
+      },
+      "AnalyticsMonthAmountsOut": {
+        "properties": {
+          "fact": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Fact",
+            "type": "string"
+          },
+          "firm": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Firm",
+            "type": "string"
+          },
+          "pipe": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Pipe",
+            "type": "string"
+          },
+          "total": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Total",
+            "type": "string"
+          }
+        },
+        "required": [
+          "fact",
+          "firm",
+          "pipe",
+          "total"
+        ],
+        "title": "AnalyticsMonthAmountsOut",
+        "type": "object"
+      },
+      "AnalyticsMonthLoadOut": {
+        "properties": {
+          "fact": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Fact",
+            "type": "string"
+          },
+          "firm": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Firm",
+            "type": "string"
+          },
+          "pipe": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Pipe",
+            "type": "string"
+          },
+          "total": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Total",
+            "type": "string"
+          },
+          "capacity": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Capacity",
+            "type": "string"
+          },
+          "pct": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pct"
+          },
+          "pipe_pct": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pipe Pct"
+          }
+        },
+        "required": [
+          "fact",
+          "firm",
+          "pipe",
+          "total",
+          "capacity",
+          "pct",
+          "pipe_pct"
+        ],
+        "title": "AnalyticsMonthLoadOut",
+        "type": "object"
+      },
+      "AnalyticsPortfolioCenterOut": {
+        "properties": {
+          "work_center_id": {
+            "format": "uuid",
+            "title": "Work Center Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "short_name": {
+            "title": "Short Name",
+            "type": "string"
+          },
+          "months": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsMonthLoadOut"
+            },
+            "title": "Months",
+            "type": "array"
+          }
+        },
+        "required": [
+          "work_center_id",
+          "name",
+          "short_name",
+          "months"
+        ],
+        "title": "AnalyticsPortfolioCenterOut",
+        "type": "object"
+      },
+      "AnalyticsPortfolioItemOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "is_order": {
+            "title": "Is Order",
+            "type": "boolean"
+          },
+          "number": {
+            "title": "Number",
+            "type": "string"
+          },
+          "customer_name": {
+            "title": "Customer Name",
+            "type": "string"
+          },
+          "product_name": {
+            "title": "Product Name",
+            "type": "string"
+          },
+          "quantity": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Quantity",
+            "type": "string"
+          },
+          "stage": {
+            "title": "Stage",
+            "type": "string"
+          },
+          "stage_label": {
+            "title": "Stage Label",
+            "type": "string"
+          },
+          "month": {
+            "format": "date",
+            "title": "Month",
+            "type": "string"
+          },
+          "total": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Total",
+            "type": "string"
+          },
+          "probability_pct": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Probability Pct",
+            "type": "string"
+          },
+          "weighted": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Weighted",
+            "type": "string"
+          },
+          "kind": {
+            "description": "fact / firm / pipe",
+            "title": "Kind",
+            "type": "string"
+          },
+          "estimated": {
+            "title": "Estimated",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "is_order",
+          "number",
+          "customer_name",
+          "product_name",
+          "quantity",
+          "stage",
+          "stage_label",
+          "month",
+          "total",
+          "probability_pct",
+          "weighted",
+          "kind",
+          "estimated"
+        ],
+        "title": "AnalyticsPortfolioItemOut",
+        "type": "object"
+      },
+      "AnalyticsPortfolioOut": {
+        "properties": {
+          "months": {
+            "items": {
+              "format": "date",
+              "type": "string"
+            },
+            "title": "Months",
+            "type": "array"
+          },
+          "current_month": {
+            "format": "date",
+            "title": "Current Month",
+            "type": "string"
+          },
+          "probabilities": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsStageProbabilityOut"
+            },
+            "title": "Probabilities",
+            "type": "array"
+          },
+          "revenue": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsMonthAmountsOut"
+            },
+            "title": "Revenue",
+            "type": "array"
+          },
+          "load": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsMonthLoadOut"
+            },
+            "title": "Load",
+            "type": "array"
+          },
+          "centers": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsPortfolioCenterOut"
+            },
+            "title": "Centers",
+            "type": "array"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsPortfolioItemOut"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "months",
+          "current_month",
+          "probabilities",
+          "revenue",
+          "load",
+          "centers",
+          "items"
+        ],
+        "title": "AnalyticsPortfolioOut",
+        "type": "object"
+      },
+      "AnalyticsStageProbabilityOut": {
+        "properties": {
+          "stage": {
+            "title": "Stage",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "probability": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Probability",
+            "type": "string"
+          }
+        },
+        "required": [
+          "stage",
+          "label",
+          "probability"
+        ],
+        "title": "AnalyticsStageProbabilityOut",
+        "type": "object"
+      },
+      "AnalyticsEmployeeFilters": {
+        "properties": {
+          "period": {
+            "allOf": [
+              {
+                "description": "Период выработки сотрудников (`empPeriod` прототипа).",
+                "enum": [
+                  "4w",
+                  "m0",
+                  "m1"
+                ],
+                "title": "EmployeePeriod",
+                "type": "string"
+              }
+            ],
+            "default": "4w"
+          },
+          "department_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Department Id"
+          }
+        },
+        "title": "AnalyticsEmployeeFilters",
+        "type": "object"
+      },
+      "EmployeePeriod": {
+        "description": "Период выработки сотрудников (`empPeriod` прототипа).",
+        "enum": [
+          "4w",
+          "m0",
+          "m1"
+        ],
+        "title": "EmployeePeriod",
+        "type": "string"
+      },
+      "AnalyticsDepartmentOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "AnalyticsDepartmentOut",
+        "type": "object"
+      },
+      "AnalyticsEmployeeMonthOut": {
+        "properties": {
+          "month": {
+            "format": "date",
+            "title": "Month",
+            "type": "string"
+          },
+          "rub": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Rub",
+            "type": "string"
+          },
+          "cost": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Cost",
+            "type": "string"
+          },
+          "return_ratio": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Return Ratio"
+          }
+        },
+        "required": [
+          "month",
+          "rub",
+          "cost",
+          "return_ratio"
+        ],
+        "title": "AnalyticsEmployeeMonthOut",
+        "type": "object"
+      },
+      "AnalyticsEmployeeRowOut": {
+        "properties": {
+          "employee_id": {
+            "format": "uuid",
+            "title": "Employee Id",
+            "type": "string"
+          },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
+          "position": {
+            "title": "Position",
+            "type": "string"
+          },
+          "department_id": {
+            "format": "uuid",
+            "title": "Department Id",
+            "type": "string"
+          },
+          "department_name": {
+            "title": "Department Name",
+            "type": "string"
+          },
+          "work_center_short": {
+            "title": "Work Center Short",
+            "type": "string"
+          },
+          "hourly_rate": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Hourly Rate",
+            "type": "string"
+          },
+          "stats": {
+            "$ref": "#/components/schemas/AnalyticsEmployeeStatsOut"
+          },
+          "months": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsEmployeeMonthOut"
+            },
+            "title": "Months",
+            "type": "array"
+          }
+        },
+        "required": [
+          "employee_id",
+          "full_name",
+          "position",
+          "department_id",
+          "department_name",
+          "work_center_short",
+          "hourly_rate",
+          "stats",
+          "months"
+        ],
+        "title": "AnalyticsEmployeeRowOut",
+        "type": "object"
+      },
+      "AnalyticsEmployeeStatsOut": {
+        "properties": {
+          "worked": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Worked",
+            "type": "string"
+          },
+          "on_orders": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "On Orders",
+            "type": "string"
+          },
+          "overhead": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Overhead",
+            "type": "string"
+          },
+          "idle": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Idle",
+            "type": "string"
+          },
+          "repair": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Repair",
+            "type": "string"
+          },
+          "training": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Training",
+            "type": "string"
+          },
+          "overtime": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Overtime",
+            "type": "string"
+          },
+          "absent_days": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Absent Days",
+            "type": "string"
+          },
+          "earned": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Earned",
+            "type": "string"
+          },
+          "output_pct": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Освоено ÷ часы на заказах",
+            "title": "Output Pct"
+          },
+          "use_pct": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Часы на заказах ÷ отработано",
+            "title": "Use Pct"
+          },
+          "productivity_pct": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Освоено ÷ отработано",
+            "title": "Productivity Pct"
+          },
+          "checked": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Checked",
+            "type": "string"
+          },
+          "defects": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Defects",
+            "type": "string"
+          },
+          "operator_defects": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Operator Defects",
+            "type": "string"
+          },
+          "defect_pct": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Defect Pct"
+          },
+          "rub": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Rub",
+            "type": "string"
+          },
+          "cost": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Cost",
+            "type": "string"
+          },
+          "return_ratio": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Рубли выработки ÷ стоимость часов",
+            "title": "Return Ratio"
+          },
+          "rub_per_hour": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rub Per Hour"
+          },
+          "contribution": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Contribution",
+            "type": "string"
+          }
+        },
+        "required": [
+          "worked",
+          "on_orders",
+          "overhead",
+          "idle",
+          "repair",
+          "training",
+          "overtime",
+          "absent_days",
+          "earned",
+          "output_pct",
+          "use_pct",
+          "productivity_pct",
+          "checked",
+          "defects",
+          "operator_defects",
+          "defect_pct",
+          "rub",
+          "cost",
+          "return_ratio",
+          "rub_per_hour",
+          "contribution"
+        ],
+        "title": "AnalyticsEmployeeStatsOut",
+        "type": "object"
+      },
+      "AnalyticsEmployeesOut": {
+        "properties": {
+          "period": {
+            "title": "Period",
+            "type": "string"
+          },
+          "date_from": {
+            "format": "date",
+            "title": "Date From",
+            "type": "string"
+          },
+          "date_to": {
+            "format": "date",
+            "title": "Date To",
+            "type": "string"
+          },
+          "months": {
+            "items": {
+              "format": "date",
+              "type": "string"
+            },
+            "title": "Months",
+            "type": "array"
+          },
+          "departments": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsDepartmentOut"
+            },
+            "title": "Departments",
+            "type": "array"
+          },
+          "total": {
+            "$ref": "#/components/schemas/AnalyticsEmployeeStatsOut"
+          },
+          "unattributed": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Unattributed",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsEmployeeRowOut"
+            },
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "period",
+          "date_from",
+          "date_to",
+          "months",
+          "departments",
+          "total",
+          "unattributed",
+          "rows"
+        ],
+        "title": "AnalyticsEmployeesOut",
+        "type": "object"
+      },
+      "AnalyticsEmployeeCardFilters": {
+        "properties": {
+          "period": {
+            "allOf": [
+              {
+                "description": "Период выработки сотрудников (`empPeriod` прототипа).",
+                "enum": [
+                  "4w",
+                  "m0",
+                  "m1"
+                ],
+                "title": "EmployeePeriod",
+                "type": "string"
+              }
+            ],
+            "default": "4w"
+          }
+        },
+        "title": "AnalyticsEmployeeCardFilters",
+        "type": "object"
+      },
+      "AnalyticsEmployeeCardOut": {
+        "properties": {
+          "employee_id": {
+            "format": "uuid",
+            "title": "Employee Id",
+            "type": "string"
+          },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
+          "position": {
+            "title": "Position",
+            "type": "string"
+          },
+          "department_name": {
+            "title": "Department Name",
+            "type": "string"
+          },
+          "work_center_short": {
+            "title": "Work Center Short",
+            "type": "string"
+          },
+          "hourly_rate": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Hourly Rate",
+            "type": "string"
+          },
+          "period": {
+            "title": "Period",
+            "type": "string"
+          },
+          "date_from": {
+            "format": "date",
+            "title": "Date From",
+            "type": "string"
+          },
+          "date_to": {
+            "format": "date",
+            "title": "Date To",
+            "type": "string"
+          },
+          "stats": {
+            "$ref": "#/components/schemas/AnalyticsEmployeeStatsOut"
+          },
+          "weeks": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsEmployeeWeekOut"
+            },
+            "title": "Weeks",
+            "type": "array"
+          },
+          "operations": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsEmployeeOperationOut"
+            },
+            "title": "Operations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "employee_id",
+          "full_name",
+          "position",
+          "department_name",
+          "work_center_short",
+          "hourly_rate",
+          "period",
+          "date_from",
+          "date_to",
+          "stats",
+          "weeks",
+          "operations"
+        ],
+        "title": "AnalyticsEmployeeCardOut",
+        "type": "object"
+      },
+      "AnalyticsEmployeeOperationOut": {
+        "properties": {
+          "operation_id": {
+            "format": "uuid",
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "order_id": {
+            "format": "uuid",
+            "title": "Order Id",
+            "type": "string"
+          },
+          "order_number": {
+            "title": "Order Number",
+            "type": "string"
+          },
+          "operation_name": {
+            "title": "Operation Name",
+            "type": "string"
+          },
+          "norm_hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Norm Hours",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Hours",
+            "type": "string"
+          },
+          "earned": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Earned",
+            "type": "string"
+          },
+          "rub": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Rub",
+            "type": "string"
+          },
+          "output_pct": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Pct"
+          }
+        },
+        "required": [
+          "operation_id",
+          "order_id",
+          "order_number",
+          "operation_name",
+          "norm_hours",
+          "status",
+          "hours",
+          "earned",
+          "rub",
+          "output_pct"
+        ],
+        "title": "AnalyticsEmployeeOperationOut",
+        "type": "object"
+      },
+      "AnalyticsEmployeeWeekOut": {
+        "properties": {
+          "week_start": {
+            "format": "date",
+            "title": "Week Start",
+            "type": "string"
+          },
+          "hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Hours",
+            "type": "string"
+          },
+          "earned": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Earned",
+            "type": "string"
+          },
+          "rub": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Rub",
+            "type": "string"
+          },
+          "cost": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Cost",
+            "type": "string"
+          },
+          "productivity_pct": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Productivity Pct"
+          }
+        },
+        "required": [
+          "week_start",
+          "hours",
+          "earned",
+          "rub",
+          "cost",
+          "productivity_pct"
+        ],
+        "title": "AnalyticsEmployeeWeekOut",
+        "type": "object"
+      },
       "MeOut": {
         "properties": {
           "id": {

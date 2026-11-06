@@ -18,6 +18,7 @@ __all__ = [
     "QcWeekRow",
     "get_qc_by_operation",
     "has_inspection",
+    "list_qc_by_operation",
     "list_qc_by_week",
     "requires_inspection",
     "seed_demo",
@@ -72,6 +73,21 @@ def get_qc_by_operation(ids: Iterable[UUID]) -> dict[UUID, QcAgg]:
             operator_defects=t.operator_defects,
         )
         for operation_id, t in selectors.qc_by_operation(ids).items()
+    }
+
+
+def list_qc_by_operation(date_from: date, date_to: date) -> dict[UUID, QcAgg]:
+    """Агрегат контроля по операциям за записи с датой в [from, to], с браком по вине
+    оператора, — брак сотрудника в выработке (`empStats`, §3.8)."""
+
+    return {
+        operation_id: QcAgg(
+            checked=t.checked,
+            rework=t.rework,
+            scrap=t.scrap,
+            operator_defects=t.operator_defects,
+        )
+        for operation_id, t in selectors.qc_by_operation_in_period(date_from, date_to).items()
     }
 
 

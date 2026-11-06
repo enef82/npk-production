@@ -71,10 +71,11 @@ test("карточка заказа: вкладки и карточка опер
   await sheet.getByRole("tab", { name: "Документы" }).click();
   await expect(sheet.getByTestId("order-tab-docs")).toContainText("выберите файлы");
 
+  // Вкладки снабжения — настоящие строки потребности демо-заказа (`supply.seed_demo`).
   await sheet.getByRole("tab", { name: "Материалы" }).click();
-  await expect(sheet.getByTestId("order-supply-stub")).toBeVisible();
+  await expect(sheet.getByTestId("order-supply-mat").locator("tbody tr").first()).toBeVisible();
   await sheet.getByRole("tab", { name: "Оснастка" }).click();
-  await expect(sheet.getByTestId("order-supply-stub")).toBeVisible();
+  await expect(sheet.getByTestId("order-supply-tool").locator("tbody tr").first()).toBeVisible();
 
   await sheet.getByRole("tab", { name: "Журнал" }).click();
   await sheet.locator('textarea[name="journal-text"]').fill("e2e: проверка журнала");
@@ -86,7 +87,7 @@ test("карточка заказа: вкладки и карточка опер
   await sheet.getByTestId("state-table").getByRole("button").first().click();
   const op = page.getByTestId("operation-dialog");
   await expect(op.getByText("Связи")).toBeVisible();
-  await expect(op.getByTestId("operation-qc-stub")).toBeVisible();
+  await expect(op.getByTestId("operation-qc")).toBeVisible();
   await shot(page, "07-operation");
 
   // Прямая ссылка открывает ту же карточку поверх доски.

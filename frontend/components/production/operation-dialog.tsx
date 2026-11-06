@@ -19,7 +19,7 @@ import { hours } from "@/lib/production/format";
 import { OPERATION_STATUS_LABELS } from "@/lib/production/stages";
 import { useAction } from "@/lib/production/use-action";
 
-import { Field, NativeSelect, Note, Pill, SectionTitle, TextArea, TextInput, Visa } from "./bits";
+import { Field, NativeSelect, Pill, SectionTitle, TextArea, TextInput, Visa } from "./bits";
 import { useCards } from "./card-host";
 import { DocumentUpload, JournalList, OperationVisaButton, ProgressSlider, StatusSelect } from "./order-tabs";
 
@@ -219,10 +219,8 @@ function OperationBody({
           ) : null}
         </div>
         <div>
-          <SectionTitle>Контроль качества</SectionTitle>
-          {op.requires_inspection && !card.has_inspection && op.status !== "done" ? (
-            <Note tone="warn">Записей контроля нет. Без записи операцию нельзя завизировать.</Note>
-          ) : null}
+          {/* Заголовок, предупреждение «записей нет» и право записи (`abilities.can_record`)
+              — внутри блока ОТК: он сам читает их с сервера. */}
           <OperationQcPanel operationId={op.id} workCenterId={op.work_center_id} />
         </div>
       </div>

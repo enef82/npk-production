@@ -7,6 +7,480 @@
 import * as zod from 'zod';
 
 /**
+ * @summary Get Cutoffs
+ */
+export const getAnalyticsCutoffsQueryWeeksDefault = 9;
+export const getAnalyticsCutoffsQueryWeeksMin = 2;
+export const getAnalyticsCutoffsQueryWeeksMax = 13;
+
+
+
+export const GetAnalyticsCutoffsQueryParams = zod.object({
+  "week": zod.union([zod.iso.date(),zod.null()]).optional(),
+  "weeks": zod.int().min(getAnalyticsCutoffsQueryWeeksMin).max(getAnalyticsCutoffsQueryWeeksMax).default(getAnalyticsCutoffsQueryWeeksDefault)
+})
+
+export const getAnalyticsCutoffsResponseWeeksItemRowsItemCapacityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsCutoffsResponseWeeksItemRowsItemPlannedRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsCutoffsResponseWeeksItemRowsItemEarnedRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsCutoffsResponseWeeksItemRowsItemWorkedOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsCutoffsResponseWeeksItemRowsItemPlanPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsCutoffsResponseWeeksItemRowsItemOutputPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsCutoffsResponseWeeksItemRowsItemLoadPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsCutoffsResponseWeeksItemRowsItemDefectPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsCutoffsResponseWeeksItemTotalCapacityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsCutoffsResponseWeeksItemTotalPlannedRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsCutoffsResponseWeeksItemTotalEarnedRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsCutoffsResponseWeeksItemTotalWorkedOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsCutoffsResponseWeeksItemTotalPlanPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsCutoffsResponseWeeksItemTotalOutputPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsCutoffsResponseWeeksItemTotalLoadPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsCutoffsResponseWeeksItemTotalDefectPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetAnalyticsCutoffsResponse = zod.object({
+  "current_week": zod.iso.date(),
+  "selected_week": zod.iso.date(),
+  "weeks": zod.array(zod.object({
+  "week_start": zod.iso.date(),
+  "status": zod.string().describe('current \/ open \/ closed'),
+  "closed_by_name": zod.string(),
+  "closed_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "comment": zod.string(),
+  "rows": zod.array(zod.object({
+  "work_center_id": zod.union([zod.uuid(),zod.null()]).describe('None — строка «Итого»'),
+  "name": zod.string(),
+  "capacity": zod.string().regex(getAnalyticsCutoffsResponseWeeksItemRowsItemCapacityRegExp),
+  "planned": zod.string().regex(getAnalyticsCutoffsResponseWeeksItemRowsItemPlannedRegExp),
+  "earned": zod.string().regex(getAnalyticsCutoffsResponseWeeksItemRowsItemEarnedRegExp),
+  "worked": zod.union([zod.string().regex(getAnalyticsCutoffsResponseWeeksItemRowsItemWorkedOneRegExp),zod.null()]),
+  "plan_pct": zod.union([zod.string().regex(getAnalyticsCutoffsResponseWeeksItemRowsItemPlanPctOneRegExp),zod.null()]),
+  "output_pct": zod.union([zod.string().regex(getAnalyticsCutoffsResponseWeeksItemRowsItemOutputPctOneRegExp),zod.null()]),
+  "load_pct": zod.union([zod.string().regex(getAnalyticsCutoffsResponseWeeksItemRowsItemLoadPctOneRegExp),zod.null()]),
+  "checked": zod.int(),
+  "defects": zod.int(),
+  "defect_pct": zod.union([zod.string().regex(getAnalyticsCutoffsResponseWeeksItemRowsItemDefectPctOneRegExp),zod.null()])
+})),
+  "total": zod.object({
+  "work_center_id": zod.union([zod.uuid(),zod.null()]).describe('None — строка «Итого»'),
+  "name": zod.string(),
+  "capacity": zod.string().regex(getAnalyticsCutoffsResponseWeeksItemTotalCapacityRegExp),
+  "planned": zod.string().regex(getAnalyticsCutoffsResponseWeeksItemTotalPlannedRegExp),
+  "earned": zod.string().regex(getAnalyticsCutoffsResponseWeeksItemTotalEarnedRegExp),
+  "worked": zod.union([zod.string().regex(getAnalyticsCutoffsResponseWeeksItemTotalWorkedOneRegExp),zod.null()]),
+  "plan_pct": zod.union([zod.string().regex(getAnalyticsCutoffsResponseWeeksItemTotalPlanPctOneRegExp),zod.null()]),
+  "output_pct": zod.union([zod.string().regex(getAnalyticsCutoffsResponseWeeksItemTotalOutputPctOneRegExp),zod.null()]),
+  "load_pct": zod.union([zod.string().regex(getAnalyticsCutoffsResponseWeeksItemTotalLoadPctOneRegExp),zod.null()]),
+  "checked": zod.int(),
+  "defects": zod.int(),
+  "defect_pct": zod.union([zod.string().regex(getAnalyticsCutoffsResponseWeeksItemTotalDefectPctOneRegExp),zod.null()])
+})
+})),
+  "events": zod.array(zod.object({
+  "action": zod.string(),
+  "action_label": zod.string(),
+  "actor_name": zod.string(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "text": zod.string()
+})),
+  "abilities": zod.object({
+  "can_close": zod.boolean()
+})
+})
+
+
+/**
+ * @summary Close Cutoff
+ */
+export const closeAnalyticsCutoffBodyCommentDefault = ``;
+export const closeAnalyticsCutoffBodyWorkedItemHoursOneMin = 0;
+
+export const closeAnalyticsCutoffBodyWorkedItemHoursTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*(?:\\d{0,8}|(?=[\\d.]{1,11}0*$)\\d{0,8}\\.\\d{0,2}0*$)');
+
+
+export const CloseAnalyticsCutoffBody = zod.object({
+  "week_start": zod.iso.date(),
+  "comment": zod.string().default(closeAnalyticsCutoffBodyCommentDefault),
+  "worked": zod.array(zod.object({
+  "work_center_id": zod.uuid(),
+  "hours": zod.union([zod.number().min(closeAnalyticsCutoffBodyWorkedItemHoursOneMin),zod.string().regex(closeAnalyticsCutoffBodyWorkedItemHoursTwoRegExp)])
+})).optional().describe('Правка отработанных часов поверх табеля')
+})
+
+export const CloseAnalyticsCutoffResponse = zod.object({
+  "week_start": zod.iso.date(),
+  "status": zod.string()
+})
+
+
+/**
+ * @summary Reopen Cutoff
+ */
+export const ReopenAnalyticsCutoffParams = zod.object({
+  "week_start": zod.iso.date()
+})
+
+
+
+
+export const ReopenAnalyticsCutoffBody = zod.object({
+  "reason": zod.string().min(1)
+})
+
+export const ReopenAnalyticsCutoffResponse = zod.object({
+  "week_start": zod.iso.date(),
+  "status": zod.string()
+})
+
+
+/**
+ * @summary Get Load
+ */
+export const getAnalyticsLoadResponseRowsItemCapacityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsLoadResponseRowsItemCellsItemFirmRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsLoadResponseRowsItemCellsItemTentativeRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsLoadResponseRowsItemCellsItemTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsLoadResponseRowsItemCellsItemPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetAnalyticsLoadResponse = zod.object({
+  "weeks": zod.array(zod.iso.date()),
+  "rows": zod.array(zod.object({
+  "work_center_id": zod.uuid(),
+  "name": zod.string(),
+  "short_name": zod.string(),
+  "capacity": zod.string().regex(getAnalyticsLoadResponseRowsItemCapacityRegExp),
+  "cells": zod.array(zod.object({
+  "firm": zod.string().regex(getAnalyticsLoadResponseRowsItemCellsItemFirmRegExp),
+  "tentative": zod.string().regex(getAnalyticsLoadResponseRowsItemCellsItemTentativeRegExp),
+  "total": zod.string().regex(getAnalyticsLoadResponseRowsItemCellsItemTotalRegExp),
+  "pct": zod.union([zod.string().regex(getAnalyticsLoadResponseRowsItemCellsItemPctOneRegExp),zod.null()])
+}))
+}))
+})
+
+
+/**
+ * @summary Get Portfolio
+ */
+export const getAnalyticsPortfolioResponseProbabilitiesItemProbabilityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsPortfolioResponseRevenueItemFactRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsPortfolioResponseRevenueItemFirmRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsPortfolioResponseRevenueItemPipeRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsPortfolioResponseRevenueItemTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsPortfolioResponseLoadItemFactRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsPortfolioResponseLoadItemFirmRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsPortfolioResponseLoadItemPipeRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsPortfolioResponseLoadItemTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsPortfolioResponseLoadItemCapacityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsPortfolioResponseLoadItemPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsPortfolioResponseLoadItemPipePctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsPortfolioResponseCentersItemMonthsItemFactRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsPortfolioResponseCentersItemMonthsItemFirmRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsPortfolioResponseCentersItemMonthsItemPipeRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsPortfolioResponseCentersItemMonthsItemTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsPortfolioResponseCentersItemMonthsItemCapacityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsPortfolioResponseCentersItemMonthsItemPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsPortfolioResponseCentersItemMonthsItemPipePctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsPortfolioResponseItemsItemQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsPortfolioResponseItemsItemTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsPortfolioResponseItemsItemProbabilityPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsPortfolioResponseItemsItemWeightedRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetAnalyticsPortfolioResponse = zod.object({
+  "months": zod.array(zod.iso.date()),
+  "current_month": zod.iso.date(),
+  "probabilities": zod.array(zod.object({
+  "stage": zod.string(),
+  "label": zod.string(),
+  "probability": zod.string().regex(getAnalyticsPortfolioResponseProbabilitiesItemProbabilityRegExp)
+})),
+  "revenue": zod.array(zod.object({
+  "fact": zod.string().regex(getAnalyticsPortfolioResponseRevenueItemFactRegExp),
+  "firm": zod.string().regex(getAnalyticsPortfolioResponseRevenueItemFirmRegExp),
+  "pipe": zod.string().regex(getAnalyticsPortfolioResponseRevenueItemPipeRegExp),
+  "total": zod.string().regex(getAnalyticsPortfolioResponseRevenueItemTotalRegExp)
+})),
+  "load": zod.array(zod.object({
+  "fact": zod.string().regex(getAnalyticsPortfolioResponseLoadItemFactRegExp),
+  "firm": zod.string().regex(getAnalyticsPortfolioResponseLoadItemFirmRegExp),
+  "pipe": zod.string().regex(getAnalyticsPortfolioResponseLoadItemPipeRegExp),
+  "total": zod.string().regex(getAnalyticsPortfolioResponseLoadItemTotalRegExp),
+  "capacity": zod.string().regex(getAnalyticsPortfolioResponseLoadItemCapacityRegExp),
+  "pct": zod.union([zod.string().regex(getAnalyticsPortfolioResponseLoadItemPctOneRegExp),zod.null()]),
+  "pipe_pct": zod.union([zod.string().regex(getAnalyticsPortfolioResponseLoadItemPipePctOneRegExp),zod.null()])
+})),
+  "centers": zod.array(zod.object({
+  "work_center_id": zod.uuid(),
+  "name": zod.string(),
+  "short_name": zod.string(),
+  "months": zod.array(zod.object({
+  "fact": zod.string().regex(getAnalyticsPortfolioResponseCentersItemMonthsItemFactRegExp),
+  "firm": zod.string().regex(getAnalyticsPortfolioResponseCentersItemMonthsItemFirmRegExp),
+  "pipe": zod.string().regex(getAnalyticsPortfolioResponseCentersItemMonthsItemPipeRegExp),
+  "total": zod.string().regex(getAnalyticsPortfolioResponseCentersItemMonthsItemTotalRegExp),
+  "capacity": zod.string().regex(getAnalyticsPortfolioResponseCentersItemMonthsItemCapacityRegExp),
+  "pct": zod.union([zod.string().regex(getAnalyticsPortfolioResponseCentersItemMonthsItemPctOneRegExp),zod.null()]),
+  "pipe_pct": zod.union([zod.string().regex(getAnalyticsPortfolioResponseCentersItemMonthsItemPipePctOneRegExp),zod.null()])
+}))
+})),
+  "items": zod.array(zod.object({
+  "id": zod.uuid(),
+  "is_order": zod.boolean(),
+  "number": zod.string(),
+  "customer_name": zod.string(),
+  "product_name": zod.string(),
+  "quantity": zod.string().regex(getAnalyticsPortfolioResponseItemsItemQuantityRegExp),
+  "stage": zod.string(),
+  "stage_label": zod.string(),
+  "month": zod.iso.date(),
+  "total": zod.string().regex(getAnalyticsPortfolioResponseItemsItemTotalRegExp),
+  "probability_pct": zod.string().regex(getAnalyticsPortfolioResponseItemsItemProbabilityPctRegExp),
+  "weighted": zod.string().regex(getAnalyticsPortfolioResponseItemsItemWeightedRegExp),
+  "kind": zod.string().describe('fact \/ firm \/ pipe'),
+  "estimated": zod.boolean()
+}))
+})
+
+
+/**
+ * @summary Get Employees
+ */
+export const getAnalyticsEmployeesQueryPeriodDefault = `4w`;
+
+export const GetAnalyticsEmployeesQueryParams = zod.object({
+  "period": zod.enum(['4w', 'm0', 'm1']).describe('Период выработки сотрудников (`empPeriod` прототипа).').default(getAnalyticsEmployeesQueryPeriodDefault),
+  "department_id": zod.union([zod.uuid(),zod.null()]).optional()
+})
+
+export const getAnalyticsEmployeesResponseTotalWorkedRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseTotalOnOrdersRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseTotalOverheadRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseTotalIdleRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseTotalRepairRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseTotalTrainingRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseTotalOvertimeRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseTotalAbsentDaysRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseTotalEarnedRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseTotalOutputPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseTotalUsePctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseTotalProductivityPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseTotalCheckedRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseTotalDefectsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseTotalOperatorDefectsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseTotalDefectPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseTotalRubRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseTotalCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseTotalReturnRatioOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseTotalRubPerHourOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseTotalContributionRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseUnattributedRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemHourlyRateRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemStatsWorkedRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemStatsOnOrdersRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemStatsOverheadRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemStatsIdleRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemStatsRepairRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemStatsTrainingRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemStatsOvertimeRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemStatsAbsentDaysRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemStatsEarnedRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemStatsOutputPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemStatsUsePctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemStatsProductivityPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemStatsCheckedRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemStatsDefectsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemStatsOperatorDefectsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemStatsDefectPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemStatsRubRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemStatsCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemStatsReturnRatioOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemStatsRubPerHourOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemStatsContributionRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemMonthsItemRubRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemMonthsItemCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeesResponseRowsItemMonthsItemReturnRatioOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetAnalyticsEmployeesResponse = zod.object({
+  "period": zod.string(),
+  "date_from": zod.iso.date(),
+  "date_to": zod.iso.date(),
+  "months": zod.array(zod.iso.date()),
+  "departments": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string()
+})),
+  "total": zod.object({
+  "worked": zod.string().regex(getAnalyticsEmployeesResponseTotalWorkedRegExp),
+  "on_orders": zod.string().regex(getAnalyticsEmployeesResponseTotalOnOrdersRegExp),
+  "overhead": zod.string().regex(getAnalyticsEmployeesResponseTotalOverheadRegExp),
+  "idle": zod.string().regex(getAnalyticsEmployeesResponseTotalIdleRegExp),
+  "repair": zod.string().regex(getAnalyticsEmployeesResponseTotalRepairRegExp),
+  "training": zod.string().regex(getAnalyticsEmployeesResponseTotalTrainingRegExp),
+  "overtime": zod.string().regex(getAnalyticsEmployeesResponseTotalOvertimeRegExp),
+  "absent_days": zod.string().regex(getAnalyticsEmployeesResponseTotalAbsentDaysRegExp),
+  "earned": zod.string().regex(getAnalyticsEmployeesResponseTotalEarnedRegExp),
+  "output_pct": zod.union([zod.string().regex(getAnalyticsEmployeesResponseTotalOutputPctOneRegExp),zod.null()]).describe('Освоено ÷ часы на заказах'),
+  "use_pct": zod.union([zod.string().regex(getAnalyticsEmployeesResponseTotalUsePctOneRegExp),zod.null()]).describe('Часы на заказах ÷ отработано'),
+  "productivity_pct": zod.union([zod.string().regex(getAnalyticsEmployeesResponseTotalProductivityPctOneRegExp),zod.null()]).describe('Освоено ÷ отработано'),
+  "checked": zod.string().regex(getAnalyticsEmployeesResponseTotalCheckedRegExp),
+  "defects": zod.string().regex(getAnalyticsEmployeesResponseTotalDefectsRegExp),
+  "operator_defects": zod.string().regex(getAnalyticsEmployeesResponseTotalOperatorDefectsRegExp),
+  "defect_pct": zod.union([zod.string().regex(getAnalyticsEmployeesResponseTotalDefectPctOneRegExp),zod.null()]),
+  "rub": zod.string().regex(getAnalyticsEmployeesResponseTotalRubRegExp),
+  "cost": zod.string().regex(getAnalyticsEmployeesResponseTotalCostRegExp),
+  "return_ratio": zod.union([zod.string().regex(getAnalyticsEmployeesResponseTotalReturnRatioOneRegExp),zod.null()]).describe('Рубли выработки ÷ стоимость часов'),
+  "rub_per_hour": zod.union([zod.string().regex(getAnalyticsEmployeesResponseTotalRubPerHourOneRegExp),zod.null()]),
+  "contribution": zod.string().regex(getAnalyticsEmployeesResponseTotalContributionRegExp)
+}),
+  "unattributed": zod.string().regex(getAnalyticsEmployeesResponseUnattributedRegExp),
+  "rows": zod.array(zod.object({
+  "employee_id": zod.uuid(),
+  "full_name": zod.string(),
+  "position": zod.string(),
+  "department_id": zod.uuid(),
+  "department_name": zod.string(),
+  "work_center_short": zod.string(),
+  "hourly_rate": zod.string().regex(getAnalyticsEmployeesResponseRowsItemHourlyRateRegExp),
+  "stats": zod.object({
+  "worked": zod.string().regex(getAnalyticsEmployeesResponseRowsItemStatsWorkedRegExp),
+  "on_orders": zod.string().regex(getAnalyticsEmployeesResponseRowsItemStatsOnOrdersRegExp),
+  "overhead": zod.string().regex(getAnalyticsEmployeesResponseRowsItemStatsOverheadRegExp),
+  "idle": zod.string().regex(getAnalyticsEmployeesResponseRowsItemStatsIdleRegExp),
+  "repair": zod.string().regex(getAnalyticsEmployeesResponseRowsItemStatsRepairRegExp),
+  "training": zod.string().regex(getAnalyticsEmployeesResponseRowsItemStatsTrainingRegExp),
+  "overtime": zod.string().regex(getAnalyticsEmployeesResponseRowsItemStatsOvertimeRegExp),
+  "absent_days": zod.string().regex(getAnalyticsEmployeesResponseRowsItemStatsAbsentDaysRegExp),
+  "earned": zod.string().regex(getAnalyticsEmployeesResponseRowsItemStatsEarnedRegExp),
+  "output_pct": zod.union([zod.string().regex(getAnalyticsEmployeesResponseRowsItemStatsOutputPctOneRegExp),zod.null()]).describe('Освоено ÷ часы на заказах'),
+  "use_pct": zod.union([zod.string().regex(getAnalyticsEmployeesResponseRowsItemStatsUsePctOneRegExp),zod.null()]).describe('Часы на заказах ÷ отработано'),
+  "productivity_pct": zod.union([zod.string().regex(getAnalyticsEmployeesResponseRowsItemStatsProductivityPctOneRegExp),zod.null()]).describe('Освоено ÷ отработано'),
+  "checked": zod.string().regex(getAnalyticsEmployeesResponseRowsItemStatsCheckedRegExp),
+  "defects": zod.string().regex(getAnalyticsEmployeesResponseRowsItemStatsDefectsRegExp),
+  "operator_defects": zod.string().regex(getAnalyticsEmployeesResponseRowsItemStatsOperatorDefectsRegExp),
+  "defect_pct": zod.union([zod.string().regex(getAnalyticsEmployeesResponseRowsItemStatsDefectPctOneRegExp),zod.null()]),
+  "rub": zod.string().regex(getAnalyticsEmployeesResponseRowsItemStatsRubRegExp),
+  "cost": zod.string().regex(getAnalyticsEmployeesResponseRowsItemStatsCostRegExp),
+  "return_ratio": zod.union([zod.string().regex(getAnalyticsEmployeesResponseRowsItemStatsReturnRatioOneRegExp),zod.null()]).describe('Рубли выработки ÷ стоимость часов'),
+  "rub_per_hour": zod.union([zod.string().regex(getAnalyticsEmployeesResponseRowsItemStatsRubPerHourOneRegExp),zod.null()]),
+  "contribution": zod.string().regex(getAnalyticsEmployeesResponseRowsItemStatsContributionRegExp)
+}),
+  "months": zod.array(zod.object({
+  "month": zod.iso.date(),
+  "rub": zod.string().regex(getAnalyticsEmployeesResponseRowsItemMonthsItemRubRegExp),
+  "cost": zod.string().regex(getAnalyticsEmployeesResponseRowsItemMonthsItemCostRegExp),
+  "return_ratio": zod.union([zod.string().regex(getAnalyticsEmployeesResponseRowsItemMonthsItemReturnRatioOneRegExp),zod.null()])
+}))
+}))
+})
+
+
+/**
+ * @summary Get Employee
+ */
+export const GetAnalyticsEmployeeParams = zod.object({
+  "employee_id": zod.uuid()
+})
+
+export const getAnalyticsEmployeeQueryPeriodDefault = `4w`;
+
+export const GetAnalyticsEmployeeQueryParams = zod.object({
+  "period": zod.enum(['4w', 'm0', 'm1']).describe('Период выработки сотрудников (`empPeriod` прототипа).').default(getAnalyticsEmployeeQueryPeriodDefault)
+})
+
+export const getAnalyticsEmployeeResponseHourlyRateRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseStatsWorkedRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseStatsOnOrdersRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseStatsOverheadRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseStatsIdleRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseStatsRepairRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseStatsTrainingRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseStatsOvertimeRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseStatsAbsentDaysRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseStatsEarnedRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseStatsOutputPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseStatsUsePctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseStatsProductivityPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseStatsCheckedRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseStatsDefectsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseStatsOperatorDefectsRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseStatsDefectPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseStatsRubRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseStatsCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseStatsReturnRatioOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseStatsRubPerHourOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseStatsContributionRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseWeeksItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseWeeksItemEarnedRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseWeeksItemRubRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseWeeksItemCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseWeeksItemProductivityPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseOperationsItemNormHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseOperationsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseOperationsItemEarnedRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseOperationsItemRubRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getAnalyticsEmployeeResponseOperationsItemOutputPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetAnalyticsEmployeeResponse = zod.object({
+  "employee_id": zod.uuid(),
+  "full_name": zod.string(),
+  "position": zod.string(),
+  "department_name": zod.string(),
+  "work_center_short": zod.string(),
+  "hourly_rate": zod.string().regex(getAnalyticsEmployeeResponseHourlyRateRegExp),
+  "period": zod.string(),
+  "date_from": zod.iso.date(),
+  "date_to": zod.iso.date(),
+  "stats": zod.object({
+  "worked": zod.string().regex(getAnalyticsEmployeeResponseStatsWorkedRegExp),
+  "on_orders": zod.string().regex(getAnalyticsEmployeeResponseStatsOnOrdersRegExp),
+  "overhead": zod.string().regex(getAnalyticsEmployeeResponseStatsOverheadRegExp),
+  "idle": zod.string().regex(getAnalyticsEmployeeResponseStatsIdleRegExp),
+  "repair": zod.string().regex(getAnalyticsEmployeeResponseStatsRepairRegExp),
+  "training": zod.string().regex(getAnalyticsEmployeeResponseStatsTrainingRegExp),
+  "overtime": zod.string().regex(getAnalyticsEmployeeResponseStatsOvertimeRegExp),
+  "absent_days": zod.string().regex(getAnalyticsEmployeeResponseStatsAbsentDaysRegExp),
+  "earned": zod.string().regex(getAnalyticsEmployeeResponseStatsEarnedRegExp),
+  "output_pct": zod.union([zod.string().regex(getAnalyticsEmployeeResponseStatsOutputPctOneRegExp),zod.null()]).describe('Освоено ÷ часы на заказах'),
+  "use_pct": zod.union([zod.string().regex(getAnalyticsEmployeeResponseStatsUsePctOneRegExp),zod.null()]).describe('Часы на заказах ÷ отработано'),
+  "productivity_pct": zod.union([zod.string().regex(getAnalyticsEmployeeResponseStatsProductivityPctOneRegExp),zod.null()]).describe('Освоено ÷ отработано'),
+  "checked": zod.string().regex(getAnalyticsEmployeeResponseStatsCheckedRegExp),
+  "defects": zod.string().regex(getAnalyticsEmployeeResponseStatsDefectsRegExp),
+  "operator_defects": zod.string().regex(getAnalyticsEmployeeResponseStatsOperatorDefectsRegExp),
+  "defect_pct": zod.union([zod.string().regex(getAnalyticsEmployeeResponseStatsDefectPctOneRegExp),zod.null()]),
+  "rub": zod.string().regex(getAnalyticsEmployeeResponseStatsRubRegExp),
+  "cost": zod.string().regex(getAnalyticsEmployeeResponseStatsCostRegExp),
+  "return_ratio": zod.union([zod.string().regex(getAnalyticsEmployeeResponseStatsReturnRatioOneRegExp),zod.null()]).describe('Рубли выработки ÷ стоимость часов'),
+  "rub_per_hour": zod.union([zod.string().regex(getAnalyticsEmployeeResponseStatsRubPerHourOneRegExp),zod.null()]),
+  "contribution": zod.string().regex(getAnalyticsEmployeeResponseStatsContributionRegExp)
+}),
+  "weeks": zod.array(zod.object({
+  "week_start": zod.iso.date(),
+  "hours": zod.string().regex(getAnalyticsEmployeeResponseWeeksItemHoursRegExp),
+  "earned": zod.string().regex(getAnalyticsEmployeeResponseWeeksItemEarnedRegExp),
+  "rub": zod.string().regex(getAnalyticsEmployeeResponseWeeksItemRubRegExp),
+  "cost": zod.string().regex(getAnalyticsEmployeeResponseWeeksItemCostRegExp),
+  "productivity_pct": zod.union([zod.string().regex(getAnalyticsEmployeeResponseWeeksItemProductivityPctOneRegExp),zod.null()])
+})),
+  "operations": zod.array(zod.object({
+  "operation_id": zod.uuid(),
+  "order_id": zod.uuid(),
+  "order_number": zod.string(),
+  "operation_name": zod.string(),
+  "norm_hours": zod.string().regex(getAnalyticsEmployeeResponseOperationsItemNormHoursRegExp),
+  "status": zod.string(),
+  "hours": zod.string().regex(getAnalyticsEmployeeResponseOperationsItemHoursRegExp),
+  "earned": zod.string().regex(getAnalyticsEmployeeResponseOperationsItemEarnedRegExp),
+  "rub": zod.string().regex(getAnalyticsEmployeeResponseOperationsItemRubRegExp),
+  "output_pct": zod.union([zod.string().regex(getAnalyticsEmployeeResponseOperationsItemOutputPctOneRegExp),zod.null()])
+}))
+})
+
+
+/**
  * @summary Get Csrf
  */
 export const GetCsrfResponse = zod.record(zod.string(), zod.boolean())

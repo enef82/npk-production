@@ -24,6 +24,7 @@ from django.contrib.auth.models import Group
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 
+from src.analytics import facade as analytics
 from src.core.accounts.groups import (
     DESIGNER,
     ESTIMATOR,
@@ -226,6 +227,8 @@ MODULE_SEEDS: tuple[tuple[str, Callable[[], object]], ...] = (
     ("supply", supply.seed_demo),
     ("equipment", lambda: equipment.seed_demo(_work_center_ids())),
     ("energy", energy.seed_demo),
+    # Последней: отсечки снимают план, освоение, табель и контроль остальных модулей.
+    ("analytics", analytics.seed_demo),
 )
 
 

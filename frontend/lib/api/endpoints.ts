@@ -24,6 +24,336 @@ import type {
 } from '@tanstack/react-query';
 
 import { customFetch } from './mutator';
+/**
+ * Окно истории — `weeks` недель по текущую включительно (прототип: 8 прошлых и
+ * текущая); `week` — выбранная неделя (понедельник), по умолчанию текущая.
+ */
+export interface AnalyticsCutoffFilters {
+  week?: string | null;
+  /**
+     * @minimum 2
+     * @maximum 13
+     */
+  weeks?: number;
+}
+
+export interface AnalyticsCutoffAbilitiesOut {
+  can_close: boolean;
+}
+
+export interface AnalyticsCutoffEventOut {
+  action: string;
+  action_label: string;
+  actor_name: string;
+  created_at: string;
+  text: string;
+}
+
+export interface AnalyticsCutoffRowOut {
+  /** None — строка «Итого» */
+  work_center_id: string | null;
+  name: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  capacity: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  planned: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  earned: string;
+  worked: string | null;
+  plan_pct: string | null;
+  output_pct: string | null;
+  load_pct: string | null;
+  checked: number;
+  defects: number;
+  defect_pct: string | null;
+}
+
+export interface AnalyticsCutoffWeekOut {
+  week_start: string;
+  /** current / open / closed */
+  status: string;
+  closed_by_name: string;
+  closed_at: string | null;
+  comment: string;
+  rows: AnalyticsCutoffRowOut[];
+  total: AnalyticsCutoffRowOut;
+}
+
+export interface AnalyticsCutoffsOut {
+  current_week: string;
+  selected_week: string;
+  weeks: AnalyticsCutoffWeekOut[];
+  events: AnalyticsCutoffEventOut[];
+  abilities: AnalyticsCutoffAbilitiesOut;
+}
+
+export interface AnalyticsCutoffActionOut {
+  week_start: string;
+  status: string;
+}
+
+export interface AnalyticsWorkedHoursIn {
+  work_center_id: string;
+  hours: number | string;
+}
+
+export interface AnalyticsCloseCutoffIn {
+  week_start: string;
+  comment?: string;
+  /** Правка отработанных часов поверх табеля */
+  worked?: AnalyticsWorkedHoursIn[];
+}
+
+export interface AnalyticsReopenCutoffIn {
+  /** @minLength 1 */
+  reason: string;
+}
+
+export interface AnalyticsLoadCellOut {
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  firm: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  tentative: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  total: string;
+  pct: string | null;
+}
+
+export interface AnalyticsLoadRowOut {
+  work_center_id: string;
+  name: string;
+  short_name: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  capacity: string;
+  cells: AnalyticsLoadCellOut[];
+}
+
+export interface AnalyticsLoadOut {
+  weeks: string[];
+  rows: AnalyticsLoadRowOut[];
+}
+
+export interface AnalyticsMonthAmountsOut {
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  fact: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  firm: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  pipe: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  total: string;
+}
+
+export interface AnalyticsMonthLoadOut {
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  fact: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  firm: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  pipe: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  total: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  capacity: string;
+  pct: string | null;
+  pipe_pct: string | null;
+}
+
+export interface AnalyticsPortfolioCenterOut {
+  work_center_id: string;
+  name: string;
+  short_name: string;
+  months: AnalyticsMonthLoadOut[];
+}
+
+export interface AnalyticsPortfolioItemOut {
+  id: string;
+  is_order: boolean;
+  number: string;
+  customer_name: string;
+  product_name: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  quantity: string;
+  stage: string;
+  stage_label: string;
+  month: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  total: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  probability_pct: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  weighted: string;
+  /** fact / firm / pipe */
+  kind: string;
+  estimated: boolean;
+}
+
+export interface AnalyticsStageProbabilityOut {
+  stage: string;
+  label: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  probability: string;
+}
+
+export interface AnalyticsPortfolioOut {
+  months: string[];
+  current_month: string;
+  probabilities: AnalyticsStageProbabilityOut[];
+  revenue: AnalyticsMonthAmountsOut[];
+  load: AnalyticsMonthLoadOut[];
+  centers: AnalyticsPortfolioCenterOut[];
+  items: AnalyticsPortfolioItemOut[];
+}
+
+export interface AnalyticsEmployeeFilters {
+  period?: '4w' | 'm0' | 'm1';
+  department_id?: string | null;
+}
+
+/**
+ * Период выработки сотрудников (`empPeriod` прототипа).
+ */
+export type EmployeePeriod = typeof EmployeePeriod[keyof typeof EmployeePeriod];
+
+
+export const EmployeePeriod = {
+  '4w': '4w',
+  m0: 'm0',
+  m1: 'm1',
+} as const;
+
+export interface AnalyticsDepartmentOut {
+  id: string;
+  name: string;
+}
+
+export interface AnalyticsEmployeeMonthOut {
+  month: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  rub: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  cost: string;
+  return_ratio: string | null;
+}
+
+export interface AnalyticsEmployeeStatsOut {
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  worked: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  on_orders: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  overhead: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  idle: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  repair: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  training: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  overtime: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  absent_days: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  earned: string;
+  /** Освоено ÷ часы на заказах */
+  output_pct: string | null;
+  /** Часы на заказах ÷ отработано */
+  use_pct: string | null;
+  /** Освоено ÷ отработано */
+  productivity_pct: string | null;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  checked: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  defects: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  operator_defects: string;
+  defect_pct: string | null;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  rub: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  cost: string;
+  /** Рубли выработки ÷ стоимость часов */
+  return_ratio: string | null;
+  rub_per_hour: string | null;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  contribution: string;
+}
+
+export interface AnalyticsEmployeeRowOut {
+  employee_id: string;
+  full_name: string;
+  position: string;
+  department_id: string;
+  department_name: string;
+  work_center_short: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  hourly_rate: string;
+  stats: AnalyticsEmployeeStatsOut;
+  months: AnalyticsEmployeeMonthOut[];
+}
+
+export interface AnalyticsEmployeesOut {
+  period: string;
+  date_from: string;
+  date_to: string;
+  months: string[];
+  departments: AnalyticsDepartmentOut[];
+  total: AnalyticsEmployeeStatsOut;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  unattributed: string;
+  rows: AnalyticsEmployeeRowOut[];
+}
+
+export interface AnalyticsEmployeeCardFilters {
+  period?: '4w' | 'm0' | 'm1';
+}
+
+export interface AnalyticsEmployeeWeekOut {
+  week_start: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  hours: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  earned: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  rub: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  cost: string;
+  productivity_pct: string | null;
+}
+
+export interface AnalyticsEmployeeOperationOut {
+  operation_id: string;
+  order_id: string;
+  order_number: string;
+  operation_name: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  norm_hours: string;
+  status: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  hours: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  earned: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  rub: string;
+  output_pct: string | null;
+}
+
+export interface AnalyticsEmployeeCardOut {
+  employee_id: string;
+  full_name: string;
+  position: string;
+  department_name: string;
+  work_center_short: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  hourly_rate: string;
+  period: string;
+  date_from: string;
+  date_to: string;
+  stats: AnalyticsEmployeeStatsOut;
+  weeks: AnalyticsEmployeeWeekOut[];
+  operations: AnalyticsEmployeeOperationOut[];
+}
+
 export interface MeOut {
   id: string;
   email: string;
@@ -2292,6 +2622,24 @@ export interface AllocationIn {
   date: string;
 }
 
+export type GetAnalyticsCutoffsParams = {
+week?: string | null;
+/**
+ * @minimum 2
+ * @maximum 13
+ */
+weeks?: number;
+};
+
+export type GetAnalyticsEmployeesParams = {
+period?: '4w' | 'm0' | 'm1';
+department_id?: string | null;
+};
+
+export type GetAnalyticsEmployeeParams = {
+period?: '4w' | 'm0' | 'm1';
+};
+
 export type GetCsrf200 = {[key: string]: boolean};
 
 export type Logout200 = {[key: string]: boolean};
@@ -2490,6 +2838,683 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetAnalyticsCutoffsUrl = (params?: GetAnalyticsCutoffsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/analytics/cutoffs?${stringifiedParams}` : `/api/v1/analytics/cutoffs`
+}
+
+/**
+ * @summary Get Cutoffs
+ */
+export const getAnalyticsCutoffs = async (params?: GetAnalyticsCutoffsParams, options?: Parameters<typeof customFetch>[1]): Promise<AnalyticsCutoffsOut> => {
+
+  return customFetch<AnalyticsCutoffsOut>(getGetAnalyticsCutoffsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAnalyticsCutoffsQueryKey = (params?: GetAnalyticsCutoffsParams,) => {
+    return [
+    `/api/v1/analytics/cutoffs`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAnalyticsCutoffsQueryOptions = <TData = Awaited<ReturnType<typeof getAnalyticsCutoffs>>, TError = unknown>(params?: GetAnalyticsCutoffsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsCutoffs>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAnalyticsCutoffsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAnalyticsCutoffs>>> = ({ signal }) => getAnalyticsCutoffs(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsCutoffs>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAnalyticsCutoffsQueryResult = NonNullable<Awaited<ReturnType<typeof getAnalyticsCutoffs>>>
+export type GetAnalyticsCutoffsQueryError = unknown
+
+
+export function useGetAnalyticsCutoffs<TData = Awaited<ReturnType<typeof getAnalyticsCutoffs>>, TError = unknown>(
+ params: undefined |  GetAnalyticsCutoffsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsCutoffs>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAnalyticsCutoffs>>,
+          TError,
+          Awaited<ReturnType<typeof getAnalyticsCutoffs>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAnalyticsCutoffs<TData = Awaited<ReturnType<typeof getAnalyticsCutoffs>>, TError = unknown>(
+ params?: GetAnalyticsCutoffsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsCutoffs>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAnalyticsCutoffs>>,
+          TError,
+          Awaited<ReturnType<typeof getAnalyticsCutoffs>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAnalyticsCutoffs<TData = Awaited<ReturnType<typeof getAnalyticsCutoffs>>, TError = unknown>(
+ params?: GetAnalyticsCutoffsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsCutoffs>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Cutoffs
+ */
+
+export function useGetAnalyticsCutoffs<TData = Awaited<ReturnType<typeof getAnalyticsCutoffs>>, TError = unknown>(
+ params?: GetAnalyticsCutoffsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsCutoffs>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetAnalyticsCutoffsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCloseAnalyticsCutoffUrl = () => {
+
+
+
+
+  return `/api/v1/analytics/cutoffs`
+}
+
+/**
+ * @summary Close Cutoff
+ */
+export const closeAnalyticsCutoff = async (analyticsCloseCutoffIn: AnalyticsCloseCutoffIn, options?: Parameters<typeof customFetch>[1]): Promise<AnalyticsCutoffActionOut> => {
+
+  return customFetch<AnalyticsCutoffActionOut>(getCloseAnalyticsCutoffUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(analyticsCloseCutoffIn)
+  }
+);}
+
+
+
+
+
+export const getCloseAnalyticsCutoffMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof closeAnalyticsCutoff>>, TError,{data: AnalyticsCloseCutoffIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof closeAnalyticsCutoff>>, TError,{data: AnalyticsCloseCutoffIn}, TContext> => {
+
+const mutationKey = ['closeAnalyticsCutoff'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof closeAnalyticsCutoff>>, {data: AnalyticsCloseCutoffIn}> = (props) => {
+          const {data} = props ?? {};
+
+          return  closeAnalyticsCutoff(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CloseAnalyticsCutoffMutationResult = NonNullable<Awaited<ReturnType<typeof closeAnalyticsCutoff>>>
+    export type CloseAnalyticsCutoffMutationBody = AnalyticsCloseCutoffIn
+    export type CloseAnalyticsCutoffMutationError = unknown
+
+    /**
+ * @summary Close Cutoff
+ */
+export const useCloseAnalyticsCutoff = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof closeAnalyticsCutoff>>, TError,{data: AnalyticsCloseCutoffIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof closeAnalyticsCutoff>>,
+        TError,
+        {data: AnalyticsCloseCutoffIn},
+        TContext
+      > => {
+      return useMutation(getCloseAnalyticsCutoffMutationOptions(options), queryClient);
+    }
+
+export const getReopenAnalyticsCutoffUrl = (weekStart: string,) => {
+
+
+
+
+  return `/api/v1/analytics/cutoffs/${weekStart}/reopen`
+}
+
+/**
+ * @summary Reopen Cutoff
+ */
+export const reopenAnalyticsCutoff = async (weekStart: string,
+    analyticsReopenCutoffIn: AnalyticsReopenCutoffIn, options?: Parameters<typeof customFetch>[1]): Promise<AnalyticsCutoffActionOut> => {
+
+  return customFetch<AnalyticsCutoffActionOut>(getReopenAnalyticsCutoffUrl(weekStart),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(analyticsReopenCutoffIn)
+  }
+);}
+
+
+
+
+
+export const getReopenAnalyticsCutoffMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof reopenAnalyticsCutoff>>, TError,{weekStart: string;data: AnalyticsReopenCutoffIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof reopenAnalyticsCutoff>>, TError,{weekStart: string;data: AnalyticsReopenCutoffIn}, TContext> => {
+
+const mutationKey = ['reopenAnalyticsCutoff'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof reopenAnalyticsCutoff>>, {weekStart: string;data: AnalyticsReopenCutoffIn}> = (props) => {
+          const {weekStart,data} = props ?? {};
+
+          return  reopenAnalyticsCutoff(weekStart,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReopenAnalyticsCutoffMutationResult = NonNullable<Awaited<ReturnType<typeof reopenAnalyticsCutoff>>>
+    export type ReopenAnalyticsCutoffMutationBody = AnalyticsReopenCutoffIn
+    export type ReopenAnalyticsCutoffMutationError = unknown
+
+    /**
+ * @summary Reopen Cutoff
+ */
+export const useReopenAnalyticsCutoff = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof reopenAnalyticsCutoff>>, TError,{weekStart: string;data: AnalyticsReopenCutoffIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof reopenAnalyticsCutoff>>,
+        TError,
+        {weekStart: string;data: AnalyticsReopenCutoffIn},
+        TContext
+      > => {
+      return useMutation(getReopenAnalyticsCutoffMutationOptions(options), queryClient);
+    }
+
+export const getGetAnalyticsLoadUrl = () => {
+
+
+
+
+  return `/api/v1/analytics/load`
+}
+
+/**
+ * @summary Get Load
+ */
+export const getAnalyticsLoad = async ( options?: Parameters<typeof customFetch>[1]): Promise<AnalyticsLoadOut> => {
+
+  return customFetch<AnalyticsLoadOut>(getGetAnalyticsLoadUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAnalyticsLoadQueryKey = () => {
+    return [
+    `/api/v1/analytics/load`
+    ] as const;
+    }
+
+
+export const getGetAnalyticsLoadQueryOptions = <TData = Awaited<ReturnType<typeof getAnalyticsLoad>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsLoad>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAnalyticsLoadQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAnalyticsLoad>>> = ({ signal }) => getAnalyticsLoad({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsLoad>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAnalyticsLoadQueryResult = NonNullable<Awaited<ReturnType<typeof getAnalyticsLoad>>>
+export type GetAnalyticsLoadQueryError = unknown
+
+
+export function useGetAnalyticsLoad<TData = Awaited<ReturnType<typeof getAnalyticsLoad>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsLoad>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAnalyticsLoad>>,
+          TError,
+          Awaited<ReturnType<typeof getAnalyticsLoad>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAnalyticsLoad<TData = Awaited<ReturnType<typeof getAnalyticsLoad>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsLoad>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAnalyticsLoad>>,
+          TError,
+          Awaited<ReturnType<typeof getAnalyticsLoad>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAnalyticsLoad<TData = Awaited<ReturnType<typeof getAnalyticsLoad>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsLoad>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Load
+ */
+
+export function useGetAnalyticsLoad<TData = Awaited<ReturnType<typeof getAnalyticsLoad>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsLoad>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetAnalyticsLoadQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAnalyticsPortfolioUrl = () => {
+
+
+
+
+  return `/api/v1/analytics/portfolio`
+}
+
+/**
+ * @summary Get Portfolio
+ */
+export const getAnalyticsPortfolio = async ( options?: Parameters<typeof customFetch>[1]): Promise<AnalyticsPortfolioOut> => {
+
+  return customFetch<AnalyticsPortfolioOut>(getGetAnalyticsPortfolioUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAnalyticsPortfolioQueryKey = () => {
+    return [
+    `/api/v1/analytics/portfolio`
+    ] as const;
+    }
+
+
+export const getGetAnalyticsPortfolioQueryOptions = <TData = Awaited<ReturnType<typeof getAnalyticsPortfolio>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsPortfolio>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAnalyticsPortfolioQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAnalyticsPortfolio>>> = ({ signal }) => getAnalyticsPortfolio({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsPortfolio>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAnalyticsPortfolioQueryResult = NonNullable<Awaited<ReturnType<typeof getAnalyticsPortfolio>>>
+export type GetAnalyticsPortfolioQueryError = unknown
+
+
+export function useGetAnalyticsPortfolio<TData = Awaited<ReturnType<typeof getAnalyticsPortfolio>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsPortfolio>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAnalyticsPortfolio>>,
+          TError,
+          Awaited<ReturnType<typeof getAnalyticsPortfolio>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAnalyticsPortfolio<TData = Awaited<ReturnType<typeof getAnalyticsPortfolio>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsPortfolio>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAnalyticsPortfolio>>,
+          TError,
+          Awaited<ReturnType<typeof getAnalyticsPortfolio>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAnalyticsPortfolio<TData = Awaited<ReturnType<typeof getAnalyticsPortfolio>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsPortfolio>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Portfolio
+ */
+
+export function useGetAnalyticsPortfolio<TData = Awaited<ReturnType<typeof getAnalyticsPortfolio>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsPortfolio>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetAnalyticsPortfolioQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAnalyticsEmployeesUrl = (params?: GetAnalyticsEmployeesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/analytics/employees?${stringifiedParams}` : `/api/v1/analytics/employees`
+}
+
+/**
+ * @summary Get Employees
+ */
+export const getAnalyticsEmployees = async (params?: GetAnalyticsEmployeesParams, options?: Parameters<typeof customFetch>[1]): Promise<AnalyticsEmployeesOut> => {
+
+  return customFetch<AnalyticsEmployeesOut>(getGetAnalyticsEmployeesUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAnalyticsEmployeesQueryKey = (params?: GetAnalyticsEmployeesParams,) => {
+    return [
+    `/api/v1/analytics/employees`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAnalyticsEmployeesQueryOptions = <TData = Awaited<ReturnType<typeof getAnalyticsEmployees>>, TError = unknown>(params?: GetAnalyticsEmployeesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsEmployees>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAnalyticsEmployeesQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAnalyticsEmployees>>> = ({ signal }) => getAnalyticsEmployees(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsEmployees>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAnalyticsEmployeesQueryResult = NonNullable<Awaited<ReturnType<typeof getAnalyticsEmployees>>>
+export type GetAnalyticsEmployeesQueryError = unknown
+
+
+export function useGetAnalyticsEmployees<TData = Awaited<ReturnType<typeof getAnalyticsEmployees>>, TError = unknown>(
+ params: undefined |  GetAnalyticsEmployeesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsEmployees>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAnalyticsEmployees>>,
+          TError,
+          Awaited<ReturnType<typeof getAnalyticsEmployees>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAnalyticsEmployees<TData = Awaited<ReturnType<typeof getAnalyticsEmployees>>, TError = unknown>(
+ params?: GetAnalyticsEmployeesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsEmployees>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAnalyticsEmployees>>,
+          TError,
+          Awaited<ReturnType<typeof getAnalyticsEmployees>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAnalyticsEmployees<TData = Awaited<ReturnType<typeof getAnalyticsEmployees>>, TError = unknown>(
+ params?: GetAnalyticsEmployeesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsEmployees>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Employees
+ */
+
+export function useGetAnalyticsEmployees<TData = Awaited<ReturnType<typeof getAnalyticsEmployees>>, TError = unknown>(
+ params?: GetAnalyticsEmployeesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsEmployees>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetAnalyticsEmployeesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAnalyticsEmployeeUrl = (employeeId: string,
+    params?: GetAnalyticsEmployeeParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/analytics/employees/${employeeId}?${stringifiedParams}` : `/api/v1/analytics/employees/${employeeId}`
+}
+
+/**
+ * @summary Get Employee
+ */
+export const getAnalyticsEmployee = async (employeeId: string,
+    params?: GetAnalyticsEmployeeParams, options?: Parameters<typeof customFetch>[1]): Promise<AnalyticsEmployeeCardOut> => {
+
+  return customFetch<AnalyticsEmployeeCardOut>(getGetAnalyticsEmployeeUrl(employeeId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAnalyticsEmployeeQueryKey = (employeeId: string,
+    params?: GetAnalyticsEmployeeParams,) => {
+    return [
+    `/api/v1/analytics/employees/${employeeId}`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAnalyticsEmployeeQueryOptions = <TData = Awaited<ReturnType<typeof getAnalyticsEmployee>>, TError = unknown>(employeeId: string,
+    params?: GetAnalyticsEmployeeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsEmployee>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAnalyticsEmployeeQueryKey(employeeId,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAnalyticsEmployee>>> = ({ signal }) => getAnalyticsEmployee(employeeId,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: employeeId !== null && employeeId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsEmployee>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAnalyticsEmployeeQueryResult = NonNullable<Awaited<ReturnType<typeof getAnalyticsEmployee>>>
+export type GetAnalyticsEmployeeQueryError = unknown
+
+
+export function useGetAnalyticsEmployee<TData = Awaited<ReturnType<typeof getAnalyticsEmployee>>, TError = unknown>(
+ employeeId: string,
+    params: undefined |  GetAnalyticsEmployeeParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsEmployee>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAnalyticsEmployee>>,
+          TError,
+          Awaited<ReturnType<typeof getAnalyticsEmployee>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAnalyticsEmployee<TData = Awaited<ReturnType<typeof getAnalyticsEmployee>>, TError = unknown>(
+ employeeId: string,
+    params?: GetAnalyticsEmployeeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsEmployee>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAnalyticsEmployee>>,
+          TError,
+          Awaited<ReturnType<typeof getAnalyticsEmployee>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAnalyticsEmployee<TData = Awaited<ReturnType<typeof getAnalyticsEmployee>>, TError = unknown>(
+ employeeId: string,
+    params?: GetAnalyticsEmployeeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsEmployee>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Employee
+ */
+
+export function useGetAnalyticsEmployee<TData = Awaited<ReturnType<typeof getAnalyticsEmployee>>, TError = unknown>(
+ employeeId: string,
+    params?: GetAnalyticsEmployeeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsEmployee>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetAnalyticsEmployeeQueryOptions(employeeId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getGetCsrfUrl = () => {
 

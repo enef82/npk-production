@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 
 import pytest
@@ -153,3 +153,21 @@ def test_has_inspection_по_наличию_записи() -> None:
 
     assert facade.has_inspection(record.operation_id) is True
     assert facade.has_inspection(uuid.uuid4()) is False
+
+
+def test_агрегат_по_операциям_за_период_берёт_только_записи_периода() -> None:
+    op = uuid.uuid4()
+    defect = DefectTypeFactory.create()
+    InspectionRecordFactory.create(
+        operation_id=op,
+        date=MONDAY,
+        checked=6,
+        rework=2,
+        defect_type=defect,
+        cause=_cause("Оператор"),
+    )
+    InspectionRecordFactory.create(operation_id=op, date=MONDAY - timedelta(days=1), checked=50)
+
+    result = facade.list_qc_by_operation(MONDAY, MONDAY + timedelta(days=6))
+
+    assert result == {op: facade.QcAgg(checked=6, rework=2, scrap=0, operator_defects=2)}

@@ -15,11 +15,13 @@ from decimal import Decimal
 from uuid import UUID
 
 from src.timesheet import selectors
+from src.timesheet.models import AllocationTarget
 from src.timesheet.selectors import AllocationRow, OrderActual
 from src.timesheet.services import demo
 
 __all__ = [
     "AllocationRow",
+    "AllocationTarget",
     "OrderActual",
     "WorkerProfileBrief",
     "actual_by_order",

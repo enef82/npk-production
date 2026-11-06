@@ -170,6 +170,15 @@ def qc_by_operation(operation_ids: Iterable[UUID]) -> dict[UUID, QcTotals]:
     return {row["operation_id"]: _totals(row) for row in rows}
 
 
+def qc_by_operation_in_period(date_from: date, date_to: date) -> dict[UUID, QcTotals]:
+    rows = (
+        InspectionRecord.objects.filter(date__gte=date_from, date__lte=date_to)
+        .values("operation_id")
+        .annotate(**_totals_annotations())
+    )
+    return {row["operation_id"]: _totals(row) for row in rows}
+
+
 def totals(date_from: date, date_to: date, *, final: bool | None = None) -> QcTotals:
     records = InspectionRecord.objects.filter(date__gte=date_from, date__lte=date_to)
     if final is not None:

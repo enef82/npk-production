@@ -3,11 +3,16 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
+
 import pytest
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import override_settings
+from django.utils import timezone
 
+from src.analytics import calculations as calc
+from src.analytics.models import WeeklyCutoff, WeeklyCutoffRow
 from src.core.accounts.models import User
 from src.core.org.models import Employee
 from src.production.models import (
@@ -38,6 +43,7 @@ def test_seed_demo_заводит_прототип_и_идемпотентна()
             OrderJournalEntry.objects.count(),
             InspectionRecord.objects.count(),
             PurchaseLine.objects.count(),
+            WeeklyCutoff.objects.count(),
         )
         call_command("seed_demo")
 
@@ -48,6 +54,7 @@ def test_seed_demo_заводит_прототип_и_идемпотентна()
         OrderJournalEntry.objects.count(),
         InspectionRecord.objects.count(),
         PurchaseLine.objects.count(),
+        WeeklyCutoff.objects.count(),
     ) == counts
     assert WorkCenter.objects.count() == 12
     assert ProductTemplate.objects.count() == 8
@@ -82,6 +89,14 @@ def test_seed_demo_заводит_прототип_и_идемпотентна()
     statuses = set(PurchaseLine.objects.values_list("status", flat=True))
     assert {LineStatus.SENT, LineStatus.ORDERED, LineStatus.RECEIVED, LineStatus.ISSUED} <= statuses
     assert PurchaseLine.objects.filter(order_id__isnull=True).count() == 3
+
+    # Аналитика: закрытые отсечки 8 прошлых недель по 11 участкам с часами (без снабжения).
+    current = calc.week_start(timezone.localdate())
+    assert set(WeeklyCutoff.objects.values_list("week_start", flat=True)) == {
+        current - timedelta(weeks=k) for k in range(1, 9)
+    }
+    assert WeeklyCutoffRow.objects.count() == 8 * 11
+    assert not WeeklyCutoffRow.objects.filter(planned_hours=0).exists()
 
 
 def test_seed_demo_запрещён_при_debug_false() -> None:

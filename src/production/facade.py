@@ -50,8 +50,10 @@ __all__ = [
     "get_work_center",
     "list_active_orders",
     "list_earnings",
+    "list_operations_for_orders",
     "list_order_operations",
     "list_planned_operations",
+    "list_shipped_orders",
     "list_work_centers",
     "order_has_kd",
     "seed_demo",
@@ -263,6 +265,20 @@ def get_operations_brief(ids: Iterable[UUID]) -> dict[UUID, OperationBrief]:
 
 def list_order_operations(order_id: UUID) -> list[OperationBrief]:
     return [_operation_brief(op) for op in selectors.list_operations(order_id=order_id)]
+
+
+def list_operations_for_orders(order_ids: Iterable[UUID]) -> list[OperationBrief]:
+    """Операции нескольких заказов одним запросом — загрузка и план недели в
+    `analytics` читают все заказы сразу."""
+
+    return [_operation_brief(op) for op in selectors.list_operations(order_ids=list(order_ids))]
+
+
+def list_shipped_orders(date_from: date, date_to: date) -> list[OrderBrief]:
+    """Отгруженные заказы с датой отгрузки в [from, to] — факт портфеля и план прошлых
+    недель."""
+
+    return [_order_brief(order) for order in selectors.list_shipped_orders(date_from, date_to)]
 
 
 def list_planned_operations(work_center_id: UUID, day: date) -> list[OperationBrief]:

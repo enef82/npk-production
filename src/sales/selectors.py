@@ -92,6 +92,10 @@ def _probabilities() -> dict[str, Decimal]:
     }
 
 
+def stage_probabilities() -> dict[str, Decimal]:
+    return _probabilities()
+
+
 def list_loss_reasons() -> list[LossReason]:
     return list(LossReason.objects.filter(is_active=True))
 
