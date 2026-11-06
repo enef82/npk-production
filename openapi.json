@@ -748,6 +748,1641 @@
         ]
       }
     },
+    "/api/v1/energy/resources": {
+      "get": {
+        "operationId": "listEnergyResources",
+        "summary": "List Resources",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourcesOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "energy"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/energy/resources/{resource_id}/tariffs": {
+      "post": {
+        "operationId": "setEnergyTariff",
+        "summary": "Set Tariff",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "resource_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Resource Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourcesOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "energy"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TariffIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/energy/meters": {
+      "get": {
+        "operationId": "listMeters",
+        "summary": "List Meters",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "resource",
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Resource"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MeterOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "energy"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "createMeter",
+        "summary": "Create Meter",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeterOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "energy"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MeterIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/energy/meters/{meter_id}": {
+      "patch": {
+        "operationId": "updateMeter",
+        "summary": "Update Meter",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "meter_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Meter Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeterOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "energy"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MeterIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/energy/meters/{meter_id}/readings": {
+      "get": {
+        "operationId": "listMeterReadings",
+        "summary": "List Readings",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "meter_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Meter Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ReadingOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "energy"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "recordMeterReading",
+        "summary": "Record Reading",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "meter_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Meter Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadingOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Ручной ввод показания: расход с прошлого показания ложится в получасовые\nинтервалы между ними.",
+        "tags": [
+          "energy"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadingIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/energy/intervals": {
+      "post": {
+        "operationId": "ingestEnergyIntervals",
+        "summary": "Ingest Intervals",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestResultOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Пакет получасовых интервалов SCADA. Идемпотентно по `message_id`: повтор пакета\nвозвращает итог первого приёма с `duplicate = true` и ничего не меняет.",
+        "tags": [
+          "energy"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScadaEnvelopeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/energy/scada-messages": {
+      "get": {
+        "operationId": "listScadaMessages",
+        "summary": "List Scada Messages",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ScadaMessageOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "description": "Последние принятые пакеты — строка состояния обмена на экране.",
+        "tags": [
+          "energy"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/energy/reports/consumption": {
+      "get": {
+        "operationId": "getEnergyConsumption",
+        "summary": "Consumption Report",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "date_from",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date From"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "date_to",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date To"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "resource",
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Resource"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "by_month",
+            "schema": {
+              "default": false,
+              "title": "By Month",
+              "type": "boolean"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ConsumptionOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "description": "Расход и стоимость по ресурсам: по суткам или по месяцам (`by_month`).",
+        "tags": [
+          "energy"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/energy/reports/tree": {
+      "get": {
+        "operationId": "getEnergyMeterTree",
+        "summary": "Meter Tree Report",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "resource",
+            "schema": {
+              "title": "Resource",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "date_from",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date From"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "date_to",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date To"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MeterTreeRowOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "description": "«Счётчики и балансы»: дерево, расход за период и предыдущий такой же, доля,\nстоимость, небаланс узла.",
+        "tags": [
+          "energy"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/energy/reports/daily": {
+      "get": {
+        "operationId": "getEnergyDaily",
+        "summary": "Daily Report",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "resource",
+            "schema": {
+              "title": "Resource",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "date_from",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date From"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "date_to",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date To"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DailyOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "energy"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/energy/reports/profile": {
+      "get": {
+        "operationId": "getEnergyProfile",
+        "summary": "Profile Report",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "meter_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Meter Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "day",
+            "schema": {
+              "format": "date",
+              "title": "Day",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Получасовой профиль суток: 48 значений расхода (мощность, кВт = значение × 2).",
+        "tags": [
+          "energy"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/energy/reports/balance": {
+      "get": {
+        "operationId": "getEnergyBalance",
+        "summary": "Balance Report",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "meter_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Meter Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "date_from",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date From"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "date_to",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date To"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeBalanceOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Баланс узла: ввод − Σ дочерних = потери, за период и по суткам.",
+        "tags": [
+          "energy"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/energy/reports/specific": {
+      "get": {
+        "operationId": "getEnergySpecific",
+        "summary": "Specific Report",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "date_from",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date From"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "date_to",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date To"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SpecificOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "description": "Удельный расход электроэнергии оборудования, кВт·ч на машино-час.",
+        "tags": [
+          "energy"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/equipment/reference": {
+      "get": {
+        "operationId": "getEquipmentReference",
+        "summary": "Get Reference",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReferenceOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "equipment"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/equipment/dashboard": {
+      "get": {
+        "operationId": "getEquipmentDashboard",
+        "summary": "Get Dashboard",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "week",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Week"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Сводка экрана: KPI недели, матрица загрузки 8 недель, Парето простоев, план ТО.\nНедели — 8 полных до текущей (как в прототипе); `week` — любая дата недели.",
+        "tags": [
+          "equipment"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/equipment/machines": {
+      "get": {
+        "operationId": "listEquipment",
+        "summary": "List Machines",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "week",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Week"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentListItem"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "description": "Таблица «Оборудование, наработка и ТО» за неделю (`week` — любая её дата;\nпо умолчанию — прошлая полная неделя).",
+        "tags": [
+          "equipment"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "createEquipment",
+        "summary": "Create Machine",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipmentOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "equipment"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EquipmentIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/equipment/machines/{equipment_id}": {
+      "get": {
+        "operationId": "getEquipment",
+        "summary": "Get Machine",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "equipment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Equipment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipmentOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "equipment"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "updateEquipment",
+        "summary": "Update Machine",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "equipment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Equipment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipmentOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "equipment"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EquipmentIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/equipment/machines/{equipment_id}/status": {
+      "post": {
+        "operationId": "setEquipmentStatus",
+        "summary": "Set Machine Status",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "equipment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Equipment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipmentOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "equipment"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatusIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/equipment/machines/{equipment_id}/runtime": {
+      "get": {
+        "operationId": "listRuntime",
+        "summary": "List Runtime",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "equipment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Equipment Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "date_from",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date From"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "date_to",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date To"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RuntimeOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "equipment"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "recordRuntime",
+        "summary": "Record Runtime",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "equipment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Equipment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipmentOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "«Записать смену»: наработка за сутки, заменяет прежнюю запись тех же суток.",
+        "tags": [
+          "equipment"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RuntimeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/equipment/machines/{equipment_id}/maintenance-types": {
+      "post": {
+        "operationId": "createMaintenanceType",
+        "summary": "Create Maintenance Type",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "equipment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Equipment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipmentOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "equipment"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MaintenanceTypeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/equipment/maintenance-types/{maintenance_type_id}": {
+      "patch": {
+        "operationId": "updateMaintenanceType",
+        "summary": "Update Maintenance Type",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "maintenance_type_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Maintenance Type Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipmentOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "equipment"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MaintenanceTypeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/equipment/maintenance-types/{maintenance_type_id}/perform": {
+      "post": {
+        "operationId": "performMaintenance",
+        "summary": "Perform Maintenance",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "maintenance_type_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Maintenance Type Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepairOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "«Провести» ТО: закрытая запись журнала вида «ТО» и отметка о проведённом ТО.",
+        "tags": [
+          "equipment"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PerformMaintenanceIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/equipment/repairs": {
+      "get": {
+        "operationId": "listRepairs",
+        "summary": "List Repairs",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "days",
+            "schema": {
+              "default": 90,
+              "maximum": 3660,
+              "minimum": 1,
+              "title": "Days",
+              "type": "integer"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "kind",
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/RepairKind"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "equipment_id",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Equipment Id"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepairJournalOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Журнал аварий и ремонтов за `days` дней (незакрытые — всегда) со сводкой:\nаварии, простой, трудозатраты, MTTR, MTBF, простой по категориям.",
+        "tags": [
+          "equipment"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "createRepair",
+        "summary": "Create Repair",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepairOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "equipment"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RepairCreateIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/equipment/repairs/{repair_id}": {
+      "get": {
+        "operationId": "getRepair",
+        "summary": "Get Repair",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "repair_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Repair Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepairOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "equipment"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "updateRepair",
+        "summary": "Update Repair",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "repair_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Repair Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepairOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "equipment"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RepairIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/equipment/repairs/{repair_id}/start": {
+      "post": {
+        "operationId": "startRepair",
+        "summary": "Start Repair",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "repair_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Repair Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepairOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "equipment"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/equipment/repairs/{repair_id}/close": {
+      "post": {
+        "operationId": "closeRepair",
+        "summary": "Close Repair",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "repair_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Repair Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepairOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "«Устранено — закрыть»: часы исполнителей уходят в табель событием.",
+        "tags": [
+          "equipment"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RepairCloseIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/timesheet/time-codes": {
       "get": {
         "operationId": "listTimeCodes",
@@ -2225,6 +3860,2509 @@
           "created_at"
         ],
         "title": "ItemListItem",
+        "type": "object"
+      },
+      "EnergyAbilitiesOut": {
+        "properties": {
+          "can_manage_meters": {
+            "title": "Can Manage Meters",
+            "type": "boolean"
+          },
+          "can_ingest_intervals": {
+            "title": "Can Ingest Intervals",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "can_manage_meters",
+          "can_ingest_intervals"
+        ],
+        "title": "EnergyAbilitiesOut",
+        "type": "object"
+      },
+      "ResourceOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "unit": {
+            "title": "Unit",
+            "type": "string"
+          },
+          "tariff": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Tariff",
+            "type": "string"
+          },
+          "tariff_periods": {
+            "items": {
+              "$ref": "#/components/schemas/TariffPeriodOut"
+            },
+            "title": "Tariff Periods",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "unit",
+          "tariff",
+          "tariff_periods"
+        ],
+        "title": "ResourceOut",
+        "type": "object"
+      },
+      "ResourcesOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ResourceOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "abilities": {
+            "$ref": "#/components/schemas/EnergyAbilitiesOut"
+          }
+        },
+        "required": [
+          "items",
+          "abilities"
+        ],
+        "title": "ResourcesOut",
+        "type": "object"
+      },
+      "TariffPeriodOut": {
+        "properties": {
+          "valid_from": {
+            "format": "date",
+            "title": "Valid From",
+            "type": "string"
+          },
+          "tariff": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Tariff",
+            "type": "string"
+          }
+        },
+        "required": [
+          "valid_from",
+          "tariff"
+        ],
+        "title": "TariffPeriodOut",
+        "type": "object"
+      },
+      "TariffIn": {
+        "properties": {
+          "valid_from": {
+            "format": "date",
+            "title": "Valid From",
+            "type": "string"
+          },
+          "tariff": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Tariff"
+          }
+        },
+        "required": [
+          "valid_from",
+          "tariff"
+        ],
+        "title": "TariffIn",
+        "type": "object"
+      },
+      "MeterKind": {
+        "enum": [
+          "input",
+          "node",
+          "shop",
+          "equipment",
+          "compressor",
+          "office",
+          "other"
+        ],
+        "title": "MeterKind",
+        "type": "string"
+      },
+      "MeterOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "resource_id": {
+            "format": "uuid",
+            "title": "Resource Id",
+            "type": "string"
+          },
+          "resource_code": {
+            "title": "Resource Code",
+            "type": "string"
+          },
+          "unit": {
+            "title": "Unit",
+            "type": "string"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/MeterKind"
+          },
+          "equipment_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Equipment Id"
+          },
+          "source": {
+            "$ref": "#/components/schemas/MeterSource"
+          },
+          "order": {
+            "title": "Order",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "resource_id",
+          "resource_code",
+          "unit",
+          "parent_id",
+          "kind",
+          "equipment_id",
+          "source",
+          "order"
+        ],
+        "title": "MeterOut",
+        "type": "object"
+      },
+      "MeterSource": {
+        "enum": [
+          "scada",
+          "manual"
+        ],
+        "title": "MeterSource",
+        "type": "string"
+      },
+      "MeterIn": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "resource_id": {
+            "format": "uuid",
+            "title": "Resource Id",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/MeterKind"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id"
+          },
+          "equipment_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Equipment Id"
+          },
+          "source": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MeterSource"
+              }
+            ],
+            "default": "scada"
+          },
+          "order": {
+            "default": 0,
+            "title": "Order",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "resource_id",
+          "kind"
+        ],
+        "title": "MeterIn",
+        "type": "object"
+      },
+      "ReadingOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "taken_at": {
+            "format": "date-time",
+            "title": "Taken At",
+            "type": "string"
+          },
+          "value": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "taken_at",
+          "value"
+        ],
+        "title": "ReadingOut",
+        "type": "object"
+      },
+      "ReadingIn": {
+        "properties": {
+          "taken_at": {
+            "format": "date-time",
+            "title": "Taken At",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "taken_at",
+          "value"
+        ],
+        "title": "ReadingIn",
+        "type": "object"
+      },
+      "IngestErrorOut": {
+        "properties": {
+          "index": {
+            "title": "Index",
+            "type": "integer"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "index",
+          "code",
+          "message"
+        ],
+        "title": "IngestErrorOut",
+        "type": "object"
+      },
+      "IngestResultOut": {
+        "properties": {
+          "message_id": {
+            "title": "Message Id",
+            "type": "string"
+          },
+          "duplicate": {
+            "title": "Duplicate",
+            "type": "boolean"
+          },
+          "accepted": {
+            "title": "Accepted",
+            "type": "integer"
+          },
+          "rejected": {
+            "title": "Rejected",
+            "type": "integer"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/IngestErrorOut"
+            },
+            "title": "Errors",
+            "type": "array"
+          }
+        },
+        "required": [
+          "message_id",
+          "duplicate",
+          "accepted",
+          "rejected",
+          "errors"
+        ],
+        "title": "IngestResultOut",
+        "type": "object"
+      },
+      "ScadaEnvelopeIn": {
+        "description": "Конверт пакета SCADA. Строки — словари: каждая проверяется отдельно, и плохая\nстрока отклоняется с причиной, а не роняет весь пакет.",
+        "properties": {
+          "schema_version": {
+            "maxLength": 16,
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_id": {
+            "maxLength": 64,
+            "title": "Source Id",
+            "type": "string"
+          },
+          "message_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Message Id",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "schema_version",
+          "source_id",
+          "message_id",
+          "items"
+        ],
+        "title": "ScadaEnvelopeIn",
+        "type": "object"
+      },
+      "ScadaMessageOut": {
+        "properties": {
+          "message_id": {
+            "title": "Message Id",
+            "type": "string"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "items_total": {
+            "title": "Items Total",
+            "type": "integer"
+          },
+          "items_accepted": {
+            "title": "Items Accepted",
+            "type": "integer"
+          },
+          "items_rejected": {
+            "title": "Items Rejected",
+            "type": "integer"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message_id",
+          "source_id",
+          "schema_version",
+          "items_total",
+          "items_accepted",
+          "items_rejected",
+          "created_at"
+        ],
+        "title": "ScadaMessageOut",
+        "type": "object"
+      },
+      "PeriodFilters": {
+        "description": "Период отчёта, сутки включительно; без дат — 28 суток до вчерашних.",
+        "properties": {
+          "date_from": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date From"
+          },
+          "date_to": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date To"
+          }
+        },
+        "title": "PeriodFilters",
+        "type": "object"
+      },
+      "ConsumptionOut": {
+        "properties": {
+          "resource_id": {
+            "format": "uuid",
+            "title": "Resource Id",
+            "type": "string"
+          },
+          "resource_code": {
+            "title": "Resource Code",
+            "type": "string"
+          },
+          "period": {
+            "format": "date",
+            "title": "Period",
+            "type": "string"
+          },
+          "quantity": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Quantity",
+            "type": "string"
+          },
+          "cost": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Cost",
+            "type": "string"
+          }
+        },
+        "required": [
+          "resource_id",
+          "resource_code",
+          "period",
+          "quantity",
+          "cost"
+        ],
+        "title": "ConsumptionOut",
+        "type": "object"
+      },
+      "BalanceOut": {
+        "properties": {
+          "input": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Input",
+            "type": "string"
+          },
+          "children": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Children",
+            "type": "string"
+          },
+          "loss": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Loss",
+            "type": "string"
+          },
+          "loss_pct": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Loss Pct"
+          }
+        },
+        "required": [
+          "input",
+          "children",
+          "loss",
+          "loss_pct"
+        ],
+        "title": "BalanceOut",
+        "type": "object"
+      },
+      "MeterTreeRowOut": {
+        "properties": {
+          "meter_id": {
+            "format": "uuid",
+            "title": "Meter Id",
+            "type": "string"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id"
+          },
+          "level": {
+            "title": "Level",
+            "type": "integer"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/MeterKind"
+          },
+          "source": {
+            "$ref": "#/components/schemas/MeterSource"
+          },
+          "quantity": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Quantity",
+            "type": "string"
+          },
+          "previous_quantity": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Previous Quantity",
+            "type": "string"
+          },
+          "share_pct": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Share Pct"
+          },
+          "cost": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Cost",
+            "type": "string"
+          },
+          "balance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BalanceOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "meter_id",
+          "code",
+          "name",
+          "parent_id",
+          "level",
+          "kind",
+          "source",
+          "quantity",
+          "previous_quantity",
+          "share_pct",
+          "cost",
+          "balance"
+        ],
+        "title": "MeterTreeRowOut",
+        "type": "object"
+      },
+      "DailyOut": {
+        "properties": {
+          "meter_id": {
+            "format": "uuid",
+            "title": "Meter Id",
+            "type": "string"
+          },
+          "day": {
+            "format": "date",
+            "title": "Day",
+            "type": "string"
+          },
+          "quantity": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Quantity",
+            "type": "string"
+          }
+        },
+        "required": [
+          "meter_id",
+          "day",
+          "quantity"
+        ],
+        "title": "DailyOut",
+        "type": "object"
+      },
+      "ProfileOut": {
+        "properties": {
+          "meter_id": {
+            "format": "uuid",
+            "title": "Meter Id",
+            "type": "string"
+          },
+          "day": {
+            "format": "date",
+            "title": "Day",
+            "type": "string"
+          },
+          "unit": {
+            "title": "Unit",
+            "type": "string"
+          },
+          "values": {
+            "items": {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            "title": "Values",
+            "type": "array"
+          },
+          "total": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Total",
+            "type": "string"
+          }
+        },
+        "required": [
+          "meter_id",
+          "day",
+          "unit",
+          "values",
+          "total"
+        ],
+        "title": "ProfileOut",
+        "type": "object"
+      },
+      "BalanceDayOut": {
+        "properties": {
+          "day": {
+            "format": "date",
+            "title": "Day",
+            "type": "string"
+          },
+          "balance": {
+            "$ref": "#/components/schemas/BalanceOut"
+          }
+        },
+        "required": [
+          "day",
+          "balance"
+        ],
+        "title": "BalanceDayOut",
+        "type": "object"
+      },
+      "NodeBalanceOut": {
+        "properties": {
+          "meter_id": {
+            "format": "uuid",
+            "title": "Meter Id",
+            "type": "string"
+          },
+          "children": {
+            "items": {
+              "$ref": "#/components/schemas/MeterOut"
+            },
+            "title": "Children",
+            "type": "array"
+          },
+          "total": {
+            "$ref": "#/components/schemas/BalanceOut"
+          },
+          "days": {
+            "items": {
+              "$ref": "#/components/schemas/BalanceDayOut"
+            },
+            "title": "Days",
+            "type": "array"
+          }
+        },
+        "required": [
+          "meter_id",
+          "children",
+          "total",
+          "days"
+        ],
+        "title": "NodeBalanceOut",
+        "type": "object"
+      },
+      "SpecificOut": {
+        "properties": {
+          "meter_id": {
+            "format": "uuid",
+            "title": "Meter Id",
+            "type": "string"
+          },
+          "meter_code": {
+            "title": "Meter Code",
+            "type": "string"
+          },
+          "equipment_id": {
+            "format": "uuid",
+            "title": "Equipment Id",
+            "type": "string"
+          },
+          "equipment_name": {
+            "title": "Equipment Name",
+            "type": "string"
+          },
+          "inventory_no": {
+            "title": "Inventory No",
+            "type": "string"
+          },
+          "energy": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Energy",
+            "type": "string"
+          },
+          "machine_hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Machine Hours",
+            "type": "string"
+          },
+          "specific": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Specific"
+          },
+          "cost": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Cost",
+            "type": "string"
+          }
+        },
+        "required": [
+          "meter_id",
+          "meter_code",
+          "equipment_id",
+          "equipment_name",
+          "inventory_no",
+          "energy",
+          "machine_hours",
+          "specific",
+          "cost"
+        ],
+        "title": "SpecificOut",
+        "type": "object"
+      },
+      "DownReasonOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "repair_kind": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RepairKind"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "repair_kind"
+        ],
+        "title": "DownReasonOut",
+        "type": "object"
+      },
+      "ReferenceItemOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "ReferenceItemOut",
+        "type": "object"
+      },
+      "ReferenceOut": {
+        "properties": {
+          "idle_reasons": {
+            "items": {
+              "$ref": "#/components/schemas/ReferenceItemOut"
+            },
+            "title": "Idle Reasons",
+            "type": "array"
+          },
+          "down_reasons": {
+            "items": {
+              "$ref": "#/components/schemas/DownReasonOut"
+            },
+            "title": "Down Reasons",
+            "type": "array"
+          },
+          "failure_categories": {
+            "items": {
+              "$ref": "#/components/schemas/ReferenceItemOut"
+            },
+            "title": "Failure Categories",
+            "type": "array"
+          }
+        },
+        "required": [
+          "idle_reasons",
+          "down_reasons",
+          "failure_categories"
+        ],
+        "title": "ReferenceOut",
+        "type": "object"
+      },
+      "RepairKind": {
+        "enum": [
+          "fail",
+          "repair",
+          "maintenance"
+        ],
+        "title": "RepairKind",
+        "type": "string"
+      },
+      "DashboardAbilitiesOut": {
+        "properties": {
+          "can_create_equipment": {
+            "title": "Can Create Equipment",
+            "type": "boolean"
+          },
+          "can_register_repair": {
+            "title": "Can Register Repair",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "can_create_equipment",
+          "can_register_repair"
+        ],
+        "title": "DashboardAbilitiesOut",
+        "type": "object"
+      },
+      "DashboardOut": {
+        "properties": {
+          "week_start": {
+            "format": "date",
+            "title": "Week Start",
+            "type": "string"
+          },
+          "weeks": {
+            "items": {
+              "format": "date",
+              "type": "string"
+            },
+            "title": "Weeks",
+            "type": "array"
+          },
+          "kpi": {
+            "$ref": "#/components/schemas/KpiOut"
+          },
+          "matrix": {
+            "items": {
+              "$ref": "#/components/schemas/MatrixRowOut"
+            },
+            "title": "Matrix",
+            "type": "array"
+          },
+          "pareto": {
+            "items": {
+              "$ref": "#/components/schemas/ParetoOut"
+            },
+            "title": "Pareto",
+            "type": "array"
+          },
+          "maintenance_plan": {
+            "items": {
+              "$ref": "#/components/schemas/MaintenancePlanOut"
+            },
+            "title": "Maintenance Plan",
+            "type": "array"
+          },
+          "abilities": {
+            "$ref": "#/components/schemas/DashboardAbilitiesOut"
+          }
+        },
+        "required": [
+          "week_start",
+          "weeks",
+          "kpi",
+          "matrix",
+          "pareto",
+          "maintenance_plan",
+          "abilities"
+        ],
+        "title": "DashboardOut",
+        "type": "object"
+      },
+      "KpiOut": {
+        "properties": {
+          "equipment_count": {
+            "title": "Equipment Count",
+            "type": "integer"
+          },
+          "utilization": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Utilization",
+            "type": "string"
+          },
+          "idle_and_down_hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Idle And Down Hours",
+            "type": "string"
+          },
+          "maintenance_overdue": {
+            "title": "Maintenance Overdue",
+            "type": "integer"
+          },
+          "maintenance_soon": {
+            "title": "Maintenance Soon",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "equipment_count",
+          "utilization",
+          "idle_and_down_hours",
+          "maintenance_overdue",
+          "maintenance_soon"
+        ],
+        "title": "KpiOut",
+        "type": "object"
+      },
+      "MaintenancePlanOut": {
+        "properties": {
+          "equipment_id": {
+            "format": "uuid",
+            "title": "Equipment Id",
+            "type": "string"
+          },
+          "equipment_name": {
+            "title": "Equipment Name",
+            "type": "string"
+          },
+          "maintenance": {
+            "$ref": "#/components/schemas/MaintenanceStateOut"
+          }
+        },
+        "required": [
+          "equipment_id",
+          "equipment_name",
+          "maintenance"
+        ],
+        "title": "MaintenancePlanOut",
+        "type": "object"
+      },
+      "MaintenanceState": {
+        "description": "Состояние ТО — выводится селектором (`toState` прототипа), не хранится.",
+        "enum": [
+          "overdue",
+          "soon",
+          "ok"
+        ],
+        "title": "MaintenanceState",
+        "type": "string"
+      },
+      "MaintenanceStateOut": {
+        "properties": {
+          "maintenance_type_id": {
+            "format": "uuid",
+            "title": "Maintenance Type Id",
+            "type": "string"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "interval_hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Interval Hours",
+            "type": "string"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string"
+          },
+          "last_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Date"
+          },
+          "last_at_hours": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last At Hours"
+          },
+          "next_at_hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Next At Hours",
+            "type": "string"
+          },
+          "hours_left": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Hours Left",
+            "type": "string"
+          },
+          "due_date": {
+            "format": "date",
+            "title": "Due Date",
+            "type": "string"
+          },
+          "state": {
+            "$ref": "#/components/schemas/MaintenanceState"
+          }
+        },
+        "required": [
+          "maintenance_type_id",
+          "code",
+          "interval_hours",
+          "scope",
+          "last_date",
+          "last_at_hours",
+          "next_at_hours",
+          "hours_left",
+          "due_date",
+          "state"
+        ],
+        "title": "MaintenanceStateOut",
+        "type": "object"
+      },
+      "MatrixRowOut": {
+        "properties": {
+          "equipment_id": {
+            "format": "uuid",
+            "title": "Equipment Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "weeks": {
+            "items": {
+              "$ref": "#/components/schemas/WeekOut"
+            },
+            "title": "Weeks",
+            "type": "array"
+          }
+        },
+        "required": [
+          "equipment_id",
+          "name",
+          "weeks"
+        ],
+        "title": "MatrixRowOut",
+        "type": "object"
+      },
+      "ParetoOut": {
+        "properties": {
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "is_down": {
+            "title": "Is Down",
+            "type": "boolean"
+          },
+          "hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Hours",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason",
+          "is_down",
+          "hours"
+        ],
+        "title": "ParetoOut",
+        "type": "object"
+      },
+      "WeekOut": {
+        "properties": {
+          "week_start": {
+            "format": "date",
+            "title": "Week Start",
+            "type": "string"
+          },
+          "run": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Run",
+            "type": "string"
+          },
+          "setup": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Setup",
+            "type": "string"
+          },
+          "idle": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Idle",
+            "type": "string"
+          },
+          "down": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Down",
+            "type": "string"
+          },
+          "days": {
+            "title": "Days",
+            "type": "integer"
+          },
+          "utilization": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Utilization",
+            "type": "string"
+          }
+        },
+        "required": [
+          "week_start",
+          "run",
+          "setup",
+          "idle",
+          "down",
+          "days",
+          "utilization"
+        ],
+        "title": "WeekOut",
+        "type": "object"
+      },
+      "EquipmentListItem": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "inventory_no": {
+            "title": "Inventory No",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "work_center_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Work Center Id"
+          },
+          "control_system": {
+            "title": "Control System",
+            "type": "string"
+          },
+          "connection": {
+            "title": "Connection",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EquipmentStatus"
+          },
+          "operating_hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Operating Hours",
+            "type": "string"
+          },
+          "week": {
+            "$ref": "#/components/schemas/WeekOut"
+          },
+          "nearest_maintenance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MaintenanceStateOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "inventory_no",
+          "name",
+          "work_center_id",
+          "control_system",
+          "connection",
+          "status",
+          "operating_hours",
+          "week",
+          "nearest_maintenance"
+        ],
+        "title": "EquipmentListItem",
+        "type": "object"
+      },
+      "EquipmentStatus": {
+        "enum": [
+          "run",
+          "idle",
+          "to",
+          "repair"
+        ],
+        "title": "EquipmentStatus",
+        "type": "string"
+      },
+      "EquipmentAbilitiesOut": {
+        "description": "Серверные способности текущего пользователя — фронт показывает кнопки по ним.",
+        "properties": {
+          "can_edit": {
+            "title": "Can Edit",
+            "type": "boolean"
+          },
+          "can_set_status": {
+            "title": "Can Set Status",
+            "type": "boolean"
+          },
+          "can_log_runtime": {
+            "title": "Can Log Runtime",
+            "type": "boolean"
+          },
+          "can_register_repair": {
+            "title": "Can Register Repair",
+            "type": "boolean"
+          },
+          "can_manage_maintenance": {
+            "title": "Can Manage Maintenance",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "can_edit",
+          "can_set_status",
+          "can_log_runtime",
+          "can_register_repair",
+          "can_manage_maintenance"
+        ],
+        "title": "EquipmentAbilitiesOut",
+        "type": "object"
+      },
+      "EquipmentOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "inventory_no": {
+            "title": "Inventory No",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "work_center_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Work Center Id"
+          },
+          "control_system": {
+            "title": "Control System",
+            "type": "string"
+          },
+          "connection": {
+            "title": "Connection",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EquipmentStatus"
+          },
+          "operating_hours_initial": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Operating Hours Initial",
+            "type": "string"
+          },
+          "operating_hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Operating Hours",
+            "type": "string"
+          },
+          "weeks": {
+            "items": {
+              "$ref": "#/components/schemas/WeekOut"
+            },
+            "title": "Weeks",
+            "type": "array"
+          },
+          "maintenance": {
+            "items": {
+              "$ref": "#/components/schemas/MaintenanceStateOut"
+            },
+            "title": "Maintenance",
+            "type": "array"
+          },
+          "recent_runtime": {
+            "items": {
+              "$ref": "#/components/schemas/RuntimeOut"
+            },
+            "title": "Recent Runtime",
+            "type": "array"
+          },
+          "recent_repairs": {
+            "items": {
+              "$ref": "#/components/schemas/RepairListItem"
+            },
+            "title": "Recent Repairs",
+            "type": "array"
+          },
+          "abilities": {
+            "$ref": "#/components/schemas/EquipmentAbilitiesOut"
+          }
+        },
+        "required": [
+          "id",
+          "inventory_no",
+          "name",
+          "work_center_id",
+          "control_system",
+          "connection",
+          "status",
+          "operating_hours_initial",
+          "operating_hours",
+          "weeks",
+          "maintenance",
+          "recent_runtime",
+          "recent_repairs",
+          "abilities"
+        ],
+        "title": "EquipmentOut",
+        "type": "object"
+      },
+      "RepairListItem": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "number": {
+            "title": "Number",
+            "type": "string"
+          },
+          "equipment_id": {
+            "format": "uuid",
+            "title": "Equipment Id",
+            "type": "string"
+          },
+          "equipment_name": {
+            "title": "Equipment Name",
+            "type": "string"
+          },
+          "equipment_inventory_no": {
+            "title": "Equipment Inventory No",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/RepairKind"
+          },
+          "maintenance_type_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maintenance Type Id"
+          },
+          "category_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Id"
+          },
+          "category_name": {
+            "title": "Category Name",
+            "type": "string"
+          },
+          "started_at": {
+            "format": "date-time",
+            "title": "Started At",
+            "type": "string"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "downtime_hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Downtime Hours",
+            "type": "string"
+          },
+          "labor_hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Labor Hours",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "fix": {
+            "title": "Fix",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RepairStatus"
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "equipment_id",
+          "equipment_name",
+          "equipment_inventory_no",
+          "kind",
+          "maintenance_type_id",
+          "category_id",
+          "category_name",
+          "started_at",
+          "finished_at",
+          "downtime_hours",
+          "labor_hours",
+          "description",
+          "fix",
+          "status"
+        ],
+        "title": "RepairListItem",
+        "type": "object"
+      },
+      "RepairStatus": {
+        "enum": [
+          "open",
+          "work",
+          "done"
+        ],
+        "title": "RepairStatus",
+        "type": "string"
+      },
+      "RuntimeOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "run": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Run",
+            "type": "string"
+          },
+          "setup": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Setup",
+            "type": "string"
+          },
+          "idle": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Idle",
+            "type": "string"
+          },
+          "down": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Down",
+            "type": "string"
+          },
+          "idle_reason_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idle Reason Id"
+          },
+          "idle_reason_name": {
+            "title": "Idle Reason Name",
+            "type": "string"
+          },
+          "down_reason_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Down Reason Id"
+          },
+          "down_reason_name": {
+            "title": "Down Reason Name",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/RuntimeSource"
+          }
+        },
+        "required": [
+          "id",
+          "date",
+          "run",
+          "setup",
+          "idle",
+          "down",
+          "idle_reason_id",
+          "idle_reason_name",
+          "down_reason_id",
+          "down_reason_name",
+          "source"
+        ],
+        "title": "RuntimeOut",
+        "type": "object"
+      },
+      "RuntimeSource": {
+        "enum": [
+          "manual",
+          "scada"
+        ],
+        "title": "RuntimeSource",
+        "type": "string"
+      },
+      "EquipmentIn": {
+        "properties": {
+          "inventory_no": {
+            "title": "Inventory No",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "work_center_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Work Center Id"
+          },
+          "control_system": {
+            "default": "",
+            "title": "Control System",
+            "type": "string"
+          },
+          "connection": {
+            "default": "",
+            "title": "Connection",
+            "type": "string"
+          },
+          "operating_hours_initial": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "default": "0",
+            "title": "Operating Hours Initial"
+          }
+        },
+        "required": [
+          "inventory_no",
+          "name"
+        ],
+        "title": "EquipmentIn",
+        "type": "object"
+      },
+      "StatusIn": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/EquipmentStatus"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "StatusIn",
+        "type": "object"
+      },
+      "RuntimeIn": {
+        "properties": {
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "run": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "default": "0",
+            "title": "Run"
+          },
+          "setup": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "default": "0",
+            "title": "Setup"
+          },
+          "idle": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "default": "0",
+            "title": "Idle"
+          },
+          "down": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "default": "0",
+            "title": "Down"
+          },
+          "idle_reason_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idle Reason Id"
+          },
+          "down_reason_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Down Reason Id"
+          }
+        },
+        "required": [
+          "date"
+        ],
+        "title": "RuntimeIn",
+        "type": "object"
+      },
+      "MaintenanceTypeIn": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "interval_hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Interval Hours"
+          },
+          "scope": {
+            "default": "",
+            "title": "Scope",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "interval_hours"
+        ],
+        "title": "MaintenanceTypeIn",
+        "type": "object"
+      },
+      "RepairAbilitiesOut": {
+        "properties": {
+          "can_edit": {
+            "title": "Can Edit",
+            "type": "boolean"
+          },
+          "can_start": {
+            "title": "Can Start",
+            "type": "boolean"
+          },
+          "can_close": {
+            "title": "Can Close",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "can_edit",
+          "can_start",
+          "can_close"
+        ],
+        "title": "RepairAbilitiesOut",
+        "type": "object"
+      },
+      "RepairOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "number": {
+            "title": "Number",
+            "type": "string"
+          },
+          "equipment_id": {
+            "format": "uuid",
+            "title": "Equipment Id",
+            "type": "string"
+          },
+          "equipment_name": {
+            "title": "Equipment Name",
+            "type": "string"
+          },
+          "equipment_inventory_no": {
+            "title": "Equipment Inventory No",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/RepairKind"
+          },
+          "maintenance_type_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maintenance Type Id"
+          },
+          "category_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Id"
+          },
+          "category_name": {
+            "title": "Category Name",
+            "type": "string"
+          },
+          "started_at": {
+            "format": "date-time",
+            "title": "Started At",
+            "type": "string"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "downtime_hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Downtime Hours",
+            "type": "string"
+          },
+          "labor_hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Labor Hours",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "fix": {
+            "title": "Fix",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RepairStatus"
+          },
+          "alarm_code": {
+            "title": "Alarm Code",
+            "type": "string"
+          },
+          "parts": {
+            "title": "Parts",
+            "type": "string"
+          },
+          "maintenance_type_code": {
+            "title": "Maintenance Type Code",
+            "type": "string"
+          },
+          "workers": {
+            "items": {
+              "$ref": "#/components/schemas/WorkerOut"
+            },
+            "title": "Workers",
+            "type": "array"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "abilities": {
+            "$ref": "#/components/schemas/RepairAbilitiesOut"
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "equipment_id",
+          "equipment_name",
+          "equipment_inventory_no",
+          "kind",
+          "maintenance_type_id",
+          "category_id",
+          "category_name",
+          "started_at",
+          "finished_at",
+          "downtime_hours",
+          "labor_hours",
+          "description",
+          "fix",
+          "status",
+          "alarm_code",
+          "parts",
+          "maintenance_type_code",
+          "workers",
+          "created_at",
+          "abilities"
+        ],
+        "title": "RepairOut",
+        "type": "object"
+      },
+      "WorkerOut": {
+        "properties": {
+          "employee_id": {
+            "format": "uuid",
+            "title": "Employee Id",
+            "type": "string"
+          },
+          "employee_name": {
+            "title": "Employee Name",
+            "type": "string"
+          },
+          "hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Hours",
+            "type": "string"
+          }
+        },
+        "required": [
+          "employee_id",
+          "employee_name",
+          "hours"
+        ],
+        "title": "WorkerOut",
+        "type": "object"
+      },
+      "PerformMaintenanceIn": {
+        "properties": {
+          "started_at": {
+            "format": "date-time",
+            "title": "Started At",
+            "type": "string"
+          },
+          "finished_at": {
+            "format": "date-time",
+            "title": "Finished At",
+            "type": "string"
+          },
+          "workers": {
+            "items": {
+              "$ref": "#/components/schemas/WorkerIn"
+            },
+            "title": "Workers",
+            "type": "array"
+          },
+          "comment": {
+            "default": "",
+            "title": "Comment",
+            "type": "string"
+          }
+        },
+        "required": [
+          "started_at",
+          "finished_at",
+          "workers"
+        ],
+        "title": "PerformMaintenanceIn",
+        "type": "object"
+      },
+      "WorkerIn": {
+        "properties": {
+          "employee_id": {
+            "format": "uuid",
+            "title": "Employee Id",
+            "type": "string"
+          },
+          "hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Hours"
+          }
+        },
+        "required": [
+          "employee_id",
+          "hours"
+        ],
+        "title": "WorkerIn",
+        "type": "object"
+      },
+      "RepairFilters": {
+        "description": "Фильтры журнала аварий и ремонтов (прототип: 30 / 90 / 180 дней, вид, станок).",
+        "properties": {
+          "days": {
+            "default": 90,
+            "maximum": 3660,
+            "minimum": 1,
+            "title": "Days",
+            "type": "integer"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RepairKind"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "equipment_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Equipment Id"
+          }
+        },
+        "title": "RepairFilters",
+        "type": "object"
+      },
+      "CategoryDowntimeOut": {
+        "properties": {
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Hours",
+            "type": "string"
+          }
+        },
+        "required": [
+          "category",
+          "hours"
+        ],
+        "title": "CategoryDowntimeOut",
+        "type": "object"
+      },
+      "EquipmentFailuresOut": {
+        "properties": {
+          "equipment_id": {
+            "format": "uuid",
+            "title": "Equipment Id",
+            "type": "string"
+          },
+          "equipment_name": {
+            "title": "Equipment Name",
+            "type": "string"
+          },
+          "failures": {
+            "title": "Failures",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "equipment_id",
+          "equipment_name",
+          "failures"
+        ],
+        "title": "EquipmentFailuresOut",
+        "type": "object"
+      },
+      "RepairJournalOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RepairListItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/RepairsSummaryOut"
+          },
+          "can_register": {
+            "title": "Can Register",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items",
+          "summary",
+          "can_register"
+        ],
+        "title": "RepairJournalOut",
+        "type": "object"
+      },
+      "RepairsSummaryOut": {
+        "properties": {
+          "failures": {
+            "title": "Failures",
+            "type": "integer"
+          },
+          "failure_downtime": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Failure Downtime",
+            "type": "string"
+          },
+          "labor_hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Labor Hours",
+            "type": "string"
+          },
+          "mttr": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Mttr",
+            "type": "string"
+          },
+          "mtbf": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mtbf"
+          },
+          "downtime_by_category": {
+            "items": {
+              "$ref": "#/components/schemas/CategoryDowntimeOut"
+            },
+            "title": "Downtime By Category",
+            "type": "array"
+          },
+          "failures_by_equipment": {
+            "items": {
+              "$ref": "#/components/schemas/EquipmentFailuresOut"
+            },
+            "title": "Failures By Equipment",
+            "type": "array"
+          }
+        },
+        "required": [
+          "failures",
+          "failure_downtime",
+          "labor_hours",
+          "mttr",
+          "mtbf",
+          "downtime_by_category",
+          "failures_by_equipment"
+        ],
+        "title": "RepairsSummaryOut",
+        "type": "object"
+      },
+      "RepairCreateIn": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/RepairKind"
+          },
+          "started_at": {
+            "format": "date-time",
+            "title": "Started At",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "maintenance_type_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maintenance Type Id"
+          },
+          "category_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Id"
+          },
+          "alarm_code": {
+            "default": "",
+            "title": "Alarm Code",
+            "type": "string"
+          },
+          "fix": {
+            "default": "",
+            "title": "Fix",
+            "type": "string"
+          },
+          "parts": {
+            "default": "",
+            "title": "Parts",
+            "type": "string"
+          },
+          "workers": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/WorkerIn"
+            },
+            "title": "Workers",
+            "type": "array"
+          },
+          "equipment_id": {
+            "format": "uuid",
+            "title": "Equipment Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "started_at",
+          "description",
+          "equipment_id"
+        ],
+        "title": "RepairCreateIn",
+        "type": "object"
+      },
+      "RepairIn": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/RepairKind"
+          },
+          "started_at": {
+            "format": "date-time",
+            "title": "Started At",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "maintenance_type_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maintenance Type Id"
+          },
+          "category_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Id"
+          },
+          "alarm_code": {
+            "default": "",
+            "title": "Alarm Code",
+            "type": "string"
+          },
+          "fix": {
+            "default": "",
+            "title": "Fix",
+            "type": "string"
+          },
+          "parts": {
+            "default": "",
+            "title": "Parts",
+            "type": "string"
+          },
+          "workers": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/WorkerIn"
+            },
+            "title": "Workers",
+            "type": "array"
+          }
+        },
+        "required": [
+          "kind",
+          "started_at",
+          "description"
+        ],
+        "title": "RepairIn",
+        "type": "object"
+      },
+      "RepairCloseIn": {
+        "properties": {
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          }
+        },
+        "title": "RepairCloseIn",
         "type": "object"
       },
       "TimeCodeOut": {

@@ -5,7 +5,7 @@
 данные аргументами (`fill_day_from_plan(..., planned)`, `approve_period(...,
 order_managers)`, пакеты 1С — `order_numbers`). При слиянии каждая функция становится
 одним вызовом фасада, указанным в докстринге; больше табель о `production` нигде не
-знает (`docs/adr/0041-timesheet-tabelnyy-nomer-i-svyaz-s-production.md`).
+знает (`docs/adr/0033-timesheet-tabelnyy-nomer-i-svyaz-s-production.md`).
 
 Пустой ответ безопасен: без плана день заполняется накладными, без менеджеров виз не
 требуется, без номера заказа аналитика 1С — UUID заказа.

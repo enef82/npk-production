@@ -4,7 +4,7 @@
 Табельного номера здесь нет, хотя спецификация §3.5 называет `personnel_no`: у
 `Employee` уже есть уникальный `personnel_number`, и вторая копия разошлась бы с ним
 на первой правке — а в пакет 1С уходит ровно один номер
-(`docs/adr/0041-timesheet-tabelnyy-nomer-i-svyaz-s-production.md`).
+(`docs/adr/0033-timesheet-tabelnyy-nomer-i-svyaz-s-production.md`).
 `work_center_id` — UUID участка модуля `production` без внешнего ключа (И2).
 """
 

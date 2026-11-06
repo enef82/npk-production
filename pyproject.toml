@@ -140,6 +140,14 @@ module = "src.core.documents.rules"
 disallow_untyped_decorators = false
 
 [[tool.mypy.overrides]]
+module = "src.equipment.rules"
+disallow_untyped_decorators = false
+
+[[tool.mypy.overrides]]
+module = "src.energy.rules"
+disallow_untyped_decorators = false
+
+[[tool.mypy.overrides]]
 module = "src.core.identity.rules"
 disallow_untyped_decorators = false
 
