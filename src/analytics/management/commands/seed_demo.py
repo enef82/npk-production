@@ -210,13 +210,19 @@ def _work_center_ids() -> dict[str, UUID]:
 
 
 def _seed_timesheet() -> None:
-    orders = [
-        (op.order_id, op.id, op.work_center_id)
-        for order in production.list_active_orders()
-        for op in production.list_order_operations(order.id)
-        if not op.is_supply
+    order_ids = [o.id for o in production.list_active_orders()] + [
+        o.id for o in production.list_shipped_orders(date(2000, 1, 1), date.today())
     ]
-    timesheet.seed_demo(orders, work_centers=_work_center_ids())
+    operations = [op for op in production.list_operations_for_orders(order_ids) if not op.is_supply]
+    timesheet.seed_demo(
+        [(op.order_id, op.id, op.work_center_id) for op in operations],
+        work_centers=_work_center_ids(),
+        plan_windows={
+            op.id: (op.planned_start, op.planned_finish)
+            for op in operations
+            if op.planned_start is not None and op.planned_finish is not None
+        },
+    )
 
 
 MODULE_SEEDS: tuple[tuple[str, Callable[[], object]], ...] = (

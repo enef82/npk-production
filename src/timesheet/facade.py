@@ -81,8 +81,10 @@ def seed_demo(
     orders: Sequence[tuple[UUID, UUID, UUID]] = (),
     *,
     work_centers: Mapping[str, UUID] | None = None,
+    plan_windows: Mapping[UUID, tuple[date, date]] | None = None,
 ) -> int:
     """`orders` — (заказ, операция, участок); `work_centers` — код участка прототипа →
-    id. Оба даёт `production` при слиянии; без них разноска — накладные."""
+    id; `plan_windows` — операция → плановые даты. Все три даёт `production`; без них
+    разноска — накладные."""
 
-    return demo.seed_demo(orders, work_centers=work_centers)
+    return demo.seed_demo(orders, work_centers=work_centers, plan_windows=plan_windows)

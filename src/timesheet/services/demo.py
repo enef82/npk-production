@@ -101,11 +101,15 @@ def seed_demo(
     orders: Sequence[tuple[UUID, UUID, UUID]] = (),
     *,
     work_centers: Mapping[str, UUID] | None = None,
+    plan_windows: Mapping[UUID, tuple[date, date]] | None = None,
     today: date | None = None,
 ) -> int:
     """Профили и разноска за прошлый и текущий месяц. `orders` — (заказ, операция,
     участок) из `production`; `work_centers` — код участка прототипа (`kb`, `meh`, …)
-    → id участка. Возвращает число созданных строк разноски."""
+    → id участка; `plan_windows` — операция → (плановое начало, окончание): если задано,
+    в день разносятся только операции, чей план покрывает этот день, — иначе часы табеля
+    лягут на операции, которые в эти даты не осваивались, и выработка сотрудников в
+    аналитике окажется заниженной. Возвращает число созданных строк разноски."""
 
     today = today or timezone.localdate()
     by_key = {name_key(e.full_name): e for e in Employee.objects.all()}
@@ -197,6 +201,13 @@ def seed_demo(
                     if (employee.id, day) in occupied:
                         continue
                     ops = by_wc.get(wc_id, []) if wc_id else []
+                    if plan_windows is not None:
+                        ops = [
+                            o
+                            for o in ops
+                            if o[1] in plan_windows
+                            and plan_windows[o[1]][0] <= day <= plan_windows[o[1]][1]
+                        ]
                     picked: list[tuple[UUID, UUID, UUID]] = []
                     if ops:
                         offset = (day.toordinal() + index) % len(ops)
