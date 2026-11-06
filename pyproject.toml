@@ -5,7 +5,7 @@ description = "Корпоративная информационная сист�
 requires-python = ">=3.13,<3.14"
 dependencies = [
     "django==5.2.17",
-    "django-ninja==1.6.3",
+    "django-ninja==1.7.3",
     "psycopg[binary]==3.3.4",
     "celery==5.6.3",
     "redis==8.1.0",

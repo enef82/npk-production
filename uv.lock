@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = "==3.13.*"
 
 [[package]]
@@ -276,15 +276,15 @@ wheels = [
 
 [[package]]
 name = "django-ninja"
-version = "1.6.3"
+version = "1.7.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a2/57/71cc769a7410ade9bd1cddee16132e3da7718fcce1386c67ade7ea939677/django_ninja-1.6.3.tar.gz", hash = "sha256:a65a5016bbf044702fb1f1ff702f96dc3c806fbd7c918290512659531873039f", size = 2340438, upload-time = "2026-08-17T08:45:42.703Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/1c/8e/8c12dd873d76762e61fa7225bbab5d2b87dce358a8f7d764508b1363c17c/django_ninja-1.7.3.tar.gz", hash = "sha256:8a73ecccaa86639202427e81667b8fca6dfc250d2b6e5108369688029a4cb593", size = 2342134, upload-time = "2026-10-29T10:21:03.197Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e3/de/061d08265951765835166a2c69f0b99a8f49dfbea85d7d204ac87a236679/django_ninja-1.6.3-py3-none-any.whl", hash = "sha256:e83ba573e0f17b1d2fddca078613e2aaad512acb3d3c6bc9a5f1a0d9257dd70c", size = 2375010, upload-time = "2026-08-17T08:45:40.473Z" },
+    { url = "https://files.pythonhosted.org/packages/49/7d/7df99529f54178c67282d25983aad66bc0593ffbf5c1d420bb2840389c90/django_ninja-1.7.3-py3-none-any.whl", hash = "sha256:5e3c2dcead83a2512ea772dbc435ca51632cf46bf3be1523bac41e5bb394891c", size = 2376577, upload-time = "2026-10-29T10:21:01.199Z" },
 ]
 
 [[package]]
@@ -759,7 +759,7 @@ requires-dist = [
     { name = "django-environ", specifier = "==0.14.0" },
     { name = "django-fsm-2", specifier = "==4.2.4" },
     { name = "django-ipware", specifier = "==7.0.1" },
-    { name = "django-ninja", specifier = "==1.6.3" },
+    { name = "django-ninja", specifier = "==1.7.3" },
     { name = "django-pghistory", specifier = "==3.9.2" },
     { name = "django-storages", extras = ["s3"], specifier = "==1.14.6" },
     { name = "django-unfold", specifier = "==0.104.1" },
