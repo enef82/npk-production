@@ -33,7 +33,7 @@ dev = [
     "factory-boy==3.3.3",
     "ruff==0.16.3",
     "mypy==1.19.1",
-    "django-stubs==5.2.9",
+    "django-stubs==6.1.2",
     "types-jsonschema==4.26.0.20260518",
     "import-linter==2.13",
     "django-extensions==4.1",
