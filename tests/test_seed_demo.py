@@ -20,7 +20,9 @@ from src.production.models import (
     ProductTemplate,
     WorkCenter,
 )
+from src.quality.models import InspectionPoint, InspectionRecord
 from src.sales.models import Inquiry, InquiryStage, LossReason
+from src.supply.models import LineStatus, PurchaseLine, Supplier
 
 pytestmark = pytest.mark.django_db
 
@@ -34,6 +36,8 @@ def test_seed_demo_заводит_прототип_и_идемпотентна()
             ProductionOrder.objects.count(),
             Inquiry.objects.count(),
             OrderJournalEntry.objects.count(),
+            InspectionRecord.objects.count(),
+            PurchaseLine.objects.count(),
         )
         call_command("seed_demo")
 
@@ -42,6 +46,8 @@ def test_seed_demo_заводит_прототип_и_идемпотентна()
         ProductionOrder.objects.count(),
         Inquiry.objects.count(),
         OrderJournalEntry.objects.count(),
+        InspectionRecord.objects.count(),
+        PurchaseLine.objects.count(),
     ) == counts
     assert WorkCenter.objects.count() == 12
     assert ProductTemplate.objects.count() == 8
@@ -67,6 +73,15 @@ def test_seed_demo_заводит_прототип_и_идемпотентна()
         assert inquiry.order_id is not None
         assert ProductionOrder.objects.get(id=inquiry.order_id).inquiry_id == inquiry.id
     assert Inquiry.objects.filter(stage=InquiryStage.LAUNCHED).count() == 14
+
+    # ОТК: 9 точек прототипа, записи по операциям заказов и история брака.
+    assert InspectionPoint.objects.count() == 9
+    assert InspectionRecord.objects.filter(rework__gt=0).exists()
+    # Снабжение: поставщики прототипа, строки во всех рабочих статусах, заявка «на склад».
+    assert Supplier.objects.count() == 8
+    statuses = set(PurchaseLine.objects.values_list("status", flat=True))
+    assert {LineStatus.SENT, LineStatus.ORDERED, LineStatus.RECEIVED, LineStatus.ISSUED} <= statuses
+    assert PurchaseLine.objects.filter(order_id__isnull=True).count() == 3
 
 
 def test_seed_demo_запрещён_при_debug_false() -> None:

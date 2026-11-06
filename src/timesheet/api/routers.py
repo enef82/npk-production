@@ -63,8 +63,6 @@ from .schemas import (
     MonthGridOut,
     ObjectLineOut,
     ObjectTotalOut,
-    OperationOptionOut,
-    OrderOptionOut,
     PeriodAbilitiesOut,
     PeriodEventOut,
     PeriodOut,
@@ -72,6 +70,8 @@ from .schemas import (
     PlannedOpOut,
     ReasonIn,
     TimeCodeOut,
+    TimesheetOperationOptionOut,
+    TimesheetOrderOptionOut,
     TimesheetWorkerOut,
 )
 
@@ -226,24 +226,26 @@ def list_workers(request: HttpRequest) -> list[TimesheetWorkerOut]:
     ]
 
 
-@router.get("/orders", response=list[OrderOptionOut], operation_id="listTimesheetOrders")
-def list_orders(request: HttpRequest) -> list[OrderOptionOut]:
+@router.get("/orders", response=list[TimesheetOrderOptionOut], operation_id="listTimesheetOrders")
+def list_orders(request: HttpRequest) -> list[TimesheetOrderOptionOut]:
     """Заказы в работе — объект разноски в диалоге дня."""
 
     return [
-        OrderOptionOut(order_id=order_id, label=label)
+        TimesheetOrderOptionOut(order_id=order_id, label=label)
         for order_id, label in production_link.order_options()
     ]
 
 
 @router.get(
     "/orders/{order_id}/operations",
-    response=list[OperationOptionOut],
+    response=list[TimesheetOperationOptionOut],
     operation_id="listTimesheetOrderOperations",
 )
-def list_order_operations(request: HttpRequest, order_id: UUID) -> list[OperationOptionOut]:
+def list_order_operations(
+    request: HttpRequest, order_id: UUID
+) -> list[TimesheetOperationOptionOut]:
     return [
-        OperationOptionOut(operation_id=op_id, label=label, work_center_id=work_center_id)
+        TimesheetOperationOptionOut(operation_id=op_id, label=label, work_center_id=work_center_id)
         for op_id, label, work_center_id in production_link.operation_options(order_id)
     ]
 

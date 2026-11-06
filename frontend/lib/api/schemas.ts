@@ -3994,6 +3994,256 @@ export const SetProductionOperationPredecessorsResponse = zod.object({
 
 
 /**
+ * @summary Get Reference
+ */
+export const GetQualityReferenceResponse = zod.object({
+  "points": zod.array(zod.object({
+  "id": zod.uuid(),
+  "work_center_id": zod.uuid(),
+  "work_center_name": zod.string(),
+  "name": zod.string(),
+  "is_final": zod.boolean(),
+  "defect_types": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string()
+}))
+})),
+  "causes": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "is_operator_fault": zod.boolean()
+}))
+})
+
+
+/**
+ * @summary Get Operation Qc
+ */
+export const GetOperationQcParams = zod.object({
+  "operation_id": zod.uuid()
+})
+
+export const getOperationQcResponseAggregatePctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetOperationQcResponse = zod.object({
+  "operation_id": zod.uuid(),
+  "order_id": zod.uuid(),
+  "work_center_id": zod.uuid(),
+  "point": zod.union([zod.object({
+  "id": zod.uuid(),
+  "work_center_id": zod.uuid(),
+  "work_center_name": zod.string(),
+  "name": zod.string(),
+  "is_final": zod.boolean(),
+  "defect_types": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string()
+}))
+}),zod.null()]),
+  "recording_open": zod.boolean(),
+  "default_checked": zod.int(),
+  "aggregate": zod.object({
+  "checked": zod.int(),
+  "rework": zod.int(),
+  "scrap": zod.int(),
+  "defects": zod.int(),
+  "pct": zod.string().regex(getOperationQcResponseAggregatePctRegExp)
+}),
+  "records": zod.array(zod.object({
+  "id": zod.uuid(),
+  "operation_id": zod.uuid(),
+  "order_id": zod.uuid(),
+  "work_center_id": zod.uuid(),
+  "date": zod.iso.date(),
+  "inspector_id": zod.uuid(),
+  "inspector_name": zod.string(),
+  "checked": zod.int(),
+  "rework": zod.int(),
+  "scrap": zod.int(),
+  "defect_type_id": zod.union([zod.uuid(),zod.null()]),
+  "defect_type_name": zod.string(),
+  "cause_id": zod.union([zod.uuid(),zod.null()]),
+  "cause_name": zod.string(),
+  "comment": zod.string(),
+  "created_at": zod.iso.datetime({"offset":true})
+})),
+  "causes": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "is_operator_fault": zod.boolean()
+})),
+  "abilities": zod.object({
+  "can_record": zod.boolean()
+})
+}).describe('Блок «Контроль качества» карточки операции (`opDialog` прототипа).')
+
+
+/**
+ * @summary Record Inspection
+ */
+export const RecordInspectionParams = zod.object({
+  "operation_id": zod.uuid()
+})
+
+
+export const recordInspectionBodyReworkDefault = 0;
+export const recordInspectionBodyReworkMin = 0;
+
+export const recordInspectionBodyScrapDefault = 0;
+export const recordInspectionBodyScrapMin = 0;
+
+export const recordInspectionBodyCommentDefault = ``;
+
+export const RecordInspectionBody = zod.object({
+  "checked": zod.int().min(1),
+  "rework": zod.int().min(recordInspectionBodyReworkMin).default(recordInspectionBodyReworkDefault),
+  "scrap": zod.int().min(recordInspectionBodyScrapMin).default(recordInspectionBodyScrapDefault),
+  "defect_type_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "cause_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "comment": zod.string().default(recordInspectionBodyCommentDefault),
+  "date": zod.union([zod.iso.date(),zod.null()]).optional()
+})
+
+export const RecordInspectionResponse = zod.object({
+  "record": zod.object({
+  "id": zod.uuid(),
+  "operation_id": zod.uuid(),
+  "order_id": zod.uuid(),
+  "work_center_id": zod.uuid(),
+  "date": zod.iso.date(),
+  "inspector_id": zod.uuid(),
+  "inspector_name": zod.string(),
+  "checked": zod.int(),
+  "rework": zod.int(),
+  "scrap": zod.int(),
+  "defect_type_id": zod.union([zod.uuid(),zod.null()]),
+  "defect_type_name": zod.string(),
+  "cause_id": zod.union([zod.uuid(),zod.null()]),
+  "cause_name": zod.string(),
+  "comment": zod.string(),
+  "created_at": zod.iso.datetime({"offset":true})
+}),
+  "warning": zod.string()
+})
+
+
+/**
+ * @summary Get Summary
+ */
+export const getQualitySummaryQueryWeeksDefault = 8;
+export const getQualitySummaryQueryWeeksMax = 52;
+
+
+
+export const GetQualitySummaryQueryParams = zod.object({
+  "weeks": zod.int().min(1).max(getQualitySummaryQueryWeeksMax).default(getQualitySummaryQueryWeeksDefault)
+})
+
+export const getQualitySummaryResponseKpiPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getQualitySummaryResponseKpiEarlyPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getQualitySummaryResponseKpiOperatorPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getQualitySummaryResponseByWorkCenterItemPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getQualitySummaryResponseByWorkCenterItemTrendRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getQualitySummaryResponseDynamicsItemPctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getQualitySummaryResponseParetoCausesItemCumulativePctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getQualitySummaryResponseParetoDefectTypesItemCumulativePctRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetQualitySummaryResponse = zod.object({
+  "date_from": zod.iso.date(),
+  "date_to": zod.iso.date(),
+  "weeks": zod.int(),
+  "kpi": zod.object({
+  "checked": zod.int(),
+  "defects": zod.int(),
+  "pct": zod.string().regex(getQualitySummaryResponseKpiPctRegExp),
+  "rework": zod.int(),
+  "scrap": zod.int(),
+  "early_pct": zod.string().regex(getQualitySummaryResponseKpiEarlyPctRegExp),
+  "operator_pct": zod.string().regex(getQualitySummaryResponseKpiOperatorPctRegExp)
+}),
+  "by_work_center": zod.array(zod.object({
+  "work_center_id": zod.uuid(),
+  "work_center_name": zod.string(),
+  "point_name": zod.string(),
+  "is_final": zod.boolean(),
+  "checked": zod.int(),
+  "defects": zod.int(),
+  "pct": zod.string().regex(getQualitySummaryResponseByWorkCenterItemPctRegExp),
+  "rework": zod.int(),
+  "scrap": zod.int(),
+  "top_defect": zod.union([zod.object({
+  "name": zod.string(),
+  "defects": zod.int()
+}),zod.null()]),
+  "trend": zod.string().regex(getQualitySummaryResponseByWorkCenterItemTrendRegExp)
+})),
+  "dynamics": zod.array(zod.object({
+  "week_start": zod.iso.date(),
+  "checked": zod.int(),
+  "intermediate_defects": zod.int(),
+  "final_defects": zod.int(),
+  "pct": zod.string().regex(getQualitySummaryResponseDynamicsItemPctRegExp)
+})),
+  "pareto_causes": zod.array(zod.object({
+  "name": zod.string(),
+  "defects": zod.int(),
+  "cumulative_pct": zod.string().regex(getQualitySummaryResponseParetoCausesItemCumulativePctRegExp)
+})),
+  "pareto_defect_types": zod.array(zod.object({
+  "name": zod.string(),
+  "defects": zod.int(),
+  "cumulative_pct": zod.string().regex(getQualitySummaryResponseParetoDefectTypesItemCumulativePctRegExp)
+}))
+})
+
+
+/**
+ * @summary List Records
+ */
+export const listInspectionRecordsQueryDefectsOnlyDefault = false;
+export const listInspectionRecordsQueryLimitDefault = 200;
+export const listInspectionRecordsQueryLimitMax = 1000;
+
+
+
+export const ListInspectionRecordsQueryParams = zod.object({
+  "date_from": zod.union([zod.iso.date(),zod.null()]).optional(),
+  "date_to": zod.union([zod.iso.date(),zod.null()]).optional(),
+  "work_center_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "order_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "cause_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "defects_only": zod.boolean().default(listInspectionRecordsQueryDefectsOnlyDefault),
+  "limit": zod.int().min(1).max(listInspectionRecordsQueryLimitMax).default(listInspectionRecordsQueryLimitDefault)
+})
+
+export const ListInspectionRecordsResponseItem = zod.object({
+  "id": zod.uuid(),
+  "operation_id": zod.uuid(),
+  "order_id": zod.uuid(),
+  "work_center_id": zod.uuid(),
+  "date": zod.iso.date(),
+  "inspector_id": zod.uuid(),
+  "inspector_name": zod.string(),
+  "checked": zod.int(),
+  "rework": zod.int(),
+  "scrap": zod.int(),
+  "defect_type_id": zod.union([zod.uuid(),zod.null()]),
+  "defect_type_name": zod.string(),
+  "cause_id": zod.union([zod.uuid(),zod.null()]),
+  "cause_name": zod.string(),
+  "comment": zod.string(),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "order_number": zod.string(),
+  "customer_name": zod.string(),
+  "operation_name": zod.string(),
+  "work_center_name": zod.string()
+}).describe('Строка журнала записей экрана «Качество» — с заказом, операцией и участком.')
+export const ListInspectionRecordsResponse = zod.array(ListInspectionRecordsResponseItem)
+
+
+/**
  * @summary List Loss Reasons
  */
 export const ListLossReasonsResponseItem = zod.object({
@@ -6389,6 +6639,565 @@ export const BuildInquiryPlanResponse = zod.object({
 }),
   "plan_length": zod.int(),
   "critical_path": zod.array(zod.uuid())
+})
+
+
+/**
+ * @summary Get Reference
+ */
+export const GetSupplyReferenceResponse = zod.object({
+  "suppliers": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string()
+})),
+  "employees": zod.array(zod.object({
+  "id": zod.uuid(),
+  "full_name": zod.string()
+}))
+})
+
+
+/**
+ * @summary Create Supplier
+ */
+export const CreateSupplierBody = zod.object({
+  "name": zod.string()
+})
+
+export const CreateSupplierResponse = zod.object({
+  "id": zod.uuid(),
+  "name": zod.string()
+})
+
+
+/**
+ * @summary Get Dashboard
+ */
+export const getSupplyDashboardResponseCountsActiveAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getSupplyDashboardResponseRequisitionsItemAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetSupplyDashboardResponse = zod.object({
+  "counts": zod.object({
+  "draft": zod.int(),
+  "sent": zod.int(),
+  "ordered": zod.int(),
+  "received": zod.int(),
+  "reserved": zod.int(),
+  "issued": zod.int(),
+  "late": zod.int(),
+  "active_amount": zod.string().regex(getSupplyDashboardResponseCountsActiveAmountRegExp)
+}),
+  "requisitions": zod.array(zod.object({
+  "number": zod.string(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "order_number": zod.string(),
+  "sent_by_name": zod.string(),
+  "sent_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "lines": zod.int(),
+  "amount": zod.string().regex(getSupplyDashboardResponseRequisitionsItemAmountRegExp),
+  "ordered": zod.int(),
+  "in_store": zod.int(),
+  "issued": zod.int()
+})),
+  "abilities": zod.object({
+  "can_request": zod.boolean(),
+  "can_order": zod.boolean(),
+  "can_store": zod.boolean()
+})
+})
+
+
+/**
+ * Заказы в работе — «Для чего» в новой заявке на закупку.
+ * @summary List Order Options
+ */
+export const ListSupplyOrdersResponseItem = zod.object({
+  "id": zod.uuid(),
+  "label": zod.string()
+})
+export const ListSupplyOrdersResponse = zod.array(ListSupplyOrdersResponseItem)
+
+
+/**
+ * @summary List Lines
+ */
+export const listPurchaseLinesQueryStatusDefault = `active`;
+export const listPurchaseLinesQueryWarehouseOnlyDefault = false;
+export const listPurchaseLinesQueryLateOnlyDefault = false;
+export const listPurchaseLinesQueryRequisitionNoDefault = ``;
+export const listPurchaseLinesQuerySearchDefault = ``;
+
+export const ListPurchaseLinesQueryParams = zod.object({
+  "status": zod.string().default(listPurchaseLinesQueryStatusDefault),
+  "order_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "warehouse_only": zod.boolean().default(listPurchaseLinesQueryWarehouseOnlyDefault),
+  "kind": zod.union([zod.enum(['mat', 'tool']),zod.null()]).optional(),
+  "category": zod.union([zod.enum(['material', 'tool', 'fixture', 'consumable']),zod.null()]).optional(),
+  "late_only": zod.boolean().default(listPurchaseLinesQueryLateOnlyDefault),
+  "requisition_no": zod.string().default(listPurchaseLinesQueryRequisitionNoDefault),
+  "search": zod.string().default(listPurchaseLinesQuerySearchDefault)
+})
+
+export const listPurchaseLinesResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listPurchaseLinesResponsePriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listPurchaseLinesResponseAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listPurchaseLinesResponseReceivedQtyOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const ListPurchaseLinesResponseItem = zod.object({
+  "id": zod.uuid(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "order_number": zod.string(),
+  "customer_name": zod.string(),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_name": zod.string(),
+  "kind": zod.enum(['mat', 'tool']),
+  "category": zod.enum(['material', 'tool', 'fixture', 'consumable']),
+  "name": zod.string(),
+  "quantity": zod.string().regex(listPurchaseLinesResponseQuantityRegExp),
+  "unit": zod.string(),
+  "price": zod.string().regex(listPurchaseLinesResponsePriceRegExp),
+  "amount": zod.string().regex(listPurchaseLinesResponseAmountRegExp),
+  "need_date": zod.iso.date(),
+  "status": zod.enum(['draft', 'sent', 'ordered', 'received', 'reserved', 'issued']),
+  "requisition_no": zod.string(),
+  "supplier_id": zod.union([zod.uuid(),zod.null()]),
+  "supplier_name": zod.string(),
+  "po_number": zod.string(),
+  "eta": zod.union([zod.iso.date(),zod.null()]),
+  "received_at": zod.union([zod.iso.date(),zod.null()]),
+  "received_qty": zod.union([zod.string().regex(listPurchaseLinesResponseReceivedQtyOneRegExp),zod.null()]),
+  "storage_place": zod.string(),
+  "issued_at": zod.union([zod.iso.date(),zod.null()]),
+  "issued_to_id": zod.union([zod.uuid(),zod.null()]),
+  "issued_to_name": zod.string(),
+  "created_by_name": zod.string(),
+  "late_days": zod.int(),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_send": zod.boolean(),
+  "can_order": zod.boolean(),
+  "can_change_eta": zod.boolean(),
+  "can_receive": zod.boolean(),
+  "can_reserve": zod.boolean(),
+  "can_issue": zod.boolean()
+}).describe('Действия над строкой, доступные текущему пользователю в её статусе.')
+})
+export const ListPurchaseLinesResponse = zod.array(ListPurchaseLinesResponseItem)
+
+
+/**
+ * @summary Send Lines
+ */
+export const SendPurchaseLinesBody = zod.object({
+  "line_ids": zod.array(zod.uuid())
+})
+
+export const SendPurchaseLinesResponse = zod.object({
+  "requisition_no": zod.string()
+})
+
+
+/**
+ * @summary Order Lines
+ */
+export const orderPurchaseLinesBodyPoNumberDefault = ``;
+export const orderPurchaseLinesBodyPriceTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const OrderPurchaseLinesBody = zod.object({
+  "line_ids": zod.array(zod.uuid()),
+  "supplier_id": zod.uuid(),
+  "eta": zod.iso.date(),
+  "po_number": zod.string().default(orderPurchaseLinesBodyPoNumberDefault),
+  "price": zod.union([zod.number(),zod.string().regex(orderPurchaseLinesBodyPriceTwoRegExp),zod.null()]).optional()
+})
+
+export const OrderPurchaseLinesResponse = zod.object({
+  "po_number": zod.string()
+})
+
+
+/**
+ * @summary Change Eta
+ */
+export const ChangePurchaseLinesEtaBody = zod.object({
+  "line_ids": zod.array(zod.uuid()),
+  "eta": zod.iso.date(),
+  "reason": zod.string()
+})
+
+export const ChangePurchaseLinesEtaResponse = zod.object({
+  "lines": zod.int()
+}).describe('Сколько строк затронуло действие. Тело вместо 204: клиент API разбирает JSON\nпо заголовку ответа, а пустой 204 с `application\/json` он разобрать не может.')
+
+
+/**
+ * @summary Receive Lines
+ */
+export const receivePurchaseLinesBodyStoragePlaceDefault = ``;
+export const receivePurchaseLinesBodyReceivedQtyTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const receivePurchaseLinesBodyNonconformingTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const receivePurchaseLinesBodyNonconformingDefault = `0`;
+export const receivePurchaseLinesBodyRemarkDefault = ``;
+
+export const ReceivePurchaseLinesBody = zod.object({
+  "line_ids": zod.array(zod.uuid()),
+  "received_at": zod.iso.date(),
+  "storage_place": zod.string().default(receivePurchaseLinesBodyStoragePlaceDefault),
+  "received_qty": zod.union([zod.number(),zod.string().regex(receivePurchaseLinesBodyReceivedQtyTwoRegExp),zod.null()]).optional(),
+  "nonconforming": zod.union([zod.number(),zod.string().regex(receivePurchaseLinesBodyNonconformingTwoRegExp)]).default(receivePurchaseLinesBodyNonconformingDefault),
+  "remark": zod.string().default(receivePurchaseLinesBodyRemarkDefault)
+})
+
+export const ReceivePurchaseLinesResponse = zod.object({
+  "lines": zod.int()
+}).describe('Сколько строк затронуло действие. Тело вместо 204: клиент API разбирает JSON\nпо заголовку ответа, а пустой 204 с `application\/json` он разобрать не может.')
+
+
+/**
+ * @summary Reserve Lines
+ */
+export const reservePurchaseLinesBodyStoragePlaceDefault = ``;
+
+export const ReservePurchaseLinesBody = zod.object({
+  "line_ids": zod.array(zod.uuid()),
+  "storage_place": zod.string().default(reservePurchaseLinesBodyStoragePlaceDefault)
+})
+
+export const ReservePurchaseLinesResponse = zod.object({
+  "lines": zod.int()
+}).describe('Сколько строк затронуло действие. Тело вместо 204: клиент API разбирает JSON\nпо заголовку ответа, а пустой 204 с `application\/json` он разобрать не может.')
+
+
+/**
+ * @summary Issue Lines
+ */
+export const IssuePurchaseLinesBody = zod.object({
+  "line_ids": zod.array(zod.uuid()),
+  "issued_at": zod.iso.date(),
+  "issued_to_id": zod.uuid(),
+  "work_center_id": zod.union([zod.uuid(),zod.null()]).optional()
+})
+
+export const IssuePurchaseLinesResponse = zod.object({
+  "lines": zod.int()
+}).describe('Сколько строк затронуло действие. Тело вместо 204: клиент API разбирает JSON\nпо заголовку ответа, а пустой 204 с `application\/json` он разобрать не может.')
+
+
+/**
+ * @summary Get Line
+ */
+export const GetPurchaseLineParams = zod.object({
+  "line_id": zod.uuid()
+})
+
+export const getPurchaseLineResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getPurchaseLineResponsePriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getPurchaseLineResponseAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getPurchaseLineResponseReceivedQtyOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetPurchaseLineResponse = zod.object({
+  "id": zod.uuid(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "order_number": zod.string(),
+  "customer_name": zod.string(),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_name": zod.string(),
+  "kind": zod.enum(['mat', 'tool']),
+  "category": zod.enum(['material', 'tool', 'fixture', 'consumable']),
+  "name": zod.string(),
+  "quantity": zod.string().regex(getPurchaseLineResponseQuantityRegExp),
+  "unit": zod.string(),
+  "price": zod.string().regex(getPurchaseLineResponsePriceRegExp),
+  "amount": zod.string().regex(getPurchaseLineResponseAmountRegExp),
+  "need_date": zod.iso.date(),
+  "status": zod.enum(['draft', 'sent', 'ordered', 'received', 'reserved', 'issued']),
+  "requisition_no": zod.string(),
+  "supplier_id": zod.union([zod.uuid(),zod.null()]),
+  "supplier_name": zod.string(),
+  "po_number": zod.string(),
+  "eta": zod.union([zod.iso.date(),zod.null()]),
+  "received_at": zod.union([zod.iso.date(),zod.null()]),
+  "received_qty": zod.union([zod.string().regex(getPurchaseLineResponseReceivedQtyOneRegExp),zod.null()]),
+  "storage_place": zod.string(),
+  "issued_at": zod.union([zod.iso.date(),zod.null()]),
+  "issued_to_id": zod.union([zod.uuid(),zod.null()]),
+  "issued_to_name": zod.string(),
+  "created_by_name": zod.string(),
+  "late_days": zod.int(),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_send": zod.boolean(),
+  "can_order": zod.boolean(),
+  "can_change_eta": zod.boolean(),
+  "can_receive": zod.boolean(),
+  "can_reserve": zod.boolean(),
+  "can_issue": zod.boolean()
+}).describe('Действия над строкой, доступные текущему пользователю в её статусе.'),
+  "history": zod.array(zod.object({
+  "created_at": zod.iso.datetime({"offset":true}),
+  "author_name": zod.string(),
+  "text": zod.string()
+}))
+})
+
+
+/**
+ * @summary Update Line
+ */
+export const UpdatePurchaseLineParams = zod.object({
+  "line_id": zod.uuid()
+})
+
+export const updatePurchaseLineBodyQuantityOneExclusiveMin = 0;
+
+export const updatePurchaseLineBodyQuantityTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updatePurchaseLineBodyUnitDefault = `\u0448\u0442`;
+export const updatePurchaseLineBodyPriceOneMin = 0;
+
+export const updatePurchaseLineBodyPriceTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updatePurchaseLineBodyPriceDefault = `0`;
+
+export const UpdatePurchaseLineBody = zod.object({
+  "kind": zod.enum(['mat', 'tool']),
+  "category": zod.enum(['material', 'tool', 'fixture', 'consumable']),
+  "name": zod.string(),
+  "quantity": zod.union([zod.number().gt(updatePurchaseLineBodyQuantityOneExclusiveMin),zod.string().regex(updatePurchaseLineBodyQuantityTwoRegExp)]),
+  "unit": zod.string().default(updatePurchaseLineBodyUnitDefault),
+  "price": zod.union([zod.number().min(updatePurchaseLineBodyPriceOneMin),zod.string().regex(updatePurchaseLineBodyPriceTwoRegExp)]).default(updatePurchaseLineBodyPriceDefault),
+  "need_date": zod.iso.date(),
+  "operation_id": zod.union([zod.uuid(),zod.null()]).optional()
+})
+
+export const updatePurchaseLineResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updatePurchaseLineResponsePriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updatePurchaseLineResponseAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updatePurchaseLineResponseReceivedQtyOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const UpdatePurchaseLineResponse = zod.object({
+  "id": zod.uuid(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "order_number": zod.string(),
+  "customer_name": zod.string(),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_name": zod.string(),
+  "kind": zod.enum(['mat', 'tool']),
+  "category": zod.enum(['material', 'tool', 'fixture', 'consumable']),
+  "name": zod.string(),
+  "quantity": zod.string().regex(updatePurchaseLineResponseQuantityRegExp),
+  "unit": zod.string(),
+  "price": zod.string().regex(updatePurchaseLineResponsePriceRegExp),
+  "amount": zod.string().regex(updatePurchaseLineResponseAmountRegExp),
+  "need_date": zod.iso.date(),
+  "status": zod.enum(['draft', 'sent', 'ordered', 'received', 'reserved', 'issued']),
+  "requisition_no": zod.string(),
+  "supplier_id": zod.union([zod.uuid(),zod.null()]),
+  "supplier_name": zod.string(),
+  "po_number": zod.string(),
+  "eta": zod.union([zod.iso.date(),zod.null()]),
+  "received_at": zod.union([zod.iso.date(),zod.null()]),
+  "received_qty": zod.union([zod.string().regex(updatePurchaseLineResponseReceivedQtyOneRegExp),zod.null()]),
+  "storage_place": zod.string(),
+  "issued_at": zod.union([zod.iso.date(),zod.null()]),
+  "issued_to_id": zod.union([zod.uuid(),zod.null()]),
+  "issued_to_name": zod.string(),
+  "created_by_name": zod.string(),
+  "late_days": zod.int(),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_send": zod.boolean(),
+  "can_order": zod.boolean(),
+  "can_change_eta": zod.boolean(),
+  "can_receive": zod.boolean(),
+  "can_reserve": zod.boolean(),
+  "can_issue": zod.boolean()
+}).describe('Действия над строкой, доступные текущему пользователю в её статусе.')
+})
+
+
+/**
+ * @summary Delete Line
+ */
+export const DeletePurchaseLineParams = zod.object({
+  "line_id": zod.uuid()
+})
+
+export const DeletePurchaseLineResponse = zod.object({
+  "lines": zod.int()
+}).describe('Сколько строк затронуло действие. Тело вместо 204: клиент API разбирает JSON\nпо заголовку ответа, а пустой 204 с `application\/json` он разобрать не может.')
+
+
+/**
+ * @summary Get Order Lines
+ */
+export const GetOrderSupplyLinesParams = zod.object({
+  "order_id": zod.uuid()
+})
+
+export const getOrderSupplyLinesQueryKindDefault = `mat`;
+
+export const GetOrderSupplyLinesQueryParams = zod.object({
+  "kind": zod.enum(['mat', 'tool']).default(getOrderSupplyLinesQueryKindDefault)
+})
+
+export const getOrderSupplyLinesResponseLinesItemQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getOrderSupplyLinesResponseLinesItemPriceRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getOrderSupplyLinesResponseLinesItemAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getOrderSupplyLinesResponseLinesItemReceivedQtyOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getOrderSupplyLinesResponseCountsActiveAmountRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetOrderSupplyLinesResponse = zod.object({
+  "order_id": zod.uuid(),
+  "order_number": zod.string(),
+  "order_open": zod.boolean(),
+  "kind": zod.enum(['mat', 'tool']),
+  "lines": zod.array(zod.object({
+  "id": zod.uuid(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "order_number": zod.string(),
+  "customer_name": zod.string(),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_name": zod.string(),
+  "kind": zod.enum(['mat', 'tool']),
+  "category": zod.enum(['material', 'tool', 'fixture', 'consumable']),
+  "name": zod.string(),
+  "quantity": zod.string().regex(getOrderSupplyLinesResponseLinesItemQuantityRegExp),
+  "unit": zod.string(),
+  "price": zod.string().regex(getOrderSupplyLinesResponseLinesItemPriceRegExp),
+  "amount": zod.string().regex(getOrderSupplyLinesResponseLinesItemAmountRegExp),
+  "need_date": zod.iso.date(),
+  "status": zod.enum(['draft', 'sent', 'ordered', 'received', 'reserved', 'issued']),
+  "requisition_no": zod.string(),
+  "supplier_id": zod.union([zod.uuid(),zod.null()]),
+  "supplier_name": zod.string(),
+  "po_number": zod.string(),
+  "eta": zod.union([zod.iso.date(),zod.null()]),
+  "received_at": zod.union([zod.iso.date(),zod.null()]),
+  "received_qty": zod.union([zod.string().regex(getOrderSupplyLinesResponseLinesItemReceivedQtyOneRegExp),zod.null()]),
+  "storage_place": zod.string(),
+  "issued_at": zod.union([zod.iso.date(),zod.null()]),
+  "issued_to_id": zod.union([zod.uuid(),zod.null()]),
+  "issued_to_name": zod.string(),
+  "created_by_name": zod.string(),
+  "late_days": zod.int(),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_send": zod.boolean(),
+  "can_order": zod.boolean(),
+  "can_change_eta": zod.boolean(),
+  "can_receive": zod.boolean(),
+  "can_reserve": zod.boolean(),
+  "can_issue": zod.boolean()
+}).describe('Действия над строкой, доступные текущему пользователю в её статусе.')
+})),
+  "counts": zod.object({
+  "draft": zod.int(),
+  "sent": zod.int(),
+  "ordered": zod.int(),
+  "received": zod.int(),
+  "reserved": zod.int(),
+  "issued": zod.int(),
+  "late": zod.int(),
+  "active_amount": zod.string().regex(getOrderSupplyLinesResponseCountsActiveAmountRegExp)
+}),
+  "requisitions": zod.array(zod.string()),
+  "operations": zod.array(zod.object({
+  "id": zod.uuid(),
+  "label": zod.string()
+})),
+  "abilities": zod.object({
+  "can_request": zod.boolean(),
+  "can_order": zod.boolean(),
+  "can_store": zod.boolean()
+})
+}).describe('Вкладка «Материалы» \/ «Оснастка и расходники» заказа (`prTab` прототипа).')
+
+
+/**
+ * @summary Create Order Line
+ */
+export const CreateOrderSupplyLineParams = zod.object({
+  "order_id": zod.uuid()
+})
+
+export const createOrderSupplyLineBodyQuantityOneExclusiveMin = 0;
+
+export const createOrderSupplyLineBodyQuantityTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createOrderSupplyLineBodyUnitDefault = `\u0448\u0442`;
+export const createOrderSupplyLineBodyPriceOneMin = 0;
+
+export const createOrderSupplyLineBodyPriceTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createOrderSupplyLineBodyPriceDefault = `0`;
+
+export const CreateOrderSupplyLineBody = zod.object({
+  "kind": zod.enum(['mat', 'tool']),
+  "category": zod.enum(['material', 'tool', 'fixture', 'consumable']),
+  "name": zod.string(),
+  "quantity": zod.union([zod.number().gt(createOrderSupplyLineBodyQuantityOneExclusiveMin),zod.string().regex(createOrderSupplyLineBodyQuantityTwoRegExp)]),
+  "unit": zod.string().default(createOrderSupplyLineBodyUnitDefault),
+  "price": zod.union([zod.number().min(createOrderSupplyLineBodyPriceOneMin),zod.string().regex(createOrderSupplyLineBodyPriceTwoRegExp)]).default(createOrderSupplyLineBodyPriceDefault),
+  "need_date": zod.iso.date(),
+  "operation_id": zod.union([zod.uuid(),zod.null()]).optional()
+})
+
+export const CreateOrderSupplyLineResponse = zod.object({
+  "id": zod.uuid()
+})
+
+
+/**
+ * «Добавить из калькуляции» (материалы) / «Подобрать по маршруту» (оснастка).
+ * @summary Fill Order Lines
+ */
+export const FillOrderSupplyLinesParams = zod.object({
+  "order_id": zod.uuid()
+})
+
+export const fillOrderSupplyLinesQueryKindDefault = `mat`;
+
+export const FillOrderSupplyLinesQueryParams = zod.object({
+  "kind": zod.enum(['mat', 'tool']).default(fillOrderSupplyLinesQueryKindDefault)
+})
+
+export const FillOrderSupplyLinesResponse = zod.object({
+  "added": zod.int()
+})
+
+
+/**
+ * Новая заявка на закупку — для заказа или «на склад / ТО», сразу в закупку.
+ * @summary Create Requisition
+ */
+export const createRequisitionBodyLinesItemQuantityOneExclusiveMin = 0;
+
+export const createRequisitionBodyLinesItemQuantityTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createRequisitionBodyLinesItemUnitDefault = `\u0448\u0442`;
+export const createRequisitionBodyLinesItemPriceOneMin = 0;
+
+export const createRequisitionBodyLinesItemPriceTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createRequisitionBodyLinesItemPriceDefault = `0`;
+
+export const CreateRequisitionBody = zod.object({
+  "order_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "lines": zod.array(zod.object({
+  "kind": zod.enum(['mat', 'tool']),
+  "category": zod.enum(['material', 'tool', 'fixture', 'consumable']),
+  "name": zod.string(),
+  "quantity": zod.union([zod.number().gt(createRequisitionBodyLinesItemQuantityOneExclusiveMin),zod.string().regex(createRequisitionBodyLinesItemQuantityTwoRegExp)]),
+  "unit": zod.string().default(createRequisitionBodyLinesItemUnitDefault),
+  "price": zod.union([zod.number().min(createRequisitionBodyLinesItemPriceOneMin),zod.string().regex(createRequisitionBodyLinesItemPriceTwoRegExp)]).default(createRequisitionBodyLinesItemPriceDefault),
+  "need_date": zod.iso.date(),
+  "operation_id": zod.union([zod.uuid(),zod.null()]).optional()
+}))
+})
+
+export const CreateRequisitionResponse = zod.object({
+  "requisition_no": zod.string()
 })
 
 

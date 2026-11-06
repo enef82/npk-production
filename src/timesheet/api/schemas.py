@@ -22,12 +22,12 @@ class TimesheetWorkerOut(Schema):
     work_center_id: UUID | None
 
 
-class OrderOptionOut(Schema):
+class TimesheetOrderOptionOut(Schema):
     order_id: UUID
     label: str
 
 
-class OperationOptionOut(Schema):
+class TimesheetOperationOptionOut(Schema):
     operation_id: UUID
     label: str
     work_center_id: UUID

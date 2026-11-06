@@ -3786,6 +3786,298 @@
         ]
       }
     },
+    "/api/v1/quality/reference": {
+      "get": {
+        "operationId": "getQualityReference",
+        "summary": "Get Reference",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QualityReferenceOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "quality"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/quality/operations/{operation_id}": {
+      "get": {
+        "operationId": "getOperationQc",
+        "summary": "Get Operation Qc",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "operation_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Operation Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationQcOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "quality"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/quality/operations/{operation_id}/records": {
+      "post": {
+        "operationId": "recordInspection",
+        "summary": "Record Inspection",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "operation_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Operation Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InspectionCreatedOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "quality"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InspectionIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/quality/summary": {
+      "get": {
+        "operationId": "getQualitySummary",
+        "summary": "Get Summary",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "weeks",
+            "schema": {
+              "default": 8,
+              "maximum": 52,
+              "minimum": 1,
+              "title": "Weeks",
+              "type": "integer"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QualitySummaryOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "quality"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/quality/records": {
+      "get": {
+        "operationId": "listInspectionRecords",
+        "summary": "List Records",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "date_from",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date From"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "date_to",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date To"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "work_center_id",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Work Center Id"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "order_id",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Order Id"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "cause_id",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cause Id"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "defects_only",
+            "schema": {
+              "default": false,
+              "title": "Defects Only",
+              "type": "boolean"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "default": 200,
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/JournalRecordOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "quality"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/sales/loss-reasons": {
       "get": {
         "operationId": "listLossReasons",
@@ -4839,6 +5131,797 @@
         ]
       }
     },
+    "/api/v1/supply/reference": {
+      "get": {
+        "operationId": "getSupplyReference",
+        "summary": "Get Reference",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplyReferenceOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "supply"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/supply/suppliers": {
+      "post": {
+        "operationId": "createSupplier",
+        "summary": "Create Supplier",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "supply"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SupplierIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/supply/dashboard": {
+      "get": {
+        "operationId": "getSupplyDashboard",
+        "summary": "Get Dashboard",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplyDashboardOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "supply"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/supply/order-options": {
+      "get": {
+        "operationId": "listSupplyOrders",
+        "summary": "List Order Options",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SupplyOrderOptionOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "description": "Заказы в работе — «Для чего» в новой заявке на закупку.",
+        "tags": [
+          "supply"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/supply/lines": {
+      "get": {
+        "operationId": "listPurchaseLines",
+        "summary": "List Lines",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "default": "active",
+              "title": "Status",
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "order_id",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Order Id"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "warehouse_only",
+            "schema": {
+              "default": false,
+              "title": "Warehouse Only",
+              "type": "boolean"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "kind",
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/LineKind"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/LineCategory"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "late_only",
+            "schema": {
+              "default": false,
+              "title": "Late Only",
+              "type": "boolean"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "requisition_no",
+            "schema": {
+              "default": "",
+              "title": "Requisition No",
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "default": "",
+              "title": "Search",
+              "type": "string"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/LineOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "supply"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/supply/lines/send": {
+      "post": {
+        "operationId": "sendPurchaseLines",
+        "summary": "Send Lines",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SentOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "supply"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LineIdsIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/supply/lines/order": {
+      "post": {
+        "operationId": "orderPurchaseLines",
+        "summary": "Order Lines",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderedOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "supply"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderLinesIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/supply/lines/eta": {
+      "post": {
+        "operationId": "changePurchaseLinesEta",
+        "summary": "Change Eta",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DoneOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "supply"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EtaIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/supply/lines/receive": {
+      "post": {
+        "operationId": "receivePurchaseLines",
+        "summary": "Receive Lines",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DoneOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "supply"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReceiveIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/supply/lines/reserve": {
+      "post": {
+        "operationId": "reservePurchaseLines",
+        "summary": "Reserve Lines",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DoneOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "supply"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReserveIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/supply/lines/issue": {
+      "post": {
+        "operationId": "issuePurchaseLines",
+        "summary": "Issue Lines",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DoneOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "supply"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/supply/lines/{line_id}": {
+      "get": {
+        "operationId": "getPurchaseLine",
+        "summary": "Get Line",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "line_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Line Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LineDetailOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "supply"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "updatePurchaseLine",
+        "summary": "Update Line",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "line_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Line Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LineOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "supply"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LineIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "deletePurchaseLine",
+        "summary": "Delete Line",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "line_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Line Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DoneOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "supply"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/supply/orders/{order_id}/lines": {
+      "get": {
+        "operationId": "getOrderSupplyLines",
+        "summary": "Get Order Lines",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Order Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "kind",
+            "schema": {
+              "allOf": [
+                {
+                  "enum": [
+                    "mat",
+                    "tool"
+                  ],
+                  "title": "LineKind",
+                  "type": "string"
+                }
+              ],
+              "default": "mat"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderLinesOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "supply"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "createOrderSupplyLine",
+        "summary": "Create Order Line",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Order Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LineCreatedOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "supply"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LineIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/supply/orders/{order_id}/fill": {
+      "post": {
+        "operationId": "fillOrderSupplyLines",
+        "summary": "Fill Order Lines",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Order Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "kind",
+            "schema": {
+              "allOf": [
+                {
+                  "enum": [
+                    "mat",
+                    "tool"
+                  ],
+                  "title": "LineKind",
+                  "type": "string"
+                }
+              ],
+              "default": "mat"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilledOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "«Добавить из калькуляции» (материалы) / «Подобрать по маршруту» (оснастка).",
+        "tags": [
+          "supply"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/supply/requisitions": {
+      "post": {
+        "operationId": "createRequisition",
+        "summary": "Create Requisition",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SentOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Новая заявка на закупку — для заказа или «на склад / ТО», сразу в закупку.",
+        "tags": [
+          "supply"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisitionIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/timesheet/time-codes": {
       "get": {
         "operationId": "listTimeCodes",
@@ -4957,7 +6040,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/OrderOptionOut"
+                    "$ref": "#/components/schemas/TimesheetOrderOptionOut"
                   },
                   "title": "Response",
                   "type": "array"
@@ -5000,7 +6083,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/OperationOptionOut"
+                    "$ref": "#/components/schemas/TimesheetOperationOptionOut"
                   },
                   "title": "Response",
                   "type": "array"
@@ -10918,6 +12001,910 @@
         "title": "OperationPredecessorsIn",
         "type": "object"
       },
+      "DefectCauseOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "is_operator_fault": {
+            "title": "Is Operator Fault",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "is_operator_fault"
+        ],
+        "title": "DefectCauseOut",
+        "type": "object"
+      },
+      "DefectTypeOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "DefectTypeOut",
+        "type": "object"
+      },
+      "InspectionPointOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "work_center_id": {
+            "format": "uuid",
+            "title": "Work Center Id",
+            "type": "string"
+          },
+          "work_center_name": {
+            "title": "Work Center Name",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "is_final": {
+            "title": "Is Final",
+            "type": "boolean"
+          },
+          "defect_types": {
+            "items": {
+              "$ref": "#/components/schemas/DefectTypeOut"
+            },
+            "title": "Defect Types",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "work_center_id",
+          "work_center_name",
+          "name",
+          "is_final",
+          "defect_types"
+        ],
+        "title": "InspectionPointOut",
+        "type": "object"
+      },
+      "QualityReferenceOut": {
+        "properties": {
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/InspectionPointOut"
+            },
+            "title": "Points",
+            "type": "array"
+          },
+          "causes": {
+            "items": {
+              "$ref": "#/components/schemas/DefectCauseOut"
+            },
+            "title": "Causes",
+            "type": "array"
+          }
+        },
+        "required": [
+          "points",
+          "causes"
+        ],
+        "title": "QualityReferenceOut",
+        "type": "object"
+      },
+      "InspectionRecordOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "operation_id": {
+            "format": "uuid",
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "order_id": {
+            "format": "uuid",
+            "title": "Order Id",
+            "type": "string"
+          },
+          "work_center_id": {
+            "format": "uuid",
+            "title": "Work Center Id",
+            "type": "string"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "inspector_id": {
+            "format": "uuid",
+            "title": "Inspector Id",
+            "type": "string"
+          },
+          "inspector_name": {
+            "title": "Inspector Name",
+            "type": "string"
+          },
+          "checked": {
+            "title": "Checked",
+            "type": "integer"
+          },
+          "rework": {
+            "title": "Rework",
+            "type": "integer"
+          },
+          "scrap": {
+            "title": "Scrap",
+            "type": "integer"
+          },
+          "defect_type_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Defect Type Id"
+          },
+          "defect_type_name": {
+            "title": "Defect Type Name",
+            "type": "string"
+          },
+          "cause_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cause Id"
+          },
+          "cause_name": {
+            "title": "Cause Name",
+            "type": "string"
+          },
+          "comment": {
+            "title": "Comment",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "operation_id",
+          "order_id",
+          "work_center_id",
+          "date",
+          "inspector_id",
+          "inspector_name",
+          "checked",
+          "rework",
+          "scrap",
+          "defect_type_id",
+          "defect_type_name",
+          "cause_id",
+          "cause_name",
+          "comment",
+          "created_at"
+        ],
+        "title": "InspectionRecordOut",
+        "type": "object"
+      },
+      "OperationQcAbilitiesOut": {
+        "properties": {
+          "can_record": {
+            "title": "Can Record",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "can_record"
+        ],
+        "title": "OperationQcAbilitiesOut",
+        "type": "object"
+      },
+      "OperationQcOut": {
+        "description": "Блок «Контроль качества» карточки операции (`opDialog` прототипа).",
+        "properties": {
+          "operation_id": {
+            "format": "uuid",
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "order_id": {
+            "format": "uuid",
+            "title": "Order Id",
+            "type": "string"
+          },
+          "work_center_id": {
+            "format": "uuid",
+            "title": "Work Center Id",
+            "type": "string"
+          },
+          "point": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InspectionPointOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "recording_open": {
+            "title": "Recording Open",
+            "type": "boolean"
+          },
+          "default_checked": {
+            "title": "Default Checked",
+            "type": "integer"
+          },
+          "aggregate": {
+            "$ref": "#/components/schemas/QcAggOut"
+          },
+          "records": {
+            "items": {
+              "$ref": "#/components/schemas/InspectionRecordOut"
+            },
+            "title": "Records",
+            "type": "array"
+          },
+          "causes": {
+            "items": {
+              "$ref": "#/components/schemas/DefectCauseOut"
+            },
+            "title": "Causes",
+            "type": "array"
+          },
+          "abilities": {
+            "$ref": "#/components/schemas/OperationQcAbilitiesOut"
+          }
+        },
+        "required": [
+          "operation_id",
+          "order_id",
+          "work_center_id",
+          "point",
+          "recording_open",
+          "default_checked",
+          "aggregate",
+          "records",
+          "causes",
+          "abilities"
+        ],
+        "title": "OperationQcOut",
+        "type": "object"
+      },
+      "QcAggOut": {
+        "properties": {
+          "checked": {
+            "title": "Checked",
+            "type": "integer"
+          },
+          "rework": {
+            "title": "Rework",
+            "type": "integer"
+          },
+          "scrap": {
+            "title": "Scrap",
+            "type": "integer"
+          },
+          "defects": {
+            "title": "Defects",
+            "type": "integer"
+          },
+          "pct": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Pct",
+            "type": "string"
+          }
+        },
+        "required": [
+          "checked",
+          "rework",
+          "scrap",
+          "defects",
+          "pct"
+        ],
+        "title": "QcAggOut",
+        "type": "object"
+      },
+      "InspectionCreatedOut": {
+        "properties": {
+          "record": {
+            "$ref": "#/components/schemas/InspectionRecordOut"
+          },
+          "warning": {
+            "title": "Warning",
+            "type": "string"
+          }
+        },
+        "required": [
+          "record",
+          "warning"
+        ],
+        "title": "InspectionCreatedOut",
+        "type": "object"
+      },
+      "InspectionIn": {
+        "properties": {
+          "checked": {
+            "minimum": 1,
+            "title": "Checked",
+            "type": "integer"
+          },
+          "rework": {
+            "default": 0,
+            "minimum": 0,
+            "title": "Rework",
+            "type": "integer"
+          },
+          "scrap": {
+            "default": 0,
+            "minimum": 0,
+            "title": "Scrap",
+            "type": "integer"
+          },
+          "defect_type_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Defect Type Id"
+          },
+          "cause_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cause Id"
+          },
+          "comment": {
+            "default": "",
+            "title": "Comment",
+            "type": "string"
+          },
+          "date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date"
+          }
+        },
+        "required": [
+          "checked"
+        ],
+        "title": "InspectionIn",
+        "type": "object"
+      },
+      "SummaryFilters": {
+        "description": "Период сводки — последние N недель, включая текущую (прототип: 4 / 8 / 12).",
+        "properties": {
+          "weeks": {
+            "default": 8,
+            "maximum": 52,
+            "minimum": 1,
+            "title": "Weeks",
+            "type": "integer"
+          }
+        },
+        "title": "SummaryFilters",
+        "type": "object"
+      },
+      "QualityKpiOut": {
+        "properties": {
+          "checked": {
+            "title": "Checked",
+            "type": "integer"
+          },
+          "defects": {
+            "title": "Defects",
+            "type": "integer"
+          },
+          "pct": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Pct",
+            "type": "string"
+          },
+          "rework": {
+            "title": "Rework",
+            "type": "integer"
+          },
+          "scrap": {
+            "title": "Scrap",
+            "type": "integer"
+          },
+          "early_pct": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Early Pct",
+            "type": "string"
+          },
+          "operator_pct": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Operator Pct",
+            "type": "string"
+          }
+        },
+        "required": [
+          "checked",
+          "defects",
+          "pct",
+          "rework",
+          "scrap",
+          "early_pct",
+          "operator_pct"
+        ],
+        "title": "QualityKpiOut",
+        "type": "object"
+      },
+      "QualityParetoOut": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "defects": {
+            "title": "Defects",
+            "type": "integer"
+          },
+          "cumulative_pct": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Cumulative Pct",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "defects",
+          "cumulative_pct"
+        ],
+        "title": "QualityParetoOut",
+        "type": "object"
+      },
+      "QualitySummaryOut": {
+        "properties": {
+          "date_from": {
+            "format": "date",
+            "title": "Date From",
+            "type": "string"
+          },
+          "date_to": {
+            "format": "date",
+            "title": "Date To",
+            "type": "string"
+          },
+          "weeks": {
+            "title": "Weeks",
+            "type": "integer"
+          },
+          "kpi": {
+            "$ref": "#/components/schemas/QualityKpiOut"
+          },
+          "by_work_center": {
+            "items": {
+              "$ref": "#/components/schemas/WorkCenterQcOut"
+            },
+            "title": "By Work Center",
+            "type": "array"
+          },
+          "dynamics": {
+            "items": {
+              "$ref": "#/components/schemas/WeekQcOut"
+            },
+            "title": "Dynamics",
+            "type": "array"
+          },
+          "pareto_causes": {
+            "items": {
+              "$ref": "#/components/schemas/QualityParetoOut"
+            },
+            "title": "Pareto Causes",
+            "type": "array"
+          },
+          "pareto_defect_types": {
+            "items": {
+              "$ref": "#/components/schemas/QualityParetoOut"
+            },
+            "title": "Pareto Defect Types",
+            "type": "array"
+          }
+        },
+        "required": [
+          "date_from",
+          "date_to",
+          "weeks",
+          "kpi",
+          "by_work_center",
+          "dynamics",
+          "pareto_causes",
+          "pareto_defect_types"
+        ],
+        "title": "QualitySummaryOut",
+        "type": "object"
+      },
+      "TopDefectOut": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "defects": {
+            "title": "Defects",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "defects"
+        ],
+        "title": "TopDefectOut",
+        "type": "object"
+      },
+      "WeekQcOut": {
+        "properties": {
+          "week_start": {
+            "format": "date",
+            "title": "Week Start",
+            "type": "string"
+          },
+          "checked": {
+            "title": "Checked",
+            "type": "integer"
+          },
+          "intermediate_defects": {
+            "title": "Intermediate Defects",
+            "type": "integer"
+          },
+          "final_defects": {
+            "title": "Final Defects",
+            "type": "integer"
+          },
+          "pct": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Pct",
+            "type": "string"
+          }
+        },
+        "required": [
+          "week_start",
+          "checked",
+          "intermediate_defects",
+          "final_defects",
+          "pct"
+        ],
+        "title": "WeekQcOut",
+        "type": "object"
+      },
+      "WorkCenterQcOut": {
+        "properties": {
+          "work_center_id": {
+            "format": "uuid",
+            "title": "Work Center Id",
+            "type": "string"
+          },
+          "work_center_name": {
+            "title": "Work Center Name",
+            "type": "string"
+          },
+          "point_name": {
+            "title": "Point Name",
+            "type": "string"
+          },
+          "is_final": {
+            "title": "Is Final",
+            "type": "boolean"
+          },
+          "checked": {
+            "title": "Checked",
+            "type": "integer"
+          },
+          "defects": {
+            "title": "Defects",
+            "type": "integer"
+          },
+          "pct": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Pct",
+            "type": "string"
+          },
+          "rework": {
+            "title": "Rework",
+            "type": "integer"
+          },
+          "scrap": {
+            "title": "Scrap",
+            "type": "integer"
+          },
+          "top_defect": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TopDefectOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "trend": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Trend",
+            "type": "string"
+          }
+        },
+        "required": [
+          "work_center_id",
+          "work_center_name",
+          "point_name",
+          "is_final",
+          "checked",
+          "defects",
+          "pct",
+          "rework",
+          "scrap",
+          "top_defect",
+          "trend"
+        ],
+        "title": "WorkCenterQcOut",
+        "type": "object"
+      },
+      "RecordFilters": {
+        "properties": {
+          "date_from": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date From"
+          },
+          "date_to": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date To"
+          },
+          "work_center_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Work Center Id"
+          },
+          "order_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Id"
+          },
+          "cause_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cause Id"
+          },
+          "defects_only": {
+            "default": false,
+            "title": "Defects Only",
+            "type": "boolean"
+          },
+          "limit": {
+            "default": 200,
+            "maximum": 1000,
+            "minimum": 1,
+            "title": "Limit",
+            "type": "integer"
+          }
+        },
+        "title": "RecordFilters",
+        "type": "object"
+      },
+      "JournalRecordOut": {
+        "description": "Строка журнала записей экрана «Качество» — с заказом, операцией и участком.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "operation_id": {
+            "format": "uuid",
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "order_id": {
+            "format": "uuid",
+            "title": "Order Id",
+            "type": "string"
+          },
+          "work_center_id": {
+            "format": "uuid",
+            "title": "Work Center Id",
+            "type": "string"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "inspector_id": {
+            "format": "uuid",
+            "title": "Inspector Id",
+            "type": "string"
+          },
+          "inspector_name": {
+            "title": "Inspector Name",
+            "type": "string"
+          },
+          "checked": {
+            "title": "Checked",
+            "type": "integer"
+          },
+          "rework": {
+            "title": "Rework",
+            "type": "integer"
+          },
+          "scrap": {
+            "title": "Scrap",
+            "type": "integer"
+          },
+          "defect_type_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Defect Type Id"
+          },
+          "defect_type_name": {
+            "title": "Defect Type Name",
+            "type": "string"
+          },
+          "cause_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cause Id"
+          },
+          "cause_name": {
+            "title": "Cause Name",
+            "type": "string"
+          },
+          "comment": {
+            "title": "Comment",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "order_number": {
+            "title": "Order Number",
+            "type": "string"
+          },
+          "customer_name": {
+            "title": "Customer Name",
+            "type": "string"
+          },
+          "operation_name": {
+            "title": "Operation Name",
+            "type": "string"
+          },
+          "work_center_name": {
+            "title": "Work Center Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "operation_id",
+          "order_id",
+          "work_center_id",
+          "date",
+          "inspector_id",
+          "inspector_name",
+          "checked",
+          "rework",
+          "scrap",
+          "defect_type_id",
+          "defect_type_name",
+          "cause_id",
+          "cause_name",
+          "comment",
+          "created_at",
+          "order_number",
+          "customer_name",
+          "operation_name",
+          "work_center_name"
+        ],
+        "title": "JournalRecordOut",
+        "type": "object"
+      },
       "LossReasonOut": {
         "properties": {
           "id": {
@@ -12339,6 +14326,1361 @@
         "title": "PlanIn",
         "type": "object"
       },
+      "SupplierOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "SupplierOut",
+        "type": "object"
+      },
+      "SupplyEmployeeOptionOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "full_name"
+        ],
+        "title": "SupplyEmployeeOptionOut",
+        "type": "object"
+      },
+      "SupplyReferenceOut": {
+        "properties": {
+          "suppliers": {
+            "items": {
+              "$ref": "#/components/schemas/SupplierOut"
+            },
+            "title": "Suppliers",
+            "type": "array"
+          },
+          "employees": {
+            "items": {
+              "$ref": "#/components/schemas/SupplyEmployeeOptionOut"
+            },
+            "title": "Employees",
+            "type": "array"
+          }
+        },
+        "required": [
+          "suppliers",
+          "employees"
+        ],
+        "title": "SupplyReferenceOut",
+        "type": "object"
+      },
+      "SupplierIn": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "SupplierIn",
+        "type": "object"
+      },
+      "RequisitionOut": {
+        "properties": {
+          "number": {
+            "title": "Number",
+            "type": "string"
+          },
+          "order_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Id"
+          },
+          "order_number": {
+            "title": "Order Number",
+            "type": "string"
+          },
+          "sent_by_name": {
+            "title": "Sent By Name",
+            "type": "string"
+          },
+          "sent_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sent At"
+          },
+          "lines": {
+            "title": "Lines",
+            "type": "integer"
+          },
+          "amount": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Amount",
+            "type": "string"
+          },
+          "ordered": {
+            "title": "Ordered",
+            "type": "integer"
+          },
+          "in_store": {
+            "title": "In Store",
+            "type": "integer"
+          },
+          "issued": {
+            "title": "Issued",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "number",
+          "order_id",
+          "order_number",
+          "sent_by_name",
+          "sent_at",
+          "lines",
+          "amount",
+          "ordered",
+          "in_store",
+          "issued"
+        ],
+        "title": "RequisitionOut",
+        "type": "object"
+      },
+      "StatusCountsOut": {
+        "properties": {
+          "draft": {
+            "title": "Draft",
+            "type": "integer"
+          },
+          "sent": {
+            "title": "Sent",
+            "type": "integer"
+          },
+          "ordered": {
+            "title": "Ordered",
+            "type": "integer"
+          },
+          "received": {
+            "title": "Received",
+            "type": "integer"
+          },
+          "reserved": {
+            "title": "Reserved",
+            "type": "integer"
+          },
+          "issued": {
+            "title": "Issued",
+            "type": "integer"
+          },
+          "late": {
+            "title": "Late",
+            "type": "integer"
+          },
+          "active_amount": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Active Amount",
+            "type": "string"
+          }
+        },
+        "required": [
+          "draft",
+          "sent",
+          "ordered",
+          "received",
+          "reserved",
+          "issued",
+          "late",
+          "active_amount"
+        ],
+        "title": "StatusCountsOut",
+        "type": "object"
+      },
+      "SupplyAbilitiesOut": {
+        "properties": {
+          "can_request": {
+            "title": "Can Request",
+            "type": "boolean"
+          },
+          "can_order": {
+            "title": "Can Order",
+            "type": "boolean"
+          },
+          "can_store": {
+            "title": "Can Store",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "can_request",
+          "can_order",
+          "can_store"
+        ],
+        "title": "SupplyAbilitiesOut",
+        "type": "object"
+      },
+      "SupplyDashboardOut": {
+        "properties": {
+          "counts": {
+            "$ref": "#/components/schemas/StatusCountsOut"
+          },
+          "requisitions": {
+            "items": {
+              "$ref": "#/components/schemas/RequisitionOut"
+            },
+            "title": "Requisitions",
+            "type": "array"
+          },
+          "abilities": {
+            "$ref": "#/components/schemas/SupplyAbilitiesOut"
+          }
+        },
+        "required": [
+          "counts",
+          "requisitions",
+          "abilities"
+        ],
+        "title": "SupplyDashboardOut",
+        "type": "object"
+      },
+      "SupplyOrderOptionOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label"
+        ],
+        "title": "SupplyOrderOptionOut",
+        "type": "object"
+      },
+      "LineCategory": {
+        "enum": [
+          "material",
+          "tool",
+          "fixture",
+          "consumable"
+        ],
+        "title": "LineCategory",
+        "type": "string"
+      },
+      "LineFilters": {
+        "description": "Реестр строк (`prF` прототипа). `status`: код статуса, `active` — всё, кроме\nвыданного в цех, `store` — на складе, пусто — все.",
+        "properties": {
+          "status": {
+            "default": "active",
+            "title": "Status",
+            "type": "string"
+          },
+          "order_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Id"
+          },
+          "warehouse_only": {
+            "default": false,
+            "title": "Warehouse Only",
+            "type": "boolean"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LineKind"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "category": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LineCategory"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "late_only": {
+            "default": false,
+            "title": "Late Only",
+            "type": "boolean"
+          },
+          "requisition_no": {
+            "default": "",
+            "title": "Requisition No",
+            "type": "string"
+          },
+          "search": {
+            "default": "",
+            "title": "Search",
+            "type": "string"
+          }
+        },
+        "title": "LineFilters",
+        "type": "object"
+      },
+      "LineKind": {
+        "enum": [
+          "mat",
+          "tool"
+        ],
+        "title": "LineKind",
+        "type": "string"
+      },
+      "LineAbilitiesOut": {
+        "description": "Действия над строкой, доступные текущему пользователю в её статусе.",
+        "properties": {
+          "can_edit": {
+            "title": "Can Edit",
+            "type": "boolean"
+          },
+          "can_send": {
+            "title": "Can Send",
+            "type": "boolean"
+          },
+          "can_order": {
+            "title": "Can Order",
+            "type": "boolean"
+          },
+          "can_change_eta": {
+            "title": "Can Change Eta",
+            "type": "boolean"
+          },
+          "can_receive": {
+            "title": "Can Receive",
+            "type": "boolean"
+          },
+          "can_reserve": {
+            "title": "Can Reserve",
+            "type": "boolean"
+          },
+          "can_issue": {
+            "title": "Can Issue",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "can_edit",
+          "can_send",
+          "can_order",
+          "can_change_eta",
+          "can_receive",
+          "can_reserve",
+          "can_issue"
+        ],
+        "title": "LineAbilitiesOut",
+        "type": "object"
+      },
+      "LineOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "order_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Id"
+          },
+          "order_number": {
+            "title": "Order Number",
+            "type": "string"
+          },
+          "customer_name": {
+            "title": "Customer Name",
+            "type": "string"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "operation_name": {
+            "title": "Operation Name",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/LineKind"
+          },
+          "category": {
+            "$ref": "#/components/schemas/LineCategory"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "quantity": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Quantity",
+            "type": "string"
+          },
+          "unit": {
+            "title": "Unit",
+            "type": "string"
+          },
+          "price": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Price",
+            "type": "string"
+          },
+          "amount": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Amount",
+            "type": "string"
+          },
+          "need_date": {
+            "format": "date",
+            "title": "Need Date",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/LineStatus"
+          },
+          "requisition_no": {
+            "title": "Requisition No",
+            "type": "string"
+          },
+          "supplier_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supplier Id"
+          },
+          "supplier_name": {
+            "title": "Supplier Name",
+            "type": "string"
+          },
+          "po_number": {
+            "title": "Po Number",
+            "type": "string"
+          },
+          "eta": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eta"
+          },
+          "received_at": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Received At"
+          },
+          "received_qty": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Received Qty"
+          },
+          "storage_place": {
+            "title": "Storage Place",
+            "type": "string"
+          },
+          "issued_at": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issued At"
+          },
+          "issued_to_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issued To Id"
+          },
+          "issued_to_name": {
+            "title": "Issued To Name",
+            "type": "string"
+          },
+          "created_by_name": {
+            "title": "Created By Name",
+            "type": "string"
+          },
+          "late_days": {
+            "title": "Late Days",
+            "type": "integer"
+          },
+          "abilities": {
+            "$ref": "#/components/schemas/LineAbilitiesOut"
+          }
+        },
+        "required": [
+          "id",
+          "order_id",
+          "order_number",
+          "customer_name",
+          "operation_id",
+          "operation_name",
+          "kind",
+          "category",
+          "name",
+          "quantity",
+          "unit",
+          "price",
+          "amount",
+          "need_date",
+          "status",
+          "requisition_no",
+          "supplier_id",
+          "supplier_name",
+          "po_number",
+          "eta",
+          "received_at",
+          "received_qty",
+          "storage_place",
+          "issued_at",
+          "issued_to_id",
+          "issued_to_name",
+          "created_by_name",
+          "late_days",
+          "abilities"
+        ],
+        "title": "LineOut",
+        "type": "object"
+      },
+      "LineStatus": {
+        "enum": [
+          "draft",
+          "sent",
+          "ordered",
+          "received",
+          "reserved",
+          "issued"
+        ],
+        "title": "LineStatus",
+        "type": "string"
+      },
+      "SentOut": {
+        "properties": {
+          "requisition_no": {
+            "title": "Requisition No",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requisition_no"
+        ],
+        "title": "SentOut",
+        "type": "object"
+      },
+      "LineIdsIn": {
+        "properties": {
+          "line_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Line Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "line_ids"
+        ],
+        "title": "LineIdsIn",
+        "type": "object"
+      },
+      "OrderedOut": {
+        "properties": {
+          "po_number": {
+            "title": "Po Number",
+            "type": "string"
+          }
+        },
+        "required": [
+          "po_number"
+        ],
+        "title": "OrderedOut",
+        "type": "object"
+      },
+      "OrderLinesIn": {
+        "properties": {
+          "line_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Line Ids",
+            "type": "array"
+          },
+          "supplier_id": {
+            "format": "uuid",
+            "title": "Supplier Id",
+            "type": "string"
+          },
+          "eta": {
+            "format": "date",
+            "title": "Eta",
+            "type": "string"
+          },
+          "po_number": {
+            "default": "",
+            "title": "Po Number",
+            "type": "string"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          }
+        },
+        "required": [
+          "line_ids",
+          "supplier_id",
+          "eta"
+        ],
+        "title": "OrderLinesIn",
+        "type": "object"
+      },
+      "DoneOut": {
+        "description": "Сколько строк затронуло действие. Тело вместо 204: клиент API разбирает JSON\nпо заголовку ответа, а пустой 204 с `application/json` он разобрать не может.",
+        "properties": {
+          "lines": {
+            "title": "Lines",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "lines"
+        ],
+        "title": "DoneOut",
+        "type": "object"
+      },
+      "EtaIn": {
+        "properties": {
+          "line_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Line Ids",
+            "type": "array"
+          },
+          "eta": {
+            "format": "date",
+            "title": "Eta",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "line_ids",
+          "eta",
+          "reason"
+        ],
+        "title": "EtaIn",
+        "type": "object"
+      },
+      "ReceiveIn": {
+        "properties": {
+          "line_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Line Ids",
+            "type": "array"
+          },
+          "received_at": {
+            "format": "date",
+            "title": "Received At",
+            "type": "string"
+          },
+          "storage_place": {
+            "default": "",
+            "title": "Storage Place",
+            "type": "string"
+          },
+          "received_qty": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Received Qty"
+          },
+          "nonconforming": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "default": "0",
+            "title": "Nonconforming"
+          },
+          "remark": {
+            "default": "",
+            "title": "Remark",
+            "type": "string"
+          }
+        },
+        "required": [
+          "line_ids",
+          "received_at"
+        ],
+        "title": "ReceiveIn",
+        "type": "object"
+      },
+      "ReserveIn": {
+        "properties": {
+          "line_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Line Ids",
+            "type": "array"
+          },
+          "storage_place": {
+            "default": "",
+            "title": "Storage Place",
+            "type": "string"
+          }
+        },
+        "required": [
+          "line_ids"
+        ],
+        "title": "ReserveIn",
+        "type": "object"
+      },
+      "IssueIn": {
+        "properties": {
+          "line_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Line Ids",
+            "type": "array"
+          },
+          "issued_at": {
+            "format": "date",
+            "title": "Issued At",
+            "type": "string"
+          },
+          "issued_to_id": {
+            "format": "uuid",
+            "title": "Issued To Id",
+            "type": "string"
+          },
+          "work_center_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Work Center Id"
+          }
+        },
+        "required": [
+          "line_ids",
+          "issued_at",
+          "issued_to_id"
+        ],
+        "title": "IssueIn",
+        "type": "object"
+      },
+      "HistoryEntryOut": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "author_name": {
+            "title": "Author Name",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "created_at",
+          "author_name",
+          "text"
+        ],
+        "title": "HistoryEntryOut",
+        "type": "object"
+      },
+      "LineDetailOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "order_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Id"
+          },
+          "order_number": {
+            "title": "Order Number",
+            "type": "string"
+          },
+          "customer_name": {
+            "title": "Customer Name",
+            "type": "string"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "operation_name": {
+            "title": "Operation Name",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/LineKind"
+          },
+          "category": {
+            "$ref": "#/components/schemas/LineCategory"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "quantity": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Quantity",
+            "type": "string"
+          },
+          "unit": {
+            "title": "Unit",
+            "type": "string"
+          },
+          "price": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Price",
+            "type": "string"
+          },
+          "amount": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Amount",
+            "type": "string"
+          },
+          "need_date": {
+            "format": "date",
+            "title": "Need Date",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/LineStatus"
+          },
+          "requisition_no": {
+            "title": "Requisition No",
+            "type": "string"
+          },
+          "supplier_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supplier Id"
+          },
+          "supplier_name": {
+            "title": "Supplier Name",
+            "type": "string"
+          },
+          "po_number": {
+            "title": "Po Number",
+            "type": "string"
+          },
+          "eta": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eta"
+          },
+          "received_at": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Received At"
+          },
+          "received_qty": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Received Qty"
+          },
+          "storage_place": {
+            "title": "Storage Place",
+            "type": "string"
+          },
+          "issued_at": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issued At"
+          },
+          "issued_to_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issued To Id"
+          },
+          "issued_to_name": {
+            "title": "Issued To Name",
+            "type": "string"
+          },
+          "created_by_name": {
+            "title": "Created By Name",
+            "type": "string"
+          },
+          "late_days": {
+            "title": "Late Days",
+            "type": "integer"
+          },
+          "abilities": {
+            "$ref": "#/components/schemas/LineAbilitiesOut"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/HistoryEntryOut"
+            },
+            "title": "History",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "order_id",
+          "order_number",
+          "customer_name",
+          "operation_id",
+          "operation_name",
+          "kind",
+          "category",
+          "name",
+          "quantity",
+          "unit",
+          "price",
+          "amount",
+          "need_date",
+          "status",
+          "requisition_no",
+          "supplier_id",
+          "supplier_name",
+          "po_number",
+          "eta",
+          "received_at",
+          "received_qty",
+          "storage_place",
+          "issued_at",
+          "issued_to_id",
+          "issued_to_name",
+          "created_by_name",
+          "late_days",
+          "abilities",
+          "history"
+        ],
+        "title": "LineDetailOut",
+        "type": "object"
+      },
+      "LineIn": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/LineKind"
+          },
+          "category": {
+            "$ref": "#/components/schemas/LineCategory"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "unit": {
+            "default": "шт",
+            "title": "Unit",
+            "type": "string"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "default": "0",
+            "title": "Price"
+          },
+          "need_date": {
+            "format": "date",
+            "title": "Need Date",
+            "type": "string"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          }
+        },
+        "required": [
+          "kind",
+          "category",
+          "name",
+          "quantity",
+          "need_date"
+        ],
+        "title": "LineIn",
+        "type": "object"
+      },
+      "OrderLinesFilters": {
+        "properties": {
+          "kind": {
+            "allOf": [
+              {
+                "enum": [
+                  "mat",
+                  "tool"
+                ],
+                "title": "LineKind",
+                "type": "string"
+              }
+            ],
+            "default": "mat"
+          }
+        },
+        "title": "OrderLinesFilters",
+        "type": "object"
+      },
+      "OrderLinesOut": {
+        "description": "Вкладка «Материалы» / «Оснастка и расходники» заказа (`prTab` прототипа).",
+        "properties": {
+          "order_id": {
+            "format": "uuid",
+            "title": "Order Id",
+            "type": "string"
+          },
+          "order_number": {
+            "title": "Order Number",
+            "type": "string"
+          },
+          "order_open": {
+            "title": "Order Open",
+            "type": "boolean"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/LineKind"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/LineOut"
+            },
+            "title": "Lines",
+            "type": "array"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/StatusCountsOut"
+          },
+          "requisitions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Requisitions",
+            "type": "array"
+          },
+          "operations": {
+            "items": {
+              "$ref": "#/components/schemas/SupplyOperationOptionOut"
+            },
+            "title": "Operations",
+            "type": "array"
+          },
+          "abilities": {
+            "$ref": "#/components/schemas/SupplyAbilitiesOut"
+          }
+        },
+        "required": [
+          "order_id",
+          "order_number",
+          "order_open",
+          "kind",
+          "lines",
+          "counts",
+          "requisitions",
+          "operations",
+          "abilities"
+        ],
+        "title": "OrderLinesOut",
+        "type": "object"
+      },
+      "SupplyOperationOptionOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label"
+        ],
+        "title": "SupplyOperationOptionOut",
+        "type": "object"
+      },
+      "LineCreatedOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "title": "LineCreatedOut",
+        "type": "object"
+      },
+      "FilledOut": {
+        "properties": {
+          "added": {
+            "title": "Added",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "added"
+        ],
+        "title": "FilledOut",
+        "type": "object"
+      },
+      "RequisitionIn": {
+        "properties": {
+          "order_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Id"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/LineIn"
+            },
+            "title": "Lines",
+            "type": "array"
+          }
+        },
+        "required": [
+          "lines"
+        ],
+        "title": "RequisitionIn",
+        "type": "object"
+      },
       "TimeCodeOut": {
         "properties": {
           "id": {
@@ -12472,7 +15814,7 @@
         "title": "TimesheetWorkerOut",
         "type": "object"
       },
-      "OrderOptionOut": {
+      "TimesheetOrderOptionOut": {
         "properties": {
           "order_id": {
             "format": "uuid",
@@ -12488,10 +15830,10 @@
           "order_id",
           "label"
         ],
-        "title": "OrderOptionOut",
+        "title": "TimesheetOrderOptionOut",
         "type": "object"
       },
-      "OperationOptionOut": {
+      "TimesheetOperationOptionOut": {
         "properties": {
           "operation_id": {
             "format": "uuid",
@@ -12513,7 +15855,7 @@
           "label",
           "work_center_id"
         ],
-        "title": "OperationOptionOut",
+        "title": "TimesheetOperationOptionOut",
         "type": "object"
       },
       "CheckOut": {

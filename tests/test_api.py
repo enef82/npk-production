@@ -130,3 +130,30 @@ def test_курсорная_пагинация_не_теряет_и_не_дуб�
     seen_initial = [item_id for item_id in collected if item_id in initial_ids]
     assert len(seen_initial) == len(initial_ids)
     assert len(seen_initial) == len(set(seen_initial))
+
+
+def test_имена_pydantic_схем_уникальны_во_всём_api() -> None:
+    """django-ninja кладёт схемы в `components.schemas` OpenAPI по имени класса: две
+    одноимённые схемы разных модулей молча затирают одна другую, и сгенерированный
+    TS-клиент типизирует ответ одного модуля схемой другого. Случалось трижды при
+    сборке приложения (sales/production, quality/equipment, supply/timesheet)."""
+
+    import importlib
+    import inspect
+    import pkgutil
+
+    from ninja import Schema
+
+    import src
+
+    owners: dict[str, set[str]] = {}
+    for module in pkgutil.walk_packages(src.__path__, prefix="src."):
+        if not module.name.endswith(".api.schemas"):
+            continue
+        loaded = importlib.import_module(module.name)
+        for name, obj in inspect.getmembers(loaded, inspect.isclass):
+            if issubclass(obj, Schema) and obj.__module__ == loaded.__name__:
+                owners.setdefault(name, set()).add(module.name)
+
+    duplicates = {name: mods for name, mods in owners.items() if len(mods) > 1}
+    assert not duplicates, duplicates

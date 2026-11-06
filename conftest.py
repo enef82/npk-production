@@ -35,6 +35,7 @@ MODULE_SEED_MIGRATIONS: tuple[tuple[str, str], ...] = (
     ("src.timesheet.migrations.0003_seed_repair_locked_notification", ""),
     ("src.equipment.migrations.0003_seed_reference_lists", "equipment.IdleReason"),
     ("src.energy.migrations.0002_seed_energy_resources", "energy.EnergyResource"),
+    ("src.quality.migrations.0002_seed_defect_causes", "quality.DefectCause"),
 )
 
 

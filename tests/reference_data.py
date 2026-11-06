@@ -21,6 +21,18 @@ CORE_NUMERATORS: tuple[tuple[str, str, str, str], ...] = (
         NumeratorResetPeriod.YEARLY,
     ),
     ("sales.inquiry", "Заявка на просчёт", "З-{seq:04d}", NumeratorResetPeriod.NEVER),
+    (
+        "supply.requisition",
+        "Заявка на закупку",
+        "ЗЗ-{year}-{seq:04d}",
+        NumeratorResetPeriod.YEARLY,
+    ),
+    (
+        "supply.purchase_order",
+        "Заказ поставщику",
+        "ЗП-{year}-{seq:04d}",
+        NumeratorResetPeriod.YEARLY,
+    ),
 )
 
 # (code, name) — виды документов заказа, см. `production.migrations.0005_seed_document_types`.

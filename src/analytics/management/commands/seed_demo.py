@@ -43,7 +43,9 @@ from src.core.org.models import PositionCategory
 from src.energy import facade as energy
 from src.equipment import facade as equipment
 from src.production import facade as production
+from src.quality import facade as quality
 from src.sales import facade as sales
+from src.supply import facade as supply
 from src.timesheet import facade as timesheet
 
 DEMO_PASSWORD = "demo12345"  # только для локальной разработки, под DEBUG=True
@@ -220,6 +222,8 @@ MODULE_SEEDS: tuple[tuple[str, Callable[[], object]], ...] = (
     ("production", production.seed_demo),
     ("sales", sales.seed_demo),
     ("timesheet", _seed_timesheet),
+    ("quality", quality.seed_demo),
+    ("supply", supply.seed_demo),
     ("equipment", lambda: equipment.seed_demo(_work_center_ids())),
     ("energy", energy.seed_demo),
 )
