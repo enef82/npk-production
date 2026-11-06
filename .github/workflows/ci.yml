@@ -1,0 +1,213 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  # К1 чек-листа (docs/checklist-prod-perehod.md): пустая подстановка `{$VAR}` в
+  # Caddyfile — не пустая строка, а отсутствующий аргумент директивы, синтаксическая
+  # ошибка самого Caddy. Дважды пойманы на боевом сервере (`tls`, `email`), ни разу
+  # локально — там переменные всегда были заданы. Проверка здесь, а не только
+  # в докладке перед выкаткой: результат виден при каждом push, не только когда
+  # кто-то вспомнил прогнать вручную.
+  caddy-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: caddy adapt при всех необязательных переменных пустыми
+        run: |
+          # SITE_ADDRESS — не тот случай: обязательная, на бою никогда не пуста,
+          # без значения ломается сам заголовок адреса блока, а не то, что
+          # проверяет этот шаг. Заглушка нужна только ей, остальные — не заданы.
+          docker run --rm -e SITE_ADDRESS=example.com \
+            -v "$PWD/Caddyfile:/etc/caddyfile:ro" \
+            caddy:2.11.4-alpine caddy adapt --config /etc/caddyfile --adapter caddyfile
+
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_DB: npk_prod
+          POSTGRES_USER: npk_prod
+          POSTGRES_PASSWORD: npk_prod
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U npk_prod"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DJANGO_SETTINGS_MODULE: config.settings.local
+      SECRET_KEY: ci-secret-key
+      DEBUG: "False"
+      ALLOWED_HOSTS: localhost,127.0.0.1
+      DATABASE_URL: psql://npk_prod:npk_prod@localhost:5432/npk_prod
+      REDIS_URL: redis://localhost:6379/0
+      # core.documents: MinIO и Gotenberg — реальные сервисы, не моки (см. docker-compose.yml,
+      # docs/adr/0008-docxtpl-i-gotenberg-dlya-generatsii-dokumentov.md). GH Actions services:
+      # не умеет задавать command для minio (нужен `server /data`), поэтому оба подняты ниже
+      # через docker compose — тот же файл, что и для локальной разработки, а не отдельное
+      # определение специально для CI.
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin
+      AWS_STORAGE_BUCKET_NAME: npk-prod
+      AWS_S3_ENDPOINT_URL: http://localhost:9000
+      AWS_S3_REGION_NAME: ru-central1
+      DOCUMENTS_URL_TTL_SECONDS: "900"
+      GOTENBERG_URL: http://localhost:3000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.13"
+
+      - run: uv sync --locked
+
+      # Node нужен `make lint` → `make api-diff`: перегенерировать TS-клиент и упасть,
+      # если он разошёлся с роутерами (openapi.json под контролем версий, см. .gitignore).
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+        working-directory: frontend
+
+      - run: make lint
+
+      - run: uv run python manage.py makemigrations --check --dry-run
+
+      - run: uv run python manage.py migrate
+
+      - name: Поднять MinIO, создать бакет, поднять Gotenberg
+        run: |
+          docker compose up -d --wait minio
+          docker compose up minio-init
+          docker compose up -d --wait gotenberg
+
+      - run: make test
+
+  e2e:
+    # Playwright — отдельный job, не хвост lint-and-test: один красный шаг не должен
+    # глушить остальной прогон, и e2e идёт параллельно (docs/roadmap-faza-1.md, шаг 9а).
+    # MinIO нужен с шага 10а: вложения заявки загружаются в объектное хранилище и
+    # отдаются по подписанной ссылке. Gotenberg — с шага 17: e2e теперь генерирует КП
+    # (DOCX → PDF), не только читает уже загруженные файлы.
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_DB: npk_prod
+          POSTGRES_USER: npk_prod
+          POSTGRES_PASSWORD: npk_prod
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U npk_prod"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DJANGO_SETTINGS_MODULE: config.settings.local
+      SECRET_KEY: ci-secret-key
+      # seed / seed_demo отказываются работать при DEBUG=False — это дев-данные.
+      DEBUG: "True"
+      ALLOWED_HOSTS: localhost,127.0.0.1
+      DATABASE_URL: psql://npk_prod:npk_prod@localhost:5432/npk_prod
+      REDIS_URL: redis://localhost:6379/0
+      BACKEND_ORIGIN: http://localhost:8000
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin
+      AWS_STORAGE_BUCKET_NAME: npk-prod
+      AWS_S3_ENDPOINT_URL: http://localhost:9000
+      AWS_S3_REGION_NAME: ru-central1
+      DOCUMENTS_URL_TTL_SECONDS: "900"
+      GOTENBERG_URL: http://localhost:3000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.13"
+
+      - run: uv sync --locked
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+        working-directory: frontend
+
+      - name: Поднять MinIO, создать бакет, поднять Gotenberg
+        run: |
+          docker compose up -d --wait minio
+          docker compose up minio-init
+          docker compose up -d --wait gotenberg
+
+      - run: uv run python manage.py migrate
+
+      - name: Демо-данные для экранов
+        run: |
+          uv run python manage.py seed
+          uv run python manage.py seed_demo
+
+      - name: Запустить Django
+        run: |
+          uv run python manage.py runserver 127.0.0.1:8000 --noreload &
+          for i in $(seq 1 60); do
+            curl -sf http://127.0.0.1:8000/api/v1/accounts/csrf >/dev/null && exit 0
+            sleep 1
+          done
+          echo "Django не поднялся за 60 с" && exit 1
+
+      - name: Установить браузер Playwright
+        run: npx playwright install --with-deps chromium
+        working-directory: frontend
+
+      - name: Playwright
+        run: npm run test:e2e
+        working-directory: frontend
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-artifacts
+          path: |
+            frontend/test-results
+            frontend/playwright-report
+          retention-days: 7

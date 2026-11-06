@@ -1,0 +1,201 @@
+# Прод-контур (docs/adr/0029-prod-kontur.md, docs/adr/0030-publikatsiya-v-internet.md).
+# Отдельный файл — docker-compose.yml в корне остаётся dev/CI-стеком, не трогается.
+#
+# Наружу публикует порты только caddy (80/443). PostgreSQL, Redis, MinIO, Gotenberg —
+# только во внутренней docker-сети. Проверяется командой из отчёта:
+#   docker compose -f docker-compose.prod.yml ps
+# — построчно должно быть видно, что кроме caddy никто порт не публикует.
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      # Каталог хоста, не именованный том (docs/adr/0029-prod-kontur.md, п. 2) —
+      # `df -h`/`du -sh` без docker volume inspect, `rsync`/`tar` поверх логического
+      # бэкапа при необходимости.
+      - /opt/npk-prod/data/postgres:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    image: quay.io/minio/minio:RELEASE.2025-04-22T22-12-26Z
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID}
+      MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY}
+    volumes:
+      - /opt/npk-prod/data/minio:/data
+    # Ни 9000 (S3 API), ни 9001 (консоль) не публикуются наружу — только caddy
+    # выходит из docker-сети (ADR 0029 п.1, ADR 0030 компенсирующая мера C6).
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  minio-init:
+    image: quay.io/minio/mc:RELEASE.2025-04-16T18-13-26Z
+    entrypoint: >
+      sh -c "
+      mc alias set local http://minio:9000 ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} &&
+      mc mb --ignore-existing local/${AWS_STORAGE_BUCKET_NAME:-npk-prod}
+      "
+    depends_on:
+      minio:
+        condition: service_healthy
+
+  gotenberg:
+    image: gotenberg/gotenberg:8.36.0
+    restart: unless-stopped
+    # Без auth (как и в dev-стеке) — допустимо только пока недоступен извне, это
+    # условие, а не свойство (docs/prompt-prod-kontur-2.md, C6). Порт не публикуется.
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Одноразовый сервис: миграции + сбор статики до старта web (ADR 0029 п. 3) —
+  # `web` не поднимется, пока этот контейнер не завершится успешно, гонка двух
+  # воркеров на миграциях исключена самим механизмом зависимости.
+  migrate:
+    build: .
+    command: sh -c "python manage.py migrate && python manage.py collectstatic --noinput"
+    env_file: .env
+    restart: "no"
+    volumes:
+      - static_files:/app/staticfiles
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build: .
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 4
+    env_file: .env
+    restart: unless-stopped
+    volumes:
+      - static_files:/app/staticfiles
+    healthcheck:
+      # /healthz, не /api/docs (ADR 0029 п. 4) — не обращается к БД, здоровье
+      # PostgreSQL проверяет его собственный healthcheck выше. X-Forwarded-Proto
+      # передаётся явно: без него SECURE_SSL_REDIRECT считает запрос обычным HTTP
+      # (Caddy в этой проверке не участвует, заголовок некому подставить) и шлёт
+      # редирект на https://localhost:8000 — а gunicorn изнутри TLS не знает вовсе,
+      # редирект превращается в зависший SSL-хендшейк на обычном HTTP-порту.
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen(urllib.request.Request('http://localhost:8000/healthz', headers={'X-Forwarded-Proto': 'https'}))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+      gotenberg:
+        condition: service_healthy
+
+  worker:
+    build: .
+    command: celery -A config worker -l info
+    env_file: .env
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+      gotenberg:
+        condition: service_healthy
+
+  beat:
+    build: .
+    command: celery -A config beat -l info
+    env_file: .env
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    environment:
+      # Внутреннее docker-имя: без hairpin NAT на маршрутизаторе (docs/vds-obkatka.md)
+      # сам сервер не может дойти до себя по публичному имени — Next.js проксирует
+      # /api/* на `web`, не на ee3.kt96.ru, даже находясь на той же машине.
+      BACKEND_ORIGIN: http://web:8000
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3001/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      web:
+        condition: service_healthy
+
+  caddy:
+    image: caddy:2.11.4-alpine
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # Диагностика 18.09 (docs/prompt-acme-diagnostika.md, шаг 2): ACME-сессия
+      # виснет не на конкретном шаге (виснуло то на chall, то на finalize —
+      # место случайно), а из-за самого долгоживущего HTTP/2-соединения, которым
+      # Go-клиент ведёт всю сессию. GODEBUG=http2client=0 переводит ACME-клиент
+      # на HTTP/1.1, который переоткрывает соединение по мере надобности вместо
+      # одного мультиплексированного — снимает причину, а не подстраивается под
+      # удачный тайминг. Относится только к исходящему ACME-клиенту Caddy —
+      # входящий трафик (HTTP/1.1, HTTP/2, HTTP/3 к посетителям сайта) не задет.
+      GODEBUG: http2client=0
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddyfile:ro
+      # Пуст в репозитории и на сервере — Caddyfile импортирует его по глобу,
+      # пустой/несуществующий каталог даёт предупреждение, а не ошибку. Положить
+      # сюда `tls.conf` с `tls internal` — только для локальной проверки контура
+      # (часть D задания), см. .env.prod.example.
+      - ./docker/caddy/tls-local.d:/etc/tls-local.d:ro
+      - static_files:/srv/static:ro
+      # Тома сертификатов — обязательно персистентные: без этого каждый `up` заново
+      # запрашивает сертификат у Let's Encrypt и жжёт недельный лимит выдачи на имя.
+      - caddy_data:/data
+      - caddy_config:/config
+    command: caddy run --config /etc/caddyfile --adapter caddyfile
+    depends_on:
+      web:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+
+volumes:
+  static_files:
+  caddy_data:
+  caddy_config:

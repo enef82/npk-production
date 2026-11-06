@@ -1,0 +1,179 @@
+[project]
+name = "npk-production"
+version = "0.1.0"
+description = "Корпоративная информационная система инжиниринговой компании"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "django==5.2.17",
+    "django-ninja==1.6.3",
+    "psycopg[binary]==3.3.4",
+    "celery==5.6.3",
+    "redis==8.1.0",
+    "django-environ==0.14.0",
+    "uuid6==2025.0.1",
+    "jsonschema==4.26.0",
+    "rules==3.5",
+    "django-storages[s3]==1.14.6",
+    "docxtpl==0.20.2",
+    "httpx==0.28.1",
+    "django-fsm-2==4.2.4",
+    "django-pghistory==3.9.2",
+    "django-unfold==0.104.1",
+    "openpyxl==3.1.5",
+    "gunicorn==26.2.0",
+    "django-axes==8.3.1",
+    "django-ipware==7.0.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest==9.1.1",
+    "pytest-django==4.14.0",
+    "pytest-cov==7.1.0",
+    "factory-boy==3.3.3",
+    "ruff==0.16.3",
+    "mypy==1.19.1",
+    "django-stubs==5.2.9",
+    "types-jsonschema==4.26.0.20260518",
+    "import-linter==2.13",
+    "django-extensions==4.1",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+extend-exclude = ["migrations", "*.md"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "DJ", "C4", "SIM"]
+ignore = []
+
+[tool.ruff.lint.isort]
+known-first-party = ["config", "src"]
+
+[tool.ruff.lint.flake8-bugbear]
+# django-ninja: File(...)/Form(...) как значение по умолчанию — это API фреймворка
+# (аналог fastapi.Depends), а не забытый вызов функции.
+extend-immutable-calls = ["ninja.File", "ninja.Form", "ninja.Query"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+plugins = ["mypy_django_plugin.main"]
+exclude = ["migrations"]
+
+[[tool.mypy.overrides]]
+module = "*.migrations.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = [
+    "celery.*",
+    "environ.*",
+    "openpyxl.*",
+    "uuid6.*",
+    "storages.*",
+    "docxtpl.*",
+    "django_fsm.*",
+    "pghistory.*",
+    "pgtrigger.*",
+    "unfold.*",
+    "boto3.*",
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# django-unfold не поставляет py.typed — ModelAdmin/TabularInline/формы типизируются
+# как Any, из-за чего strict-режим (disallow_subclassing_any) ругается на обычное
+# наследование `class FooAdmin(unfold.admin.ModelAdmin)`. Ослабляем точечно только для
+# admin-модулей, которые от unfold наследуются, а не для всего проекта.
+module = [
+    "src.core.*.admin",
+    "src.core.audit.admin",
+    "src.sales.admin",
+    "src.production.admin",
+    "src.quality.admin",
+    "src.supply.admin",
+    "src.timesheet.admin",
+    "src.equipment.admin",
+    "src.energy.admin",
+    "src.analytics.admin",
+]
+disallow_subclassing_any = false
+
+[[tool.mypy.overrides]]
+# factory-boy поставляет py.typed, но без __all__/явных реэкспортов и без аннотаций
+# на часть публичного API (Sequence, SubFactory, __call__ метакласса, инстанцирование
+# фабрики) — strict-режим на это ругается независимо от типизации нашего кода.
+# Ослабляем только для tests/*, а не для прикладного кода (services/selectors/facade
+# по-прежнему проверяются строго). Два паттерна, не один: "*.tests.*" ловит вложенные
+# `src.<module>.tests.*`, но не ловит корневой пакет `tests` — там нет точки перед
+# "tests", fnmatch её требует буквально. Без "tests.*" `make lint` не проверял
+# `tests/` вообще (не входил в `mypy config src`) и вдобавок не ослаблял тут строгость,
+# так что оба недостатка складывались в тихий провал в покрытии, а не в ошибку.
+module = ["*.tests.*", "tests.*"]
+disallow_untyped_calls = false
+implicit_reexport = true
+
+[[tool.mypy.overrides]]
+module = "factory.*"
+implicit_reexport = true
+
+[[tool.mypy.overrides]]
+# django-rules не поставляет py.typed с явными реэкспортами (rules.predicate живёт
+# в подмодуле, __init__.py не объявляет __all__) — strict/implicit_reexport ругается
+# на `import rules; rules.predicate`, а сам `predicate` — untyped-декоратор, что
+# strict тоже запрещает. Ослабляем точечно только для модуля, где предикаты
+# объявляются, а не для всего проекта.
+module = "rules"
+implicit_reexport = true
+
+[[tool.mypy.overrides]]
+module = "src.core.accounts.rules"
+disallow_untyped_decorators = false
+
+[[tool.mypy.overrides]]
+module = "src.core.documents.rules"
+disallow_untyped_decorators = false
+
+[[tool.mypy.overrides]]
+module = "src.core.identity.rules"
+disallow_untyped_decorators = false
+
+[[tool.mypy.overrides]]
+module = ["src.sales.rules", "src.production.rules", "src.quality.rules", "src.supply.rules", "src.timesheet.rules", "src.equipment.rules", "src.energy.rules", "src.analytics.rules"]
+disallow_untyped_decorators = false
+
+[[tool.mypy.overrides]]
+# django-ninja: File/Form/Query — экспортированные ParamShortcut-инстансы, а не generic-классы;
+# strict disallow_any_generics ругается на их бареuse в качестве значения по умолчанию,
+# хотя рантайм-семантика верна (аналог fastapi.Depends).
+module = "src.core.documents.api.routers"
+disallow_any_generics = false
+
+[[tool.mypy.overrides]]
+module = "src.core.identity.api.routers"
+disallow_any_generics = false
+
+[[tool.mypy.overrides]]
+module = ["src.sales.api.routers", "src.production.api.routers", "src.quality.api.routers", "src.supply.api.routers", "src.timesheet.api.routers", "src.equipment.api.routers", "src.energy.api.routers", "src.analytics.api.routers"]
+disallow_any_generics = false
+
+[tool.django-stubs]
+django_settings_module = "config.settings.local"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.local"
+python_files = ["test_*.py"]
+testpaths = ["tests", "src"]
+addopts = "--reuse-db"
+filterwarnings = [
+    "error",
+    "ignore:.*_after_postgeneration.*:DeprecationWarning",
+]
+markers = [
+    "integration: реальный внешний сервис (не мок) — Gotenberg и т.п.; требует docker compose up",
+]

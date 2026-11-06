@@ -1,0 +1,1340 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "НПК Производство API",
+    "version": "1.0.0",
+    "description": ""
+  },
+  "paths": {
+    "/api/v1/accounts/csrf": {
+      "get": {
+        "operationId": "getCsrf",
+        "summary": "Get Csrf",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "boolean"
+                  },
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "accounts"
+        ]
+      }
+    },
+    "/api/v1/accounts/login": {
+      "post": {
+        "operationId": "login",
+        "summary": "Login View",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "accounts"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/accounts/logout": {
+      "post": {
+        "operationId": "logout",
+        "summary": "Logout View",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "boolean"
+                  },
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "accounts"
+        ]
+      }
+    },
+    "/api/v1/accounts/me": {
+      "get": {
+        "operationId": "getMe",
+        "summary": "Me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "accounts"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/documents/upload": {
+      "post": {
+        "operationId": "src_core_documents_api_routers_upload",
+        "summary": "Upload",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "documents"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "file": {
+                    "format": "binary",
+                    "title": "File",
+                    "type": "string"
+                  },
+                  "doc_type_code": {
+                    "title": "Doc Type Code",
+                    "type": "string"
+                  },
+                  "entity_type": {
+                    "default": "",
+                    "title": "Entity Type",
+                    "type": "string"
+                  },
+                  "entity_id": {
+                    "anyOf": [
+                      {
+                        "format": "uuid",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "title": "Entity Id"
+                  },
+                  "role": {
+                    "default": "",
+                    "title": "Role",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "file",
+                  "doc_type_code"
+                ],
+                "title": "MultiPartBodyParams",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/documents/{document_id}/link": {
+      "get": {
+        "operationId": "src_core_documents_api_routers_get_link",
+        "summary": "Get Link",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownloadLinkOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "documents"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/documents/{document_id}/download": {
+      "get": {
+        "operationId": "src_core_documents_api_routers_download",
+        "summary": "Download",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "disposition",
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Disposition"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "description": "Отдаёт содержимое документа потоком (docs/adr/0029-prod-kontur.md, п. 1) —\nправо проверяется здесь, на каждый запрос байтов, а не только на выдачу `/link`.\n`disposition` — `\"inline\"`/`\"attachment\"`, тот же смысл, что и у параметра\n`get_download_url`; без него — тот же `inline` (умолчание `FileResponse`), но\nс настоящим именем файла (`original_name`), а не именем ключа в хранилище.",
+        "tags": [
+          "documents"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/documents/entity/{entity_type}/{entity_id}": {
+      "get": {
+        "operationId": "src_core_documents_api_routers_list_for_entity",
+        "summary": "List For Entity",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "entity_type",
+            "schema": {
+              "title": "Entity Type",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "entity_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Entity Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "documents"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/identity/parties": {
+      "get": {
+        "operationId": "listParties",
+        "summary": "List Parties",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/PartyStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "party_type",
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/PartyType"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "default": 20,
+              "title": "Page Size",
+              "type": "integer"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "ordering",
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ordering"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "with_total",
+            "schema": {
+              "default": false,
+              "title": "With Total",
+              "type": "boolean"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CursorPage_PartyListItem_"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "identity"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "createParty",
+        "summary": "Create Party View",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartyOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "identity"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartyIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/identity/parties/check-duplicates": {
+      "get": {
+        "operationId": "checkPartyDuplicates",
+        "summary": "Check Party Duplicates",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "inn",
+            "schema": {
+              "default": "",
+              "title": "Inn",
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "default": "",
+              "title": "Name",
+              "type": "string"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DuplicateMatchOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "identity"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/identity/parties/{party_id}": {
+      "get": {
+        "operationId": "getParty",
+        "summary": "Get Party",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "party_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Party Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartyOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "identity"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/identity/parties/{party_id}/profiles": {
+      "get": {
+        "operationId": "getPartyProfiles",
+        "summary": "Get Party Profiles",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "party_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Party Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/PartyProfileOut"
+                  },
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "identity"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/identity/items": {
+      "get": {
+        "operationId": "listItems",
+        "summary": "List Items",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "item_type",
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/ItemType"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/ItemStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "default": 20,
+              "title": "Page Size",
+              "type": "integer"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "ordering",
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ordering"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "with_total",
+            "schema": {
+              "default": false,
+              "title": "With Total",
+              "type": "boolean"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CursorPage_ItemListItem_"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "identity"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MeOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "is_superuser": {
+            "title": "Is Superuser",
+            "type": "boolean"
+          },
+          "roles": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Roles",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "display_name",
+          "is_superuser",
+          "roles"
+        ],
+        "title": "MeOut",
+        "type": "object"
+      },
+      "LoginIn": {
+        "properties": {
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "password": {
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "LoginIn",
+        "type": "object"
+      },
+      "DocumentOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "original_name": {
+            "title": "Original Name",
+            "type": "string"
+          },
+          "size_bytes": {
+            "title": "Size Bytes",
+            "type": "integer"
+          },
+          "mime_type": {
+            "title": "Mime Type",
+            "type": "string"
+          },
+          "checksum": {
+            "title": "Checksum",
+            "type": "string"
+          },
+          "doc_type_id": {
+            "format": "uuid",
+            "title": "Doc Type Id",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "uploaded_by": {
+            "format": "uuid",
+            "title": "Uploaded By",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "original_name",
+          "size_bytes",
+          "mime_type",
+          "checksum",
+          "doc_type_id",
+          "version",
+          "uploaded_by",
+          "created_at"
+        ],
+        "title": "DocumentOut",
+        "type": "object"
+      },
+      "DownloadLinkOut": {
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url",
+          "expires_at"
+        ],
+        "title": "DownloadLinkOut",
+        "type": "object"
+      },
+      "PartyFilters": {
+        "properties": {
+          "search": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Search"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartyStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "party_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartyType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "PartyFilters",
+        "type": "object"
+      },
+      "PartyStatus": {
+        "enum": [
+          "draft",
+          "active",
+          "blocked",
+          "archived"
+        ],
+        "title": "PartyStatus",
+        "type": "string"
+      },
+      "PartyType": {
+        "enum": [
+          "legal",
+          "entrepre",
+          "person",
+          "foreign"
+        ],
+        "title": "PartyType",
+        "type": "string"
+      },
+      "CursorPage_PartyListItem_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PartyListItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total"
+          },
+          "total_cap": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Cap"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "CursorPage[PartyListItem]",
+        "type": "object"
+      },
+      "PartyListItem": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "short_name": {
+            "title": "Short Name",
+            "type": "string"
+          },
+          "inn": {
+            "title": "Inn",
+            "type": "string"
+          },
+          "party_type": {
+            "$ref": "#/components/schemas/PartyType"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PartyStatus"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "short_name",
+          "inn",
+          "party_type",
+          "status",
+          "created_at"
+        ],
+        "title": "PartyListItem",
+        "type": "object"
+      },
+      "PartyOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "short_name": {
+            "title": "Short Name",
+            "type": "string"
+          },
+          "inn": {
+            "title": "Inn",
+            "type": "string"
+          },
+          "party_type": {
+            "$ref": "#/components/schemas/PartyType"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PartyStatus"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "legal_name": {
+            "title": "Legal Name",
+            "type": "string"
+          },
+          "kpp": {
+            "title": "Kpp",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "short_name",
+          "inn",
+          "party_type",
+          "status",
+          "created_at",
+          "legal_name",
+          "kpp",
+          "updated_at"
+        ],
+        "title": "PartyOut",
+        "type": "object"
+      },
+      "PartyIn": {
+        "properties": {
+          "short_name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Short Name",
+            "type": "string"
+          },
+          "legal_name": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Legal Name",
+            "type": "string"
+          },
+          "inn": {
+            "default": "",
+            "maxLength": 12,
+            "title": "Inn",
+            "type": "string"
+          },
+          "kpp": {
+            "default": "",
+            "maxLength": 9,
+            "title": "Kpp",
+            "type": "string"
+          },
+          "party_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartyType"
+              }
+            ],
+            "default": "legal"
+          },
+          "force": {
+            "default": false,
+            "title": "Force",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "short_name",
+          "legal_name"
+        ],
+        "title": "PartyIn",
+        "type": "object"
+      },
+      "DuplicateMatchOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "inn": {
+            "title": "Inn",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "inn",
+          "score",
+          "reason"
+        ],
+        "title": "DuplicateMatchOut",
+        "type": "object"
+      },
+      "PartyProfileOut": {
+        "properties": {
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "attributes": {
+            "additionalProperties": true,
+            "title": "Attributes",
+            "type": "object"
+          }
+        },
+        "required": [
+          "title",
+          "attributes"
+        ],
+        "title": "PartyProfileOut",
+        "type": "object"
+      },
+      "ItemFilters": {
+        "properties": {
+          "search": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Search"
+          },
+          "item_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ItemType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ItemStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "ItemFilters",
+        "type": "object"
+      },
+      "ItemStatus": {
+        "enum": [
+          "draft",
+          "active",
+          "archived"
+        ],
+        "title": "ItemStatus",
+        "type": "string"
+      },
+      "ItemType": {
+        "enum": [
+          "product",
+          "material",
+          "service"
+        ],
+        "title": "ItemType",
+        "type": "string"
+      },
+      "CursorPage_ItemListItem_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ItemListItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total"
+          },
+          "total_cap": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Cap"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "CursorPage[ItemListItem]",
+        "type": "object"
+      },
+      "ItemListItem": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "item_type": {
+            "$ref": "#/components/schemas/ItemType"
+          },
+          "base_uom": {
+            "title": "Base Uom",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ItemStatus"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "item_type",
+          "base_uom",
+          "status",
+          "created_at"
+        ],
+        "title": "ItemListItem",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "SessionAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "sessionid"
+      }
+    }
+  },
+  "servers": []
+}

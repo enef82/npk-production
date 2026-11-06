@@ -1,0 +1,144 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-npk_prod}
+      POSTGRES_USER: ${POSTGRES_USER:-npk_prod}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-npk_prod}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-npk_prod}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    # quay.io, не Docker Hub: MinIO больше не раздаёт `minio/minio` на Docker Hub
+    # анонимно (лицензионная политика, 2025) — `docker pull minio/minio:latest`
+    # падает `pull access denied`. Тег зафиксирован (не `:latest`) по той же причине,
+    # что и у остальных образов этого файла.
+    image: quay.io/minio/minio:RELEASE.2025-04-22T22-12-26Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY:-minioadmin}
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Разовая инициализация: создаёт приватный бакет, если его ещё нет, и выходит.
+  # Приватность бакета никак не настраивается отдельно — `mc mb` не делает бакет публичным,
+  # это и есть состояние по умолчанию, которое проверяет
+  # test_прямой_публичный_доступ_к_бакету_закрыт.
+  minio-init:
+    image: quay.io/minio/mc:RELEASE.2025-04-16T18-13-26Z
+    entrypoint: >
+      sh -c "
+      mc alias set local http://minio:9000 ${AWS_ACCESS_KEY_ID:-minioadmin} ${AWS_SECRET_ACCESS_KEY:-minioadmin} &&
+      mc mb --ignore-existing local/${AWS_STORAGE_BUCKET_NAME:-npk-prod}
+      "
+    depends_on:
+      minio:
+        condition: service_healthy
+
+  # DOCX→PDF для core.documents (docs/adr/0008-docxtpl-i-gotenberg-dlya-generatsii-dokumentov.md).
+  # Без auth по умолчанию. Порт публикуется здесь только потому, что этот docker-compose.yml —
+  # локальная разработка и CI, а pytest (uv run, на хосте) обращается к Gotenberg напрямую
+  # в интеграционном тесте (pytest.mark.integration). В проде этого файла нет: Gotenberg там
+  # виден только web/worker по внутренней сети, наружу так и не публикуется.
+  gotenberg:
+    image: gotenberg/gotenberg:8.36.0
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    env_file: .env
+    environment:
+      DATABASE_URL: psql://${POSTGRES_USER:-npk_prod}:${POSTGRES_PASSWORD:-npk_prod}@postgres:5432/${POSTGRES_DB:-npk_prod}
+      REDIS_URL: redis://redis:6379/0
+      AWS_S3_ENDPOINT_URL: http://minio:9000
+      GOTENBERG_URL: http://gotenberg:3000
+    volumes:
+      - .:/app
+      - /app/.venv
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+      gotenberg:
+        condition: service_healthy
+
+  worker:
+    build: .
+    command: celery -A config worker -l info
+    env_file: .env
+    environment:
+      DATABASE_URL: psql://${POSTGRES_USER:-npk_prod}:${POSTGRES_PASSWORD:-npk_prod}@postgres:5432/${POSTGRES_DB:-npk_prod}
+      REDIS_URL: redis://redis:6379/0
+      AWS_S3_ENDPOINT_URL: http://minio:9000
+      GOTENBERG_URL: http://gotenberg:3000
+    volumes:
+      - .:/app
+      - /app/.venv
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+      gotenberg:
+        condition: service_healthy
+
+  beat:
+    build: .
+    command: celery -A config beat -l info
+    env_file: .env
+    environment:
+      DATABASE_URL: psql://${POSTGRES_USER:-npk_prod}:${POSTGRES_PASSWORD:-npk_prod}@postgres:5432/${POSTGRES_DB:-npk_prod}
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - .:/app
+      - /app/.venv
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  minio_data:

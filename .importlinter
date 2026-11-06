@@ -1,0 +1,171 @@
+[importlinter]
+root_packages =
+    config
+    src
+
+[importlinter:contract:core-independence]
+name = core не импортирует функциональные модули
+type = forbidden
+source_modules =
+    src.core
+forbidden_modules =
+    src.sales
+    src.production
+    src.quality
+    src.supply
+    src.timesheet
+    src.equipment
+    src.energy
+    src.analytics
+
+# Фасадные контракты — про прямой импорт: чужой модуль обращается к `facade.py`, а сам
+# фасад импортирует свои `selectors`/`services` (как в ИС, ADR 0031 ИС, решение 10).
+[importlinter:contract:facade-sales]
+name = Только facade.py даёт доступ к src.sales
+type = forbidden
+source_modules =
+    src.production
+    src.quality
+    src.supply
+    src.timesheet
+    src.equipment
+    src.energy
+    src.analytics
+forbidden_modules =
+    src.sales.models
+    src.sales.services
+    src.sales.selectors
+allow_indirect_imports = True
+
+[importlinter:contract:facade-production]
+name = Только facade.py даёт доступ к src.production
+type = forbidden
+source_modules =
+    src.sales
+    src.quality
+    src.supply
+    src.timesheet
+    src.equipment
+    src.energy
+    src.analytics
+forbidden_modules =
+    src.production.models
+    src.production.services
+    src.production.selectors
+allow_indirect_imports = True
+
+[importlinter:contract:facade-quality]
+name = Только facade.py даёт доступ к src.quality
+type = forbidden
+source_modules =
+    src.sales
+    src.production
+    src.supply
+    src.timesheet
+    src.equipment
+    src.energy
+    src.analytics
+forbidden_modules =
+    src.quality.models
+    src.quality.services
+    src.quality.selectors
+allow_indirect_imports = True
+
+[importlinter:contract:facade-supply]
+name = Только facade.py даёт доступ к src.supply
+type = forbidden
+source_modules =
+    src.sales
+    src.production
+    src.quality
+    src.timesheet
+    src.equipment
+    src.energy
+    src.analytics
+forbidden_modules =
+    src.supply.models
+    src.supply.services
+    src.supply.selectors
+allow_indirect_imports = True
+
+[importlinter:contract:facade-timesheet]
+name = Только facade.py даёт доступ к src.timesheet
+type = forbidden
+source_modules =
+    src.sales
+    src.production
+    src.quality
+    src.supply
+    src.equipment
+    src.energy
+    src.analytics
+forbidden_modules =
+    src.timesheet.models
+    src.timesheet.services
+    src.timesheet.selectors
+allow_indirect_imports = True
+
+[importlinter:contract:facade-equipment]
+name = Только facade.py даёт доступ к src.equipment
+type = forbidden
+source_modules =
+    src.sales
+    src.production
+    src.quality
+    src.supply
+    src.timesheet
+    src.energy
+    src.analytics
+forbidden_modules =
+    src.equipment.models
+    src.equipment.services
+    src.equipment.selectors
+allow_indirect_imports = True
+
+[importlinter:contract:facade-energy]
+name = Только facade.py даёт доступ к src.energy
+type = forbidden
+source_modules =
+    src.sales
+    src.production
+    src.quality
+    src.supply
+    src.timesheet
+    src.equipment
+    src.analytics
+forbidden_modules =
+    src.energy.models
+    src.energy.services
+    src.energy.selectors
+allow_indirect_imports = True
+
+[importlinter:contract:facade-analytics]
+name = Только facade.py даёт доступ к src.analytics
+type = forbidden
+source_modules =
+    src.sales
+    src.production
+    src.quality
+    src.supply
+    src.timesheet
+    src.equipment
+    src.energy
+forbidden_modules =
+    src.analytics.models
+    src.analytics.services
+    src.analytics.selectors
+allow_indirect_imports = True
+
+[importlinter:contract:core-layers]
+name = Слои внутри ядра
+type = layers
+layers =
+    src.core.notifications
+    src.core.documents
+    src.core.numbering
+    src.core.accounts
+    src.core.org
+    src.core.identity
+    src.core.events
+    src.core.common
+    src.core.audit

@@ -1,0 +1,49 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+.venv/
+.env
+.env.prod
+
+db.sqlite3
+staticfiles/
+media/
+
+# openapi.json НЕ игнорируется: он под контролем версий и сверяется в `make lint`
+# (`make api-diff`) — иначе TS-клиент во frontend/lib/api незаметно отстаёт от бэкенда.
+
+celerybeat-schedule*
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.import_linter_cache/
+htmlcov/
+.coverage
+
+.vscode/
+.idea/
+
+err.txt
+err2.txt
+
+.claude/settings.local.json
+
+# учётные данные сервера — никогда не коммитятся
+server.md
+
+# локальная проверка HTTPS-контура (часть D задания) — tls internal только на
+# машине разработчика, никогда на сервере (docker-compose.prod.yml, caddy)
+docker/caddy/tls-local.d/*.conf
+
+# frontend/ (Next.js)
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/next-env.d.ts
+frontend/*.tsbuildinfo
+frontend/.env*.local
+frontend/playwright-report/
+frontend/test-results/
+frontend/blob-report/

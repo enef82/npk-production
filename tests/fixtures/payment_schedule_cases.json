@@ -1,0 +1,83 @@
+{
+  "_doc": "Общий набор случаев арифметики графика платежей (шаг 18, docs/adr/0024). Прогоняется питоновским тестом src/crm/tests/test_payment_schedule_vectors.py (против crm.calculations) и TS-тестом frontend/tests/e2e/payment-schedule-math.spec.ts (против @/lib/quotation/payment-schedule). Правишь формулу в одной из реализаций — добавляй/правишь случай здесь. lines: массив {share_percent | amount} (ровно одно не null), порядок = позиция в массиве.",
+  "cases": [
+    {
+      "name": "чистые проценты 30/30/40 от суммы с нечётной копейкой — сходится, остаток в последней",
+      "subtotal": "1000000.01",
+      "lines": [
+        {"share_percent": "30", "amount": null},
+        {"share_percent": "30", "amount": null},
+        {"share_percent": "40", "amount": null}
+      ],
+      "expected_discrepancy": "0",
+      "expected_amounts": ["300000.00", "300000.00", "400000.01"]
+    },
+    {
+      "name": "30/70 от круглой суммы",
+      "subtotal": "2000000.00",
+      "lines": [
+        {"share_percent": "30", "amount": null},
+        {"share_percent": "70", "amount": null}
+      ],
+      "expected_discrepancy": "0",
+      "expected_amounts": ["600000.00", "1400000.00"]
+    },
+    {
+      "name": "недобор 10 % → расхождение −100 000",
+      "subtotal": "1000000.00",
+      "lines": [
+        {"share_percent": "30", "amount": null},
+        {"share_percent": "60", "amount": null}
+      ],
+      "expected_discrepancy": "-100000.00",
+      "expected_amounts": ["300000.00", "700000.00"]
+    },
+    {
+      "name": "смешанный: аванс суммой + остаток процентом",
+      "subtotal": "2000000.00",
+      "lines": [
+        {"share_percent": null, "amount": "500000"},
+        {"share_percent": "75", "amount": null}
+      ],
+      "expected_discrepancy": "0",
+      "expected_amounts": ["500000.00", "1500000.00"]
+    },
+    {
+      "name": "одна строка 100 %",
+      "subtotal": "777777.77",
+      "lines": [
+        {"share_percent": "100", "amount": null}
+      ],
+      "expected_discrepancy": "0",
+      "expected_amounts": ["777777.77"]
+    },
+    {
+      "name": "33.33/33.33/33.34 → строки складываются в итог ровно",
+      "subtotal": "1000000.00",
+      "lines": [
+        {"share_percent": "33.33", "amount": null},
+        {"share_percent": "33.33", "amount": null},
+        {"share_percent": "33.34", "amount": null}
+      ],
+      "expected_discrepancy": "0",
+      "expected_amounts": ["333300.00", "333300.00", "333400.00"]
+    },
+    {
+      "name": "дробный процент, округление цены до копейки",
+      "subtotal": "1234567.89",
+      "lines": [
+        {"share_percent": "12.5", "amount": null},
+        {"share_percent": "87.5", "amount": null}
+      ],
+      "expected_discrepancy": "0",
+      "expected_amounts": ["154320.99", "1080246.90"]
+    },
+    {
+      "name": "пустой график",
+      "subtotal": "500000.00",
+      "lines": [],
+      "expected_discrepancy": "0",
+      "expected_amounts": []
+    }
+  ]
+}
