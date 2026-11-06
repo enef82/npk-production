@@ -13,9 +13,11 @@ from src.sales import selectors
 from src.sales.services import demo as demo_services
 
 __all__ = [
+    "CalcMaterialBrief",
     "InquiryBrief",
     "OpenInquiry",
     "PlanOperationBrief",
+    "get_calc_materials",
     "get_inquiries_brief",
     "list_open_inquiries",
     "seed_demo",
@@ -48,6 +50,13 @@ class PlanOperationBrief:
     is_supply: bool
     planned_start: date | None
     planned_finish: date | None
+
+
+@dataclass(frozen=True)
+class CalcMaterialBrief:
+    name: str
+    quantity: Decimal
+    price: Decimal
 
 
 @dataclass(frozen=True)
@@ -101,6 +110,18 @@ def list_open_inquiries() -> list[OpenInquiry]:
             ],
         )
         for item in selectors.list_inquiries_with_plan(open_only=True)
+    ]
+
+
+def get_calc_materials(inquiry_id: UUID) -> list[CalcMaterialBrief]:
+    """Материалы калькуляции заявки в порядке калькуляции — потребность `supply` при
+    запуске заказа. Нет заявки — пустой список."""
+
+    detail = selectors.get_inquiry_detail(inquiry_id)
+    if detail is None:
+        return []
+    return [
+        CalcMaterialBrief(name=m.name, quantity=m.quantity, price=m.price) for m in detail.materials
     ]
 
 
