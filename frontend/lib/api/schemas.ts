@@ -6389,6 +6389,48 @@ export const ListTimesheetDepartmentsResponse = zod.array(ListTimesheetDepartmen
 
 
 /**
+ * Работники с профилем табеля — подписи сотрудников на экранах (исполнители
+ * ремонтов и т. п.): остальные модули хранят только `employee_id`.
+ * @summary List Workers
+ */
+export const ListTimesheetWorkersResponseItem = zod.object({
+  "employee_id": zod.uuid(),
+  "full_name": zod.string(),
+  "personnel_no": zod.string(),
+  "department_id": zod.uuid(),
+  "department_name": zod.string(),
+  "work_center_id": zod.union([zod.uuid(),zod.null()])
+})
+export const ListTimesheetWorkersResponse = zod.array(ListTimesheetWorkersResponseItem)
+
+
+/**
+ * Заказы в работе — объект разноски в диалоге дня.
+ * @summary List Orders
+ */
+export const ListTimesheetOrdersResponseItem = zod.object({
+  "order_id": zod.uuid(),
+  "label": zod.string()
+})
+export const ListTimesheetOrdersResponse = zod.array(ListTimesheetOrdersResponseItem)
+
+
+/**
+ * @summary List Order Operations
+ */
+export const ListTimesheetOrderOperationsParams = zod.object({
+  "order_id": zod.uuid()
+})
+
+export const ListTimesheetOrderOperationsResponseItem = zod.object({
+  "operation_id": zod.uuid(),
+  "label": zod.string(),
+  "work_center_id": zod.uuid()
+})
+export const ListTimesheetOrderOperationsResponse = zod.array(ListTimesheetOrderOperationsResponseItem)
+
+
+/**
  * @summary Get Grid
  */
 export const GetTimesheetGridParams = zod.object({
@@ -6453,6 +6495,7 @@ export const GetTimesheetGridResponse = zod.object({
   "objects": zod.array(zod.object({
   "target": zod.string(),
   "order_id": zod.union([zod.uuid(),zod.null()]),
+  "order_label": zod.string(),
   "days": zod.array(zod.object({
   "date": zod.iso.date(),
   "hours": zod.string().regex(getTimesheetGridResponseRowsItemObjectsItemDaysItemHoursRegExp)
@@ -6476,6 +6519,7 @@ export const GetTimesheetGridResponse = zod.object({
   "by_object": zod.array(zod.object({
   "target": zod.string(),
   "order_id": zod.union([zod.uuid(),zod.null()]),
+  "order_label": zod.string(),
   "analytics": zod.string(),
   "hours": zod.string().regex(getTimesheetGridResponseByObjectItemHoursRegExp)
 }))
@@ -6517,6 +6561,7 @@ export const GetTimesheetReviewResponse = zod.object({
   "manager_name": zod.string(),
   "orders": zod.array(zod.object({
   "order_id": zod.uuid(),
+  "order_label": zod.string(),
   "hours": zod.string().regex(getTimesheetReviewResponseManagersItemOrdersItemHoursRegExp)
 })),
   "confirmed": zod.boolean(),
@@ -6805,7 +6850,9 @@ export const GetTimesheetDayResponse = zod.object({
   "is_work": zod.boolean(),
   "target": zod.string(),
   "order_id": zod.union([zod.uuid(),zod.null()]),
+  "order_label": zod.string(),
   "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_label": zod.string(),
   "hours": zod.string().regex(getTimesheetDayResponseRowsItemHoursRegExp),
   "source": zod.enum(['manual', 'plan', 'repair']),
   "source_ref": zod.string()
@@ -6863,7 +6910,9 @@ export const SaveTimesheetDayResponse = zod.object({
   "is_work": zod.boolean(),
   "target": zod.string(),
   "order_id": zod.union([zod.uuid(),zod.null()]),
+  "order_label": zod.string(),
   "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_label": zod.string(),
   "hours": zod.string().regex(saveTimesheetDayResponseRowsItemHoursRegExp),
   "source": zod.enum(['manual', 'plan', 'repair']),
   "source_ref": zod.string()
@@ -6907,7 +6956,9 @@ export const FillTimesheetDayFromPlanResponse = zod.object({
   "is_work": zod.boolean(),
   "target": zod.string(),
   "order_id": zod.union([zod.uuid(),zod.null()]),
+  "order_label": zod.string(),
   "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_label": zod.string(),
   "hours": zod.string().regex(fillTimesheetDayFromPlanResponseRowsItemHoursRegExp),
   "source": zod.enum(['manual', 'plan', 'repair']),
   "source_ref": zod.string()
@@ -6950,7 +7001,9 @@ export const CreateAllocationResponse = zod.object({
   "is_work": zod.boolean(),
   "target": zod.string(),
   "order_id": zod.union([zod.uuid(),zod.null()]),
+  "order_label": zod.string(),
   "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_label": zod.string(),
   "hours": zod.string().regex(createAllocationResponseHoursRegExp),
   "source": zod.enum(['manual', 'plan', 'repair']),
   "source_ref": zod.string()
@@ -6987,7 +7040,9 @@ export const UpdateAllocationResponse = zod.object({
   "is_work": zod.boolean(),
   "target": zod.string(),
   "order_id": zod.union([zod.uuid(),zod.null()]),
+  "order_label": zod.string(),
   "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_label": zod.string(),
   "hours": zod.string().regex(updateAllocationResponseHoursRegExp),
   "source": zod.enum(['manual', 'plan', 'repair']),
   "source_ref": zod.string()

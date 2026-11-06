@@ -1457,6 +1457,26 @@ export interface DepartmentPeriodOut {
   status: PeriodStatus;
 }
 
+export interface TimesheetWorkerOut {
+  employee_id: string;
+  full_name: string;
+  personnel_no: string;
+  department_id: string;
+  department_name: string;
+  work_center_id: string | null;
+}
+
+export interface OrderOptionOut {
+  order_id: string;
+  label: string;
+}
+
+export interface OperationOptionOut {
+  operation_id: string;
+  label: string;
+  work_center_id: string;
+}
+
 export interface CheckOut {
   is_blocking: boolean;
   text: string;
@@ -1496,6 +1516,7 @@ export interface GridDayOut {
 export interface ObjectLineOut {
   target: string;
   order_id: string | null;
+  order_label: string;
   days: DayHoursOut[];
   /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
   total: string;
@@ -1540,6 +1561,7 @@ export interface PeriodOut {
 export interface ObjectTotalOut {
   target: string;
   order_id: string | null;
+  order_label: string;
   analytics: string;
   /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
   hours: string;
@@ -1562,6 +1584,7 @@ export interface MonthGridOut {
 
 export interface ManagerOrderHoursOut {
   order_id: string;
+  order_label: string;
   /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
   hours: string;
 }
@@ -1637,7 +1660,9 @@ export interface AllocationOut {
   is_work: boolean;
   target: string;
   order_id: string | null;
+  order_label: string;
   operation_id: string | null;
+  operation_label: string;
   /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
   hours: string;
   source: AllocationSource;
@@ -10600,6 +10625,312 @@ export function useListTimesheetDepartments<TData = Awaited<ReturnType<typeof li
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getListTimesheetDepartmentsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListTimesheetWorkersUrl = () => {
+
+
+
+
+  return `/api/v1/timesheet/workers`
+}
+
+/**
+ * Работники с профилем табеля — подписи сотрудников на экранах (исполнители
+ * ремонтов и т. п.): остальные модули хранят только `employee_id`.
+ * @summary List Workers
+ */
+export const listTimesheetWorkers = async ( options?: Parameters<typeof customFetch>[1]): Promise<TimesheetWorkerOut[]> => {
+
+  return customFetch<TimesheetWorkerOut[]>(getListTimesheetWorkersUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListTimesheetWorkersQueryKey = () => {
+    return [
+    `/api/v1/timesheet/workers`
+    ] as const;
+    }
+
+
+export const getListTimesheetWorkersQueryOptions = <TData = Awaited<ReturnType<typeof listTimesheetWorkers>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimesheetWorkers>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListTimesheetWorkersQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listTimesheetWorkers>>> = ({ signal }) => listTimesheetWorkers({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listTimesheetWorkers>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListTimesheetWorkersQueryResult = NonNullable<Awaited<ReturnType<typeof listTimesheetWorkers>>>
+export type ListTimesheetWorkersQueryError = unknown
+
+
+export function useListTimesheetWorkers<TData = Awaited<ReturnType<typeof listTimesheetWorkers>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimesheetWorkers>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listTimesheetWorkers>>,
+          TError,
+          Awaited<ReturnType<typeof listTimesheetWorkers>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListTimesheetWorkers<TData = Awaited<ReturnType<typeof listTimesheetWorkers>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimesheetWorkers>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listTimesheetWorkers>>,
+          TError,
+          Awaited<ReturnType<typeof listTimesheetWorkers>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListTimesheetWorkers<TData = Awaited<ReturnType<typeof listTimesheetWorkers>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimesheetWorkers>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List Workers
+ */
+
+export function useListTimesheetWorkers<TData = Awaited<ReturnType<typeof listTimesheetWorkers>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimesheetWorkers>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListTimesheetWorkersQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListTimesheetOrdersUrl = () => {
+
+
+
+
+  return `/api/v1/timesheet/orders`
+}
+
+/**
+ * Заказы в работе — объект разноски в диалоге дня.
+ * @summary List Orders
+ */
+export const listTimesheetOrders = async ( options?: Parameters<typeof customFetch>[1]): Promise<OrderOptionOut[]> => {
+
+  return customFetch<OrderOptionOut[]>(getListTimesheetOrdersUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListTimesheetOrdersQueryKey = () => {
+    return [
+    `/api/v1/timesheet/orders`
+    ] as const;
+    }
+
+
+export const getListTimesheetOrdersQueryOptions = <TData = Awaited<ReturnType<typeof listTimesheetOrders>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimesheetOrders>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListTimesheetOrdersQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listTimesheetOrders>>> = ({ signal }) => listTimesheetOrders({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listTimesheetOrders>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListTimesheetOrdersQueryResult = NonNullable<Awaited<ReturnType<typeof listTimesheetOrders>>>
+export type ListTimesheetOrdersQueryError = unknown
+
+
+export function useListTimesheetOrders<TData = Awaited<ReturnType<typeof listTimesheetOrders>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimesheetOrders>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listTimesheetOrders>>,
+          TError,
+          Awaited<ReturnType<typeof listTimesheetOrders>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListTimesheetOrders<TData = Awaited<ReturnType<typeof listTimesheetOrders>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimesheetOrders>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listTimesheetOrders>>,
+          TError,
+          Awaited<ReturnType<typeof listTimesheetOrders>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListTimesheetOrders<TData = Awaited<ReturnType<typeof listTimesheetOrders>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimesheetOrders>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List Orders
+ */
+
+export function useListTimesheetOrders<TData = Awaited<ReturnType<typeof listTimesheetOrders>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimesheetOrders>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListTimesheetOrdersQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListTimesheetOrderOperationsUrl = (orderId: string,) => {
+
+
+
+
+  return `/api/v1/timesheet/orders/${orderId}/operations`
+}
+
+/**
+ * @summary List Order Operations
+ */
+export const listTimesheetOrderOperations = async (orderId: string, options?: Parameters<typeof customFetch>[1]): Promise<OperationOptionOut[]> => {
+
+  return customFetch<OperationOptionOut[]>(getListTimesheetOrderOperationsUrl(orderId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListTimesheetOrderOperationsQueryKey = (orderId: string,) => {
+    return [
+    `/api/v1/timesheet/orders/${orderId}/operations`
+    ] as const;
+    }
+
+
+export const getListTimesheetOrderOperationsQueryOptions = <TData = Awaited<ReturnType<typeof listTimesheetOrderOperations>>, TError = unknown>(orderId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimesheetOrderOperations>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListTimesheetOrderOperationsQueryKey(orderId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listTimesheetOrderOperations>>> = ({ signal }) => listTimesheetOrderOperations(orderId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: orderId !== null && orderId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listTimesheetOrderOperations>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListTimesheetOrderOperationsQueryResult = NonNullable<Awaited<ReturnType<typeof listTimesheetOrderOperations>>>
+export type ListTimesheetOrderOperationsQueryError = unknown
+
+
+export function useListTimesheetOrderOperations<TData = Awaited<ReturnType<typeof listTimesheetOrderOperations>>, TError = unknown>(
+ orderId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimesheetOrderOperations>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listTimesheetOrderOperations>>,
+          TError,
+          Awaited<ReturnType<typeof listTimesheetOrderOperations>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListTimesheetOrderOperations<TData = Awaited<ReturnType<typeof listTimesheetOrderOperations>>, TError = unknown>(
+ orderId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimesheetOrderOperations>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listTimesheetOrderOperations>>,
+          TError,
+          Awaited<ReturnType<typeof listTimesheetOrderOperations>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListTimesheetOrderOperations<TData = Awaited<ReturnType<typeof listTimesheetOrderOperations>>, TError = unknown>(
+ orderId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimesheetOrderOperations>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List Order Operations
+ */
+
+export function useListTimesheetOrderOperations<TData = Awaited<ReturnType<typeof listTimesheetOrderOperations>>, TError = unknown>(
+ orderId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimesheetOrderOperations>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListTimesheetOrderOperationsQueryOptions(orderId,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

@@ -63,6 +63,8 @@ from .schemas import (
     MonthGridOut,
     ObjectLineOut,
     ObjectTotalOut,
+    OperationOptionOut,
+    OrderOptionOut,
     PeriodAbilitiesOut,
     PeriodEventOut,
     PeriodOut,
@@ -70,6 +72,7 @@ from .schemas import (
     PlannedOpOut,
     ReasonIn,
     TimeCodeOut,
+    TimesheetWorkerOut,
 )
 
 router = Router(tags=["timesheet"])
@@ -205,15 +208,59 @@ def list_departments(request: HttpRequest, month: date) -> list[DepartmentPeriod
     ]
 
 
+@router.get("/workers", response=list[TimesheetWorkerOut], operation_id="listTimesheetWorkers")
+def list_workers(request: HttpRequest) -> list[TimesheetWorkerOut]:
+    """Работники с профилем табеля — подписи сотрудников на экранах (исполнители
+    ремонтов и т. п.): остальные модули хранят только `employee_id`."""
+
+    return [
+        TimesheetWorkerOut(
+            employee_id=p.employee_id,
+            full_name=p.employee.full_name,
+            personnel_no=p.employee.personnel_number,
+            department_id=p.employee.department_id,
+            department_name=p.employee.department.name,
+            work_center_id=p.work_center_id,
+        )
+        for p in selectors.list_worker_profiles().order_by("employee__full_name")
+    ]
+
+
+@router.get("/orders", response=list[OrderOptionOut], operation_id="listTimesheetOrders")
+def list_orders(request: HttpRequest) -> list[OrderOptionOut]:
+    """Заказы в работе — объект разноски в диалоге дня."""
+
+    return [
+        OrderOptionOut(order_id=order_id, label=label)
+        for order_id, label in production_link.order_options()
+    ]
+
+
+@router.get(
+    "/orders/{order_id}/operations",
+    response=list[OperationOptionOut],
+    operation_id="listTimesheetOrderOperations",
+)
+def list_order_operations(request: HttpRequest, order_id: UUID) -> list[OperationOptionOut]:
+    return [
+        OperationOptionOut(operation_id=op_id, label=label, work_center_id=work_center_id)
+        for op_id, label, work_center_id in production_link.operation_options(order_id)
+    ]
+
+
 # --- Сетка и согласование ---------------------------------------------------------------
 
 
 @router.get(f"{PERIOD}/grid", response=MonthGridOut, operation_id="getTimesheetGrid")
 def get_grid(request: AuthenticatedHttpRequest, department_id: UUID, month: date) -> MonthGridOut:
     month = _month(month)
-    grid = selectors.month_grid(department_id, month, timezone.localdate())
+    order_ids = selectors.department_order_hours(department_id, month)
+    grid = selectors.month_grid(
+        department_id, month, timezone.localdate(), production_link.order_numbers(order_ids)
+    )
     if grid is None:
         raise Http404
+    labels = production_link.order_labels(order_ids)
     return MonthGridOut(
         period=_period_out(
             request.auth, department_id, month, any(c.is_blocking for c in grid.checks)
@@ -247,6 +294,7 @@ def get_grid(request: AuthenticatedHttpRequest, department_id: UUID, month: date
                     ObjectLineOut(
                         target=o.target,
                         order_id=o.order_id,
+                        order_label=labels.get(o.order_id, "") if o.order_id else "",
                         days=[
                             DayHoursOut(date=d, hours=h) for d, h in sorted(o.hours_by_day.items())
                         ],
@@ -267,7 +315,11 @@ def get_grid(request: AuthenticatedHttpRequest, department_id: UUID, month: date
         by_code=[CodeTotalOut(code=c.code, name=c.name, hours=c.hours) for c in grid.by_code],
         by_object=[
             ObjectTotalOut(
-                target=o.target, order_id=o.order_id, analytics=o.analytics, hours=o.hours
+                target=o.target,
+                order_id=o.order_id,
+                order_label=labels.get(o.order_id, "") if o.order_id else "",
+                analytics=o.analytics,
+                hours=o.hours,
             )
             for o in grid.by_object
         ],
@@ -286,6 +338,9 @@ def get_review(
     names = {b.id: b.full_name for b in org.list_active_employees()} if managers else {}
     me = current_employee_id(request.auth)
     events = selectors.list_period_events(state.id) if state.id is not None else []
+    labels = production_link.order_labels(
+        {order_id for orders in managers.values() for order_id in orders}
+    )
     return PeriodReviewOut(
         period=_period_out(request.auth, department_id, month),
         managers=[
@@ -293,7 +348,9 @@ def get_review(
                 manager_id=manager_id,
                 manager_name=names.get(manager_id, ""),
                 orders=[
-                    ManagerOrderHoursOut(order_id=order_id, hours=hours)
+                    ManagerOrderHoursOut(
+                        order_id=order_id, order_label=labels.get(order_id, ""), hours=hours
+                    )
                     for order_id, hours in orders.items()
                 ],
                 confirmed=manager_id in confirmed,
@@ -463,7 +520,9 @@ def download_package(
 # --- Разноска дня ----------------------------------------------------------------------
 
 
-def _allocation_out(a: WorkAllocation) -> AllocationOut:
+def _allocation_out(
+    a: WorkAllocation, order_labels: dict[UUID, str], operation_labels: dict[UUID, str]
+) -> AllocationOut:
     return AllocationOut(
         id=a.id,
         employee_id=a.employee_id,
@@ -473,11 +532,24 @@ def _allocation_out(a: WorkAllocation) -> AllocationOut:
         is_work=a.time_code.is_work,
         target=a.target,
         order_id=a.order_id,
+        order_label=order_labels.get(a.order_id, "") if a.order_id else "",
         operation_id=a.operation_id,
+        operation_label=operation_labels.get(a.operation_id, "") if a.operation_id else "",
         hours=a.hours,
         source=AllocationSource(a.source),
         source_ref=a.source_ref,
     )
+
+
+def _allocations_out(rows: list[WorkAllocation]) -> list[AllocationOut]:
+    """Строки разноски с подписями заказов и операций — по одному запросу к
+    `production` на всю пачку, а не на строку."""
+
+    order_labels = production_link.order_labels({a.order_id for a in rows if a.order_id})
+    operation_labels = production_link.operation_labels(
+        {a.operation_id for a in rows if a.operation_id}
+    )
+    return [_allocation_out(a, order_labels, operation_labels) for a in rows]
 
 
 def _row_dto(row: AllocationRowIn) -> allocation_services.AllocationDTO:
@@ -509,7 +581,7 @@ def _day_out(user: _AuthenticatedUser, employee_id: UUID, day: date) -> DayOut:
         department_name=employee.department.name,
         work_center_id=profile.work_center_id,
         date=day,
-        rows=[_allocation_out(a) for a in rows],
+        rows=_allocations_out(rows),
         total=sum((a.hours for a in rows), Decimal("0")),
         can_edit=editable and bool(can_edit_department(user, employee.department_id)),
         planned=[
@@ -564,7 +636,7 @@ def create_allocation(request: AuthenticatedHttpRequest, data: AllocationIn) -> 
     found = selectors.get_allocation(created.id)
     if found is None:
         raise Http404
-    return _allocation_out(found)
+    return _allocations_out([found])[0]
 
 
 def _allocation_or_404(allocation_id: UUID) -> WorkAllocation:
@@ -583,7 +655,7 @@ def update_allocation(
     found = _allocation_or_404(allocation_id)
     _require_edit(request.auth, found.employee.department_id)
     allocation_services.update_allocation(allocation_id, _row_dto(data), actor_id=request.auth.id)
-    return _allocation_out(_allocation_or_404(allocation_id))
+    return _allocations_out([_allocation_or_404(allocation_id)])[0]
 
 
 @router.delete(

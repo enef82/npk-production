@@ -13,6 +13,26 @@ from src.timesheet.models import AllocationSource, PeriodEventKind, PeriodStatus
 # --- Справочники ---
 
 
+class TimesheetWorkerOut(Schema):
+    employee_id: UUID
+    full_name: str
+    personnel_no: str
+    department_id: UUID
+    department_name: str
+    work_center_id: UUID | None
+
+
+class OrderOptionOut(Schema):
+    order_id: UUID
+    label: str
+
+
+class OperationOptionOut(Schema):
+    operation_id: UUID
+    label: str
+    work_center_id: UUID
+
+
 class TimeCodeOut(Schema):
     id: UUID
     code: str
@@ -88,6 +108,7 @@ class DayHoursOut(Schema):
 class ObjectLineOut(Schema):
     target: str
     order_id: UUID | None
+    order_label: str
     days: list[DayHoursOut]
     total: Decimal
 
@@ -120,6 +141,7 @@ class CodeTotalOut(Schema):
 class ObjectTotalOut(Schema):
     target: str
     order_id: UUID | None
+    order_label: str
     analytics: str
     hours: Decimal
 
@@ -143,6 +165,7 @@ class MonthGridOut(Schema):
 
 class ManagerOrderHoursOut(Schema):
     order_id: UUID
+    order_label: str
     hours: Decimal
 
 
@@ -194,7 +217,9 @@ class AllocationOut(Schema):
     is_work: bool
     target: str
     order_id: UUID | None
+    order_label: str
     operation_id: UUID | None
+    operation_label: str
     hours: Decimal
     source: AllocationSource
     source_ref: str

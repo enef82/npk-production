@@ -4824,6 +4824,112 @@
         ]
       }
     },
+    "/api/v1/timesheet/workers": {
+      "get": {
+        "operationId": "listTimesheetWorkers",
+        "summary": "List Workers",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TimesheetWorkerOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "description": "Работники с профилем табеля — подписи сотрудников на экранах (исполнители\nремонтов и т. п.): остальные модули хранят только `employee_id`.",
+        "tags": [
+          "timesheet"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timesheet/orders": {
+      "get": {
+        "operationId": "listTimesheetOrders",
+        "summary": "List Orders",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OrderOptionOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "description": "Заказы в работе — объект разноски в диалоге дня.",
+        "tags": [
+          "timesheet"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timesheet/orders/{order_id}/operations": {
+      "get": {
+        "operationId": "listTimesheetOrderOperations",
+        "summary": "List Order Operations",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Order Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OperationOptionOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "timesheet"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/timesheet/departments/{department_id}/periods/{month}/grid": {
       "get": {
         "operationId": "getTimesheetGrid",
@@ -11868,6 +11974,98 @@
         "title": "PeriodStatus",
         "type": "string"
       },
+      "TimesheetWorkerOut": {
+        "properties": {
+          "employee_id": {
+            "format": "uuid",
+            "title": "Employee Id",
+            "type": "string"
+          },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
+          "personnel_no": {
+            "title": "Personnel No",
+            "type": "string"
+          },
+          "department_id": {
+            "format": "uuid",
+            "title": "Department Id",
+            "type": "string"
+          },
+          "department_name": {
+            "title": "Department Name",
+            "type": "string"
+          },
+          "work_center_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Work Center Id"
+          }
+        },
+        "required": [
+          "employee_id",
+          "full_name",
+          "personnel_no",
+          "department_id",
+          "department_name",
+          "work_center_id"
+        ],
+        "title": "TimesheetWorkerOut",
+        "type": "object"
+      },
+      "OrderOptionOut": {
+        "properties": {
+          "order_id": {
+            "format": "uuid",
+            "title": "Order Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "order_id",
+          "label"
+        ],
+        "title": "OrderOptionOut",
+        "type": "object"
+      },
+      "OperationOptionOut": {
+        "properties": {
+          "operation_id": {
+            "format": "uuid",
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "work_center_id": {
+            "format": "uuid",
+            "title": "Work Center Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation_id",
+          "label",
+          "work_center_id"
+        ],
+        "title": "OperationOptionOut",
+        "type": "object"
+      },
       "CheckOut": {
         "properties": {
           "is_blocking": {
@@ -12188,6 +12386,10 @@
             ],
             "title": "Order Id"
           },
+          "order_label": {
+            "title": "Order Label",
+            "type": "string"
+          },
           "days": {
             "items": {
               "$ref": "#/components/schemas/DayHoursOut"
@@ -12204,6 +12406,7 @@
         "required": [
           "target",
           "order_id",
+          "order_label",
           "days",
           "total"
         ],
@@ -12228,6 +12431,10 @@
             ],
             "title": "Order Id"
           },
+          "order_label": {
+            "title": "Order Label",
+            "type": "string"
+          },
           "analytics": {
             "title": "Analytics",
             "type": "string"
@@ -12241,6 +12448,7 @@
         "required": [
           "target",
           "order_id",
+          "order_label",
           "analytics",
           "hours"
         ],
@@ -12340,6 +12548,10 @@
             "title": "Order Id",
             "type": "string"
           },
+          "order_label": {
+            "title": "Order Label",
+            "type": "string"
+          },
           "hours": {
             "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
             "title": "Hours",
@@ -12348,6 +12560,7 @@
         },
         "required": [
           "order_id",
+          "order_label",
           "hours"
         ],
         "title": "ManagerOrderHoursOut",
@@ -12552,6 +12765,10 @@
             ],
             "title": "Order Id"
           },
+          "order_label": {
+            "title": "Order Label",
+            "type": "string"
+          },
           "operation_id": {
             "anyOf": [
               {
@@ -12563,6 +12780,10 @@
               }
             ],
             "title": "Operation Id"
+          },
+          "operation_label": {
+            "title": "Operation Label",
+            "type": "string"
           },
           "hours": {
             "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
@@ -12586,7 +12807,9 @@
           "is_work",
           "target",
           "order_id",
+          "order_label",
           "operation_id",
+          "operation_label",
           "hours",
           "source",
           "source_ref"

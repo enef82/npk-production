@@ -21,6 +21,7 @@ from src.core.accounts.signals import sync_group_permissions
 from src.core.accounts.tests.factories import UserFactory
 from src.core.org.models import Department, Employee
 from src.core.org.tests.factories import DepartmentFactory, EmployeeFactory
+from src.production.tests.factories import OperationFactory
 from src.timesheet import production_link
 from src.timesheet.models import PeriodStatus, WorkAllocation
 from src.timesheet.tests.factories import TimesheetPeriodFactory, WorkAllocationFactory
@@ -224,7 +225,7 @@ def test_виза_менеджера_ставит_только_сам_менед
         {
             "manager_id": str(manager.id),
             "manager_name": manager.full_name,
-            "orders": [{"order_id": str(order), "hours": "4.00"}],
+            "orders": [{"order_id": str(order), "order_label": "", "hours": "4.00"}],
             "confirmed": False,
             "can_confirm": True,
         }
@@ -352,3 +353,63 @@ def test_сетка_месяца_без_n_plus_1() -> None:
     assert len(grid["rows"]) == 7
     assert grid["rows"][0]["total"] == "176.00"
     assert grid["by_code"] == [{"code": "Я", "name": "Явка", "hours": "1232.00"}]
+
+
+def test_сетка_и_диалог_дня_подписывают_заказ_и_операцию() -> None:
+    operation = OperationFactory.create(name="Сборка", seq=20)
+    order = operation.order
+    profile = worker()
+    WorkAllocationFactory.create(
+        employee=profile.employee,
+        date=date(2026, 9, 1),
+        target="order",
+        order_id=order.id,
+        operation_id=operation.id,
+        hours=Decimal("8"),
+    )
+    head, _ = _user(PRODUCTION_HEAD)
+    client = _client(head)
+    label = f"{order.number} · {order.product_name}"
+
+    grid = client.get(PERIOD.format(dep=profile.employee.department_id) + "/grid").json()
+    assert [o["order_label"] for o in grid["rows"][0]["objects"]] == [label]
+    assert [(o["order_label"], o["analytics"]) for o in grid["by_object"]] == [
+        (label, order.number)
+    ]
+
+    day = client.get(f"{BASE}/employees/{profile.employee_id}/days/{DAY}").json()
+    assert [(r["order_label"], r["operation_label"]) for r in day["rows"]] == [
+        (label, "20. Сборка")
+    ]
+
+
+def test_выбор_заказа_и_операции_для_разноски() -> None:
+    operation = OperationFactory.create(name="Сварка", seq=10)
+    order = operation.order
+    user, _ = _user()
+    client = _client(user)
+
+    orders = client.get(f"{BASE}/orders").json()
+    assert {"order_id": str(order.id), "label": f"{order.number} · {order.product_name}"} in orders
+    operations = client.get(f"{BASE}/orders/{order.id}/operations").json()
+    assert operations == [
+        {
+            "operation_id": str(operation.id),
+            "label": "10. Сварка",
+            "work_center_id": str(operation.work_center_id),
+        }
+    ]
+
+
+def test_список_работников_с_табельным_и_подразделением() -> None:
+    profile = worker()
+    user, _ = _user()
+    rows = _client(user).get(f"{BASE}/workers").json()
+    assert {
+        "employee_id": str(profile.employee_id),
+        "full_name": profile.employee.full_name,
+        "personnel_no": profile.employee.personnel_number,
+        "department_id": str(profile.employee.department_id),
+        "department_name": profile.employee.department.name,
+        "work_center_id": None,
+    } in rows
