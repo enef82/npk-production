@@ -281,3 +281,654 @@ export const ListItemsResponse = zod.object({
   "total": zod.union([zod.int(),zod.null()]).optional(),
   "total_cap": zod.union([zod.int(),zod.null()]).optional()
 })
+
+
+/**
+ * @summary List Time Codes
+ */
+export const listTimeCodesResponseCostMultiplierRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const ListTimeCodesResponseItem = zod.object({
+  "id": zod.uuid(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "is_work": zod.boolean(),
+  "is_allocatable": zod.boolean(),
+  "cost_multiplier": zod.string().regex(listTimeCodesResponseCostMultiplierRegExp)
+})
+export const ListTimeCodesResponse = zod.array(ListTimeCodesResponseItem)
+
+
+/**
+ * Подразделения с работниками и статус их табеля за месяц — выбор на экране.
+ * @summary List Departments
+ */
+export const ListTimesheetDepartmentsQueryParams = zod.object({
+  "month": zod.iso.date()
+})
+
+export const ListTimesheetDepartmentsResponseItem = zod.object({
+  "department_id": zod.uuid(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "head_name": zod.string(),
+  "status": zod.enum(['draft', 'on_review', 'approved', 'sent', 'closed', 'reopened'])
+})
+export const ListTimesheetDepartmentsResponse = zod.array(ListTimesheetDepartmentsResponseItem)
+
+
+/**
+ * @summary Get Grid
+ */
+export const GetTimesheetGridParams = zod.object({
+  "department_id": zod.uuid(),
+  "month": zod.iso.date()
+})
+
+export const getTimesheetGridResponseNormHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getTimesheetGridResponseRowsItemCellsItemWorkHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getTimesheetGridResponseRowsItemCellsItemOvertimeHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getTimesheetGridResponseRowsItemObjectsItemDaysItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getTimesheetGridResponseRowsItemObjectsItemTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getTimesheetGridResponseRowsItemTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getTimesheetGridResponseRowsItemNormRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getTimesheetGridResponseRowsItemDeltaRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getTimesheetGridResponseByCodeItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getTimesheetGridResponseByObjectItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetTimesheetGridResponse = zod.object({
+  "period": zod.object({
+  "department_id": zod.uuid(),
+  "month": zod.iso.date(),
+  "status": zod.enum(['draft', 'on_review', 'approved', 'sent', 'closed', 'reopened']),
+  "version": zod.int(),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_fill_plan": zod.boolean(),
+  "can_submit": zod.boolean(),
+  "can_confirm_manager": zod.boolean(),
+  "can_approve": zod.boolean(),
+  "can_return": zod.boolean(),
+  "can_send": zod.boolean(),
+  "can_close": zod.boolean(),
+  "can_reopen": zod.boolean()
+})
+}),
+  "department_code": zod.string(),
+  "department_name": zod.string(),
+  "head_id": zod.union([zod.uuid(),zod.null()]),
+  "head_name": zod.string(),
+  "days": zod.array(zod.object({
+  "date": zod.iso.date(),
+  "is_weekend": zod.boolean()
+})),
+  "norm_hours": zod.string().regex(getTimesheetGridResponseNormHoursRegExp),
+  "rows": zod.array(zod.object({
+  "employee_id": zod.uuid(),
+  "full_name": zod.string(),
+  "personnel_no": zod.string(),
+  "position": zod.string(),
+  "work_center_id": zod.union([zod.uuid(),zod.null()]),
+  "cells": zod.array(zod.object({
+  "date": zod.iso.date(),
+  "work_hours": zod.string().regex(getTimesheetGridResponseRowsItemCellsItemWorkHoursRegExp),
+  "overtime_hours": zod.string().regex(getTimesheetGridResponseRowsItemCellsItemOvertimeHoursRegExp),
+  "absence_code": zod.string(),
+  "is_trip": zod.boolean(),
+  "has_overhead": zod.boolean(),
+  "is_missing": zod.boolean()
+})),
+  "objects": zod.array(zod.object({
+  "target": zod.string(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "days": zod.array(zod.object({
+  "date": zod.iso.date(),
+  "hours": zod.string().regex(getTimesheetGridResponseRowsItemObjectsItemDaysItemHoursRegExp)
+})),
+  "total": zod.string().regex(getTimesheetGridResponseRowsItemObjectsItemTotalRegExp)
+})),
+  "total": zod.string().regex(getTimesheetGridResponseRowsItemTotalRegExp),
+  "norm": zod.string().regex(getTimesheetGridResponseRowsItemNormRegExp),
+  "delta": zod.string().regex(getTimesheetGridResponseRowsItemDeltaRegExp)
+})),
+  "checks": zod.array(zod.object({
+  "is_blocking": zod.boolean(),
+  "text": zod.string(),
+  "employee_id": zod.union([zod.uuid(),zod.null()])
+})),
+  "by_code": zod.array(zod.object({
+  "code": zod.string(),
+  "name": zod.string(),
+  "hours": zod.string().regex(getTimesheetGridResponseByCodeItemHoursRegExp)
+})),
+  "by_object": zod.array(zod.object({
+  "target": zod.string(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "analytics": zod.string(),
+  "hours": zod.string().regex(getTimesheetGridResponseByObjectItemHoursRegExp)
+}))
+})
+
+
+/**
+ * Визы менеджеров по своим заказам (`mgrHours`) и журнал переходов периода.
+ * @summary Get Review
+ */
+export const GetTimesheetReviewParams = zod.object({
+  "department_id": zod.uuid(),
+  "month": zod.iso.date()
+})
+
+export const getTimesheetReviewResponseManagersItemOrdersItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetTimesheetReviewResponse = zod.object({
+  "period": zod.object({
+  "department_id": zod.uuid(),
+  "month": zod.iso.date(),
+  "status": zod.enum(['draft', 'on_review', 'approved', 'sent', 'closed', 'reopened']),
+  "version": zod.int(),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_fill_plan": zod.boolean(),
+  "can_submit": zod.boolean(),
+  "can_confirm_manager": zod.boolean(),
+  "can_approve": zod.boolean(),
+  "can_return": zod.boolean(),
+  "can_send": zod.boolean(),
+  "can_close": zod.boolean(),
+  "can_reopen": zod.boolean()
+})
+}),
+  "managers": zod.array(zod.object({
+  "manager_id": zod.uuid(),
+  "manager_name": zod.string(),
+  "orders": zod.array(zod.object({
+  "order_id": zod.uuid(),
+  "hours": zod.string().regex(getTimesheetReviewResponseManagersItemOrdersItemHoursRegExp)
+})),
+  "confirmed": zod.boolean(),
+  "can_confirm": zod.boolean()
+})),
+  "events": zod.array(zod.object({
+  "kind": zod.enum(['submitted', 'manager_confirmed', 'returned', 'approved', 'sent', 'closed', 'reopened']),
+  "version": zod.int(),
+  "actor_name": zod.string(),
+  "manager_name": zod.string(),
+  "comment": zod.string(),
+  "created_at": zod.iso.datetime({"offset":true})
+}))
+})
+
+
+/**
+ * Незакрытые будние дни до вчера — по плану операций участков.
+ * @summary Fill From Plan
+ */
+export const FillTimesheetFromPlanParams = zod.object({
+  "department_id": zod.uuid(),
+  "month": zod.iso.date()
+})
+
+export const FillTimesheetFromPlanResponse = zod.object({
+  "filled_days": zod.int(),
+  "period": zod.object({
+  "department_id": zod.uuid(),
+  "month": zod.iso.date(),
+  "status": zod.enum(['draft', 'on_review', 'approved', 'sent', 'closed', 'reopened']),
+  "version": zod.int(),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_fill_plan": zod.boolean(),
+  "can_submit": zod.boolean(),
+  "can_confirm_manager": zod.boolean(),
+  "can_approve": zod.boolean(),
+  "can_return": zod.boolean(),
+  "can_send": zod.boolean(),
+  "can_close": zod.boolean(),
+  "can_reopen": zod.boolean()
+})
+})
+})
+
+
+/**
+ * @summary Submit
+ */
+export const SubmitTimesheetParams = zod.object({
+  "department_id": zod.uuid(),
+  "month": zod.iso.date()
+})
+
+export const SubmitTimesheetResponse = zod.object({
+  "department_id": zod.uuid(),
+  "month": zod.iso.date(),
+  "status": zod.enum(['draft', 'on_review', 'approved', 'sent', 'closed', 'reopened']),
+  "version": zod.int(),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_fill_plan": zod.boolean(),
+  "can_submit": zod.boolean(),
+  "can_confirm_manager": zod.boolean(),
+  "can_approve": zod.boolean(),
+  "can_return": zod.boolean(),
+  "can_send": zod.boolean(),
+  "can_close": zod.boolean(),
+  "can_reopen": zod.boolean()
+})
+})
+
+
+/**
+ * Виза менеджера по часам на свои заказы — ставит сам менеджер.
+ * @summary Confirm Manager
+ */
+export const ConfirmTimesheetHoursParams = zod.object({
+  "department_id": zod.uuid(),
+  "month": zod.iso.date()
+})
+
+export const ConfirmTimesheetHoursResponse = zod.object({
+  "department_id": zod.uuid(),
+  "month": zod.iso.date(),
+  "status": zod.enum(['draft', 'on_review', 'approved', 'sent', 'closed', 'reopened']),
+  "version": zod.int(),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_fill_plan": zod.boolean(),
+  "can_submit": zod.boolean(),
+  "can_confirm_manager": zod.boolean(),
+  "can_approve": zod.boolean(),
+  "can_return": zod.boolean(),
+  "can_send": zod.boolean(),
+  "can_close": zod.boolean(),
+  "can_reopen": zod.boolean()
+})
+})
+
+
+/**
+ * @summary Approve
+ */
+export const ApproveTimesheetParams = zod.object({
+  "department_id": zod.uuid(),
+  "month": zod.iso.date()
+})
+
+export const ApproveTimesheetResponse = zod.object({
+  "department_id": zod.uuid(),
+  "month": zod.iso.date(),
+  "status": zod.enum(['draft', 'on_review', 'approved', 'sent', 'closed', 'reopened']),
+  "version": zod.int(),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_fill_plan": zod.boolean(),
+  "can_submit": zod.boolean(),
+  "can_confirm_manager": zod.boolean(),
+  "can_approve": zod.boolean(),
+  "can_return": zod.boolean(),
+  "can_send": zod.boolean(),
+  "can_close": zod.boolean(),
+  "can_reopen": zod.boolean()
+})
+})
+
+
+/**
+ * @summary Return View
+ */
+export const ReturnTimesheetParams = zod.object({
+  "department_id": zod.uuid(),
+  "month": zod.iso.date()
+})
+
+export const ReturnTimesheetBody = zod.object({
+  "comment": zod.string()
+})
+
+export const ReturnTimesheetResponse = zod.object({
+  "department_id": zod.uuid(),
+  "month": zod.iso.date(),
+  "status": zod.enum(['draft', 'on_review', 'approved', 'sent', 'closed', 'reopened']),
+  "version": zod.int(),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_fill_plan": zod.boolean(),
+  "can_submit": zod.boolean(),
+  "can_confirm_manager": zod.boolean(),
+  "can_approve": zod.boolean(),
+  "can_return": zod.boolean(),
+  "can_send": zod.boolean(),
+  "can_close": zod.boolean(),
+  "can_reopen": zod.boolean()
+})
+})
+
+
+/**
+ * Передача в 1С: статус `sent`; сами пакеты скачиваются `.../packages/{тип}`.
+ * @summary Send
+ */
+export const SendTimesheetParams = zod.object({
+  "department_id": zod.uuid(),
+  "month": zod.iso.date()
+})
+
+export const SendTimesheetResponse = zod.object({
+  "department_id": zod.uuid(),
+  "month": zod.iso.date(),
+  "status": zod.enum(['draft', 'on_review', 'approved', 'sent', 'closed', 'reopened']),
+  "version": zod.int(),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_fill_plan": zod.boolean(),
+  "can_submit": zod.boolean(),
+  "can_confirm_manager": zod.boolean(),
+  "can_approve": zod.boolean(),
+  "can_return": zod.boolean(),
+  "can_send": zod.boolean(),
+  "can_close": zod.boolean(),
+  "can_reopen": zod.boolean()
+})
+})
+
+
+/**
+ * @summary Close
+ */
+export const CloseTimesheetParams = zod.object({
+  "department_id": zod.uuid(),
+  "month": zod.iso.date()
+})
+
+export const CloseTimesheetResponse = zod.object({
+  "department_id": zod.uuid(),
+  "month": zod.iso.date(),
+  "status": zod.enum(['draft', 'on_review', 'approved', 'sent', 'closed', 'reopened']),
+  "version": zod.int(),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_fill_plan": zod.boolean(),
+  "can_submit": zod.boolean(),
+  "can_confirm_manager": zod.boolean(),
+  "can_approve": zod.boolean(),
+  "can_return": zod.boolean(),
+  "can_send": zod.boolean(),
+  "can_close": zod.boolean(),
+  "can_reopen": zod.boolean()
+})
+})
+
+
+/**
+ * @summary Reopen
+ */
+export const ReopenTimesheetParams = zod.object({
+  "department_id": zod.uuid(),
+  "month": zod.iso.date()
+})
+
+export const ReopenTimesheetBody = zod.object({
+  "comment": zod.string()
+})
+
+export const ReopenTimesheetResponse = zod.object({
+  "department_id": zod.uuid(),
+  "month": zod.iso.date(),
+  "status": zod.enum(['draft', 'on_review', 'approved', 'sent', 'closed', 'reopened']),
+  "version": zod.int(),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_fill_plan": zod.boolean(),
+  "can_submit": zod.boolean(),
+  "can_confirm_manager": zod.boolean(),
+  "can_approve": zod.boolean(),
+  "can_return": zod.boolean(),
+  "can_send": zod.boolean(),
+  "can_close": zod.boolean(),
+  "can_reopen": zod.boolean()
+})
+})
+
+
+/**
+ * Пакет обмена с 1С файлом JSON (ИС ADR 0002: транспорт в 1С вне объёма).
+ * @summary Download Package
+ */
+export const DownloadTimesheetPackageParams = zod.object({
+  "department_id": zod.uuid(),
+  "month": zod.iso.date(),
+  "package_type": zod.enum(['timesheet', 'cost_allocation'])
+})
+
+export const DownloadTimesheetPackageResponse = zod.unknown()
+
+
+/**
+ * @summary Get Day
+ */
+export const GetTimesheetDayParams = zod.object({
+  "employee_id": zod.uuid(),
+  "day": zod.iso.date()
+})
+
+export const getTimesheetDayResponseRowsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getTimesheetDayResponseTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetTimesheetDayResponse = zod.object({
+  "employee_id": zod.uuid(),
+  "full_name": zod.string(),
+  "position": zod.string(),
+  "department_id": zod.uuid(),
+  "department_name": zod.string(),
+  "work_center_id": zod.union([zod.uuid(),zod.null()]),
+  "date": zod.iso.date(),
+  "rows": zod.array(zod.object({
+  "id": zod.uuid(),
+  "employee_id": zod.uuid(),
+  "date": zod.iso.date(),
+  "time_code": zod.string(),
+  "time_code_name": zod.string(),
+  "is_work": zod.boolean(),
+  "target": zod.string(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "hours": zod.string().regex(getTimesheetDayResponseRowsItemHoursRegExp),
+  "source": zod.enum(['manual', 'plan', 'repair']),
+  "source_ref": zod.string()
+})),
+  "total": zod.string().regex(getTimesheetDayResponseTotalRegExp),
+  "can_edit": zod.boolean(),
+  "planned": zod.array(zod.object({
+  "operation_id": zod.uuid(),
+  "order_id": zod.uuid(),
+  "label": zod.string()
+}))
+})
+
+
+/**
+ * Сохранение диалога дня: строки дня заменяются целиком.
+ * @summary Save Day
+ */
+export const SaveTimesheetDayParams = zod.object({
+  "employee_id": zod.uuid(),
+  "day": zod.iso.date()
+})
+
+export const saveTimesheetDayBodyRowsItemHoursTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const saveTimesheetDayBodyRowsItemTargetDefault = ``;
+
+export const SaveTimesheetDayBody = zod.object({
+  "rows": zod.array(zod.object({
+  "time_code": zod.string(),
+  "hours": zod.union([zod.number(),zod.string().regex(saveTimesheetDayBodyRowsItemHoursTwoRegExp)]),
+  "target": zod.string().default(saveTimesheetDayBodyRowsItemTargetDefault),
+  "order_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "operation_id": zod.union([zod.uuid(),zod.null()]).optional()
+}))
+})
+
+export const saveTimesheetDayResponseRowsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const saveTimesheetDayResponseTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const SaveTimesheetDayResponse = zod.object({
+  "employee_id": zod.uuid(),
+  "full_name": zod.string(),
+  "position": zod.string(),
+  "department_id": zod.uuid(),
+  "department_name": zod.string(),
+  "work_center_id": zod.union([zod.uuid(),zod.null()]),
+  "date": zod.iso.date(),
+  "rows": zod.array(zod.object({
+  "id": zod.uuid(),
+  "employee_id": zod.uuid(),
+  "date": zod.iso.date(),
+  "time_code": zod.string(),
+  "time_code_name": zod.string(),
+  "is_work": zod.boolean(),
+  "target": zod.string(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "hours": zod.string().regex(saveTimesheetDayResponseRowsItemHoursRegExp),
+  "source": zod.enum(['manual', 'plan', 'repair']),
+  "source_ref": zod.string()
+})),
+  "total": zod.string().regex(saveTimesheetDayResponseTotalRegExp),
+  "can_edit": zod.boolean(),
+  "planned": zod.array(zod.object({
+  "operation_id": zod.uuid(),
+  "order_id": zod.uuid(),
+  "label": zod.string()
+}))
+})
+
+
+/**
+ * @summary Fill Day
+ */
+export const FillTimesheetDayFromPlanParams = zod.object({
+  "employee_id": zod.uuid(),
+  "day": zod.iso.date()
+})
+
+export const fillTimesheetDayFromPlanResponseRowsItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const fillTimesheetDayFromPlanResponseTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const FillTimesheetDayFromPlanResponse = zod.object({
+  "employee_id": zod.uuid(),
+  "full_name": zod.string(),
+  "position": zod.string(),
+  "department_id": zod.uuid(),
+  "department_name": zod.string(),
+  "work_center_id": zod.union([zod.uuid(),zod.null()]),
+  "date": zod.iso.date(),
+  "rows": zod.array(zod.object({
+  "id": zod.uuid(),
+  "employee_id": zod.uuid(),
+  "date": zod.iso.date(),
+  "time_code": zod.string(),
+  "time_code_name": zod.string(),
+  "is_work": zod.boolean(),
+  "target": zod.string(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "hours": zod.string().regex(fillTimesheetDayFromPlanResponseRowsItemHoursRegExp),
+  "source": zod.enum(['manual', 'plan', 'repair']),
+  "source_ref": zod.string()
+})),
+  "total": zod.string().regex(fillTimesheetDayFromPlanResponseTotalRegExp),
+  "can_edit": zod.boolean(),
+  "planned": zod.array(zod.object({
+  "operation_id": zod.uuid(),
+  "order_id": zod.uuid(),
+  "label": zod.string()
+}))
+})
+
+
+/**
+ * @summary Create Allocation
+ */
+export const createAllocationBodyHoursTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createAllocationBodyTargetDefault = ``;
+
+export const CreateAllocationBody = zod.object({
+  "time_code": zod.string(),
+  "hours": zod.union([zod.number(),zod.string().regex(createAllocationBodyHoursTwoRegExp)]),
+  "target": zod.string().default(createAllocationBodyTargetDefault),
+  "order_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "operation_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "employee_id": zod.uuid(),
+  "date": zod.iso.date()
+})
+
+export const createAllocationResponseHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const CreateAllocationResponse = zod.object({
+  "id": zod.uuid(),
+  "employee_id": zod.uuid(),
+  "date": zod.iso.date(),
+  "time_code": zod.string(),
+  "time_code_name": zod.string(),
+  "is_work": zod.boolean(),
+  "target": zod.string(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "hours": zod.string().regex(createAllocationResponseHoursRegExp),
+  "source": zod.enum(['manual', 'plan', 'repair']),
+  "source_ref": zod.string()
+})
+
+
+/**
+ * @summary Update Allocation
+ */
+export const UpdateAllocationParams = zod.object({
+  "allocation_id": zod.uuid()
+})
+
+export const updateAllocationBodyHoursTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateAllocationBodyTargetDefault = ``;
+
+export const UpdateAllocationBody = zod.object({
+  "time_code": zod.string(),
+  "hours": zod.union([zod.number(),zod.string().regex(updateAllocationBodyHoursTwoRegExp)]),
+  "target": zod.string().default(updateAllocationBodyTargetDefault),
+  "order_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "operation_id": zod.union([zod.uuid(),zod.null()]).optional()
+})
+
+export const updateAllocationResponseHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const UpdateAllocationResponse = zod.object({
+  "id": zod.uuid(),
+  "employee_id": zod.uuid(),
+  "date": zod.iso.date(),
+  "time_code": zod.string(),
+  "time_code_name": zod.string(),
+  "is_work": zod.boolean(),
+  "target": zod.string(),
+  "order_id": zod.union([zod.uuid(),zod.null()]),
+  "operation_id": zod.union([zod.uuid(),zod.null()]),
+  "hours": zod.string().regex(updateAllocationResponseHoursRegExp),
+  "source": zod.enum(['manual', 'plan', 'repair']),
+  "source_ref": zod.string()
+})
+
+
+/**
+ * @summary Delete Allocation
+ */
+export const DeleteAllocationParams = zod.object({
+  "allocation_id": zod.uuid()
+})
+
+export const DeleteAllocationResponse = zod.void()
