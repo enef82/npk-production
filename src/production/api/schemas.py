@@ -71,6 +71,11 @@ class ProductionSettingsOut(Schema):
     stages: list[StageResponsibleOut]
 
 
+class EmployeeOptionOut(Schema):
+    id: UUID
+    full_name: str
+
+
 class DocumentKindOut(Schema):
     code: str
     name: str
@@ -79,14 +84,14 @@ class DocumentKindOut(Schema):
 # --- Доска и карточка заказа ---
 
 
-class HealthOut(Schema):
+class OrderHealthOut(Schema):
     color: str
     status: str
     days: int
     text: str
 
 
-class StageApprovalOut(Schema):
+class OrderStageApprovalOut(Schema):
     stage: OrderStage
     stage_label: str
     responsible_id: UUID | None
@@ -119,7 +124,7 @@ class OrderCardOut(Schema):
     due_date: date
     stage: OrderStage
     derived_stage: OrderStage
-    health: HealthOut
+    health: OrderHealthOut
     progress: Decimal
     stage_responsible_id: UUID | None
     stage_responsible_name: str
@@ -144,7 +149,7 @@ class OrderOut(OrderCardOut):
     labor_cost_planned: Decimal
     shipped_at: datetime | None
     created_at: datetime
-    approvals: list[StageApprovalOut]
+    approvals: list[OrderStageApprovalOut]
     hours_total: Decimal
     earned_total: Decimal
     has_kd: bool
@@ -156,16 +161,16 @@ class OrderUpdateIn(Schema):
     manager_id: UUID
 
 
-class StageMoveIn(Schema):
+class OrderStageMoveIn(Schema):
     to: OrderStage
     comment: str = ""
 
 
-class StageApproveIn(Schema):
+class OrderStageApproveIn(Schema):
     comment: str = ""
 
 
-class StageResponsibleIn(Schema):
+class OrderStageResponsibleIn(Schema):
     responsible_id: UUID
 
 
@@ -260,7 +265,7 @@ class GanttOrderOut(Schema):
     due_date: date
     planned_start: date
     planned_finish: date | None
-    health: HealthOut
+    health: OrderHealthOut
     can_plan: bool
     operations: list[GanttOperationOut]
 
@@ -290,7 +295,7 @@ class OperationMoveIn(Schema):
     start: date
 
 
-class PredecessorsIn(Schema):
+class OperationPredecessorsIn(Schema):
     predecessor_ids: list[UUID]
 
 
@@ -303,7 +308,7 @@ class OperationLinkOut(Schema):
     planned_finish: date | None
 
 
-class DocumentOut(Schema):
+class OrderDocumentOut(Schema):
     document_id: UUID
     name: str
     doc_type_code: str
@@ -334,7 +339,7 @@ class OperationCardOut(Schema):
     order: OrderCardOut
     predecessors: list[OperationLinkOut]
     successors: list[OperationLinkOut]
-    documents: list[DocumentOut]
+    documents: list[OrderDocumentOut]
     journal: list[JournalEntryOut]
     has_inspection: bool
 
@@ -348,7 +353,7 @@ class CreatedOut(Schema):
     id: UUID
 
 
-class VisaItemOut(Schema):
+class ProductionVisaItemOut(Schema):
     kind: str
     order_id: UUID
     order_number: str
@@ -356,7 +361,7 @@ class VisaItemOut(Schema):
     customer_name: str
     quantity: Decimal
     due_date: date
-    health: HealthOut
+    health: OrderHealthOut
     stage: OrderStage
     operation_id: UUID | None
     operation_name: str

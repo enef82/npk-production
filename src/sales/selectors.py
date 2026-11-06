@@ -16,7 +16,15 @@ from uuid import UUID
 
 from django.db.models import F, Prefetch, Q, QuerySet
 
-from src.core.common.scheduling import HealthColor, ScheduleAnalysis, analyze, assess_health
+from src.core.common.scheduling import (
+    HealthColor,
+    ScheduleAnalysis,
+    analyze,
+    assess_health,
+    compute_schedule,
+    next_working_day,
+    working_days_between,
+)
 from src.core.org.models import Employee
 from src.sales.calculations import CalcTotals, LaborLine, MaterialLine, calc_totals
 from src.sales.models import (
@@ -438,6 +446,47 @@ def list_my_visas(employee_id: UUID) -> list[VisaItem]:
         )
         for a in approvals
     ]
+
+
+# --- Предпросмотр запуска ----------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class LaunchPreview:
+    planned_start: date
+    planned_finish: date | None
+    length: int
+    # Положительное — позже срока на столько рабочих дней, отрицательное — запас.
+    days_late: int
+    critical_path: list[str]
+
+
+def launch_preview(inquiry_id: UUID, planned_start: date, due_date: date) -> LaunchPreview | None:
+    """Расчётное окончание и критический путь заказа, который получится при запуске
+    с `planned_start` (`launchDialog` прототипа). Ничего не сохраняет: диалог пересчитывает
+    при каждой смене даты, а план заявки должен остаться прежним до подтверждения."""
+
+    inquiry = get_inquiry(inquiry_id)
+    if inquiry is None:
+        return None
+    start = next_working_day(planned_start)
+    operations = list(CalcOperation.objects.filter(inquiry=inquiry).order_by("seq"))
+    if not operations:
+        return LaunchPreview(
+            planned_start=start, planned_finish=None, length=0, days_late=0, critical_path=[]
+        )
+    dependencies = list(CalcOperationDependency.objects.filter(successor__inquiry=inquiry))
+    nodes, edges = network(operations, dependencies, centers_by_id())
+    analysis = compute_schedule(nodes, edges, base=start)
+    names = {op.id: op.name for op in operations}
+    finish = analysis.finish
+    return LaunchPreview(
+        planned_start=start,
+        planned_finish=finish,
+        length=analysis.length,
+        days_late=working_days_between(due_date, finish) if finish else 0,
+        critical_path=[names[op_id] for op_id in analysis.critical_path],
+    )
 
 
 # --- Для фасада --------------------------------------------------------------------
