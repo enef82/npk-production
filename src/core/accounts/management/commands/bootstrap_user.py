@@ -49,7 +49,7 @@ class Command(BaseCommand):
             "--role",
             required=True,
             choices=list(SEED_GROUP_NAMES),
-            help="Роль по §6 спецификации CRM (спецификация CRM ИС (IS_ERP, 10-crm))",
+            help="Роль по §6 спецификации CRM (спец. CRM ИС)",
         )
         parser.add_argument(
             "--hire-date",

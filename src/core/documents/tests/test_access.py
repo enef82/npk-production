@@ -44,7 +44,7 @@ def _close_streaming_response(response: object) -> bytes:
 
 @pytest.mark.django_db
 def test_pdf_просматриваемый_остальное_нет() -> None:
-    """Шаг 16 (спецификация CRM ИС (IS_ERP, 10-crm) §3.10): просматривается сегодня только PDF —
+    """Шаг 16 (спец. CRM ИС §3.10): просматривается сегодня только PDF —
     Word и Excel осознанно вне списка, решение зафиксировано в спеке."""
 
     pdf = DocumentFactory(mime_type="application/pdf")

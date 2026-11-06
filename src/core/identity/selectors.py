@@ -33,7 +33,7 @@ def get_parties_brief(ids: Iterable[UUID]) -> dict[UUID, PartyBrief]:
     `short_name` для отображения,
     `inn` — различить одноимённых контрагентов, `status` — пометить заявку
     архивированного заказчика (реакция на `identity.party_archived`, см.
-    спецификация CRM ИС (IS_ERP, 10-crm) §5, подключается будущим шагом).
+    спец. CRM ИС §5, подключается будущим шагом).
     """
 
     parties = Party.objects.filter(id__in=list(ids)).only("id", "short_name", "inn", "status")

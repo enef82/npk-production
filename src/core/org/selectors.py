@@ -49,7 +49,7 @@ class EmployeeBrief:
 def list_active_employees() -> list[EmployeeBrief]:
     """Работающие сотрудники (id + ФИО) для пикеров и фильтров прикладных модулей —
     первый потребитель — фильтр реестра заявок `crm` по ответственному
-    (спецификация CRM ИС (IS_ERP, 10-crm) §7). Только два поля: модель `Employee` наружу не отдаём (И1)."""
+    (спец. CRM ИС §7). Только два поля: модель `Employee` наружу не отдаём (И1)."""
 
     rows = (
         Employee.objects.filter(status=EmployeeStatus.ACTIVE)
