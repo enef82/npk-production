@@ -7,7 +7,14 @@ from src.core.numbering.models import NumeratorResetPeriod
 from src.core.org.models import PositionCategory
 
 # (code, name, template, reset_period) — нумераторы модулей приложения.
-CORE_NUMERATORS: tuple[tuple[str, str, str, str], ...] = ()
+CORE_NUMERATORS: tuple[tuple[str, str, str, str], ...] = (
+    (
+        "equipment.repair",
+        "Авария / ремонт оборудования",
+        "АР-{seq:04d}",
+        NumeratorResetPeriod.NEVER,
+    ),
+)
 
 # (name, category) — см. `core.org.migrations.0003_seed_trade_positions`.
 CORE_TRADE_POSITIONS = (

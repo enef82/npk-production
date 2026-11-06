@@ -183,6 +183,607 @@ export interface CursorPageItemListItem {
   total_cap?: number | null;
 }
 
+export interface EnergyAbilitiesOut {
+  can_manage_meters: boolean;
+  can_ingest_intervals: boolean;
+}
+
+export interface TariffPeriodOut {
+  valid_from: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  tariff: string;
+}
+
+export interface ResourceOut {
+  id: string;
+  code: string;
+  name: string;
+  unit: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  tariff: string;
+  tariff_periods: TariffPeriodOut[];
+}
+
+export interface ResourcesOut {
+  items: ResourceOut[];
+  abilities: EnergyAbilitiesOut;
+}
+
+export interface TariffIn {
+  valid_from: string;
+  tariff: number | string;
+}
+
+export type MeterKind = typeof MeterKind[keyof typeof MeterKind];
+
+
+export const MeterKind = {
+  input: 'input',
+  node: 'node',
+  shop: 'shop',
+  equipment: 'equipment',
+  compressor: 'compressor',
+  office: 'office',
+  other: 'other',
+} as const;
+
+export type MeterSource = typeof MeterSource[keyof typeof MeterSource];
+
+
+export const MeterSource = {
+  scada: 'scada',
+  manual: 'manual',
+} as const;
+
+export interface MeterOut {
+  id: string;
+  code: string;
+  name: string;
+  resource_id: string;
+  resource_code: string;
+  unit: string;
+  parent_id: string | null;
+  kind: MeterKind;
+  equipment_id: string | null;
+  source: MeterSource;
+  order: number;
+}
+
+export interface MeterIn {
+  code: string;
+  name: string;
+  resource_id: string;
+  kind: MeterKind;
+  parent_id?: string | null;
+  equipment_id?: string | null;
+  source?: MeterSource;
+  order?: number;
+}
+
+export interface ReadingOut {
+  id: string;
+  taken_at: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  value: string;
+}
+
+export interface ReadingIn {
+  taken_at: string;
+  value: number | string;
+}
+
+export interface IngestErrorOut {
+  index: number;
+  code: string;
+  message: string;
+}
+
+export interface IngestResultOut {
+  message_id: string;
+  duplicate: boolean;
+  accepted: number;
+  rejected: number;
+  errors: IngestErrorOut[];
+}
+
+export type ScadaEnvelopeInItemsItem = { [key: string]: unknown };
+
+/**
+ * Конверт пакета SCADA. Строки — словари: каждая проверяется отдельно, и плохая
+ * строка отклоняется с причиной, а не роняет весь пакет.
+ */
+export interface ScadaEnvelopeIn {
+  /** @maxLength 16 */
+  schema_version: string;
+  /** @maxLength 64 */
+  source_id: string;
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  message_id: string;
+  items: ScadaEnvelopeInItemsItem[];
+}
+
+export interface ScadaMessageOut {
+  message_id: string;
+  source_id: string;
+  schema_version: string;
+  items_total: number;
+  items_accepted: number;
+  items_rejected: number;
+  created_at: string;
+}
+
+/**
+ * Период отчёта, сутки включительно; без дат — 28 суток до вчерашних.
+ */
+export interface PeriodFilters {
+  date_from?: string | null;
+  date_to?: string | null;
+}
+
+export interface ConsumptionOut {
+  resource_id: string;
+  resource_code: string;
+  period: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  quantity: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  cost: string;
+}
+
+export interface BalanceOut {
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  input: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  children: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  loss: string;
+  loss_pct: string | null;
+}
+
+export interface MeterTreeRowOut {
+  meter_id: string;
+  code: string;
+  name: string;
+  parent_id: string | null;
+  level: number;
+  kind: MeterKind;
+  source: MeterSource;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  quantity: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  previous_quantity: string;
+  share_pct: string | null;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  cost: string;
+  balance: BalanceOut | null;
+}
+
+export interface DailyOut {
+  meter_id: string;
+  day: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  quantity: string;
+}
+
+export interface ProfileOut {
+  meter_id: string;
+  day: string;
+  unit: string;
+  /** @items.pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  values: string[];
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  total: string;
+}
+
+export interface BalanceDayOut {
+  day: string;
+  balance: BalanceOut;
+}
+
+export interface NodeBalanceOut {
+  meter_id: string;
+  children: MeterOut[];
+  total: BalanceOut;
+  days: BalanceDayOut[];
+}
+
+export interface SpecificOut {
+  meter_id: string;
+  meter_code: string;
+  equipment_id: string;
+  equipment_name: string;
+  inventory_no: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  energy: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  machine_hours: string;
+  specific: string | null;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  cost: string;
+}
+
+export type RepairKind = typeof RepairKind[keyof typeof RepairKind];
+
+
+export const RepairKind = {
+  fail: 'fail',
+  repair: 'repair',
+  maintenance: 'maintenance',
+} as const;
+
+export interface DownReasonOut {
+  id: string;
+  name: string;
+  repair_kind: RepairKind | null;
+}
+
+export interface ReferenceItemOut {
+  id: string;
+  name: string;
+}
+
+export interface ReferenceOut {
+  idle_reasons: ReferenceItemOut[];
+  down_reasons: DownReasonOut[];
+  failure_categories: ReferenceItemOut[];
+}
+
+export interface DashboardAbilitiesOut {
+  can_create_equipment: boolean;
+  can_register_repair: boolean;
+}
+
+export interface KpiOut {
+  equipment_count: number;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  utilization: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  idle_and_down_hours: string;
+  maintenance_overdue: number;
+  maintenance_soon: number;
+}
+
+export interface WeekOut {
+  week_start: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  run: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  setup: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  idle: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  down: string;
+  days: number;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  utilization: string;
+}
+
+export interface MatrixRowOut {
+  equipment_id: string;
+  name: string;
+  weeks: WeekOut[];
+}
+
+export interface ParetoOut {
+  reason: string;
+  is_down: boolean;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  hours: string;
+}
+
+/**
+ * Состояние ТО — выводится селектором (`toState` прототипа), не хранится.
+ */
+export type MaintenanceState = typeof MaintenanceState[keyof typeof MaintenanceState];
+
+
+export const MaintenanceState = {
+  overdue: 'overdue',
+  soon: 'soon',
+  ok: 'ok',
+} as const;
+
+export interface MaintenanceStateOut {
+  maintenance_type_id: string;
+  code: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  interval_hours: string;
+  scope: string;
+  last_date: string | null;
+  last_at_hours: string | null;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  next_at_hours: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  hours_left: string;
+  due_date: string;
+  state: MaintenanceState;
+}
+
+export interface MaintenancePlanOut {
+  equipment_id: string;
+  equipment_name: string;
+  maintenance: MaintenanceStateOut;
+}
+
+export interface DashboardOut {
+  week_start: string;
+  weeks: string[];
+  kpi: KpiOut;
+  matrix: MatrixRowOut[];
+  pareto: ParetoOut[];
+  maintenance_plan: MaintenancePlanOut[];
+  abilities: DashboardAbilitiesOut;
+}
+
+export type EquipmentStatus = typeof EquipmentStatus[keyof typeof EquipmentStatus];
+
+
+export const EquipmentStatus = {
+  run: 'run',
+  idle: 'idle',
+  to: 'to',
+  repair: 'repair',
+} as const;
+
+export interface EquipmentListItem {
+  id: string;
+  inventory_no: string;
+  name: string;
+  work_center_id: string | null;
+  control_system: string;
+  connection: string;
+  status: EquipmentStatus;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  operating_hours: string;
+  week: WeekOut;
+  nearest_maintenance: MaintenanceStateOut | null;
+}
+
+/**
+ * Серверные способности текущего пользователя — фронт показывает кнопки по ним.
+ */
+export interface EquipmentAbilitiesOut {
+  can_edit: boolean;
+  can_set_status: boolean;
+  can_log_runtime: boolean;
+  can_register_repair: boolean;
+  can_manage_maintenance: boolean;
+}
+
+export type RuntimeSource = typeof RuntimeSource[keyof typeof RuntimeSource];
+
+
+export const RuntimeSource = {
+  manual: 'manual',
+  scada: 'scada',
+} as const;
+
+export interface RuntimeOut {
+  id: string;
+  date: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  run: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  setup: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  idle: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  down: string;
+  idle_reason_id: string | null;
+  idle_reason_name: string;
+  down_reason_id: string | null;
+  down_reason_name: string;
+  source: RuntimeSource;
+}
+
+export type RepairStatus = typeof RepairStatus[keyof typeof RepairStatus];
+
+
+export const RepairStatus = {
+  open: 'open',
+  work: 'work',
+  done: 'done',
+} as const;
+
+export interface RepairListItem {
+  id: string;
+  number: string;
+  equipment_id: string;
+  equipment_name: string;
+  equipment_inventory_no: string;
+  kind: RepairKind;
+  maintenance_type_id: string | null;
+  category_id: string | null;
+  category_name: string;
+  started_at: string;
+  finished_at: string | null;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  downtime_hours: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  labor_hours: string;
+  description: string;
+  fix: string;
+  status: RepairStatus;
+}
+
+export interface EquipmentOut {
+  id: string;
+  inventory_no: string;
+  name: string;
+  work_center_id: string | null;
+  control_system: string;
+  connection: string;
+  status: EquipmentStatus;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  operating_hours_initial: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  operating_hours: string;
+  weeks: WeekOut[];
+  maintenance: MaintenanceStateOut[];
+  recent_runtime: RuntimeOut[];
+  recent_repairs: RepairListItem[];
+  abilities: EquipmentAbilitiesOut;
+}
+
+export interface EquipmentIn {
+  inventory_no: string;
+  name: string;
+  work_center_id?: string | null;
+  control_system?: string;
+  connection?: string;
+  operating_hours_initial?: number | string;
+}
+
+export interface StatusIn {
+  status: EquipmentStatus;
+}
+
+export interface RuntimeIn {
+  date: string;
+  run?: number | string;
+  setup?: number | string;
+  idle?: number | string;
+  down?: number | string;
+  idle_reason_id?: string | null;
+  down_reason_id?: string | null;
+}
+
+export interface MaintenanceTypeIn {
+  code: string;
+  interval_hours: number | string;
+  scope?: string;
+}
+
+export interface RepairAbilitiesOut {
+  can_edit: boolean;
+  can_start: boolean;
+  can_close: boolean;
+}
+
+export interface WorkerOut {
+  employee_id: string;
+  employee_name: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  hours: string;
+}
+
+export interface RepairOut {
+  id: string;
+  number: string;
+  equipment_id: string;
+  equipment_name: string;
+  equipment_inventory_no: string;
+  kind: RepairKind;
+  maintenance_type_id: string | null;
+  category_id: string | null;
+  category_name: string;
+  started_at: string;
+  finished_at: string | null;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  downtime_hours: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  labor_hours: string;
+  description: string;
+  fix: string;
+  status: RepairStatus;
+  alarm_code: string;
+  parts: string;
+  maintenance_type_code: string;
+  workers: WorkerOut[];
+  created_at: string;
+  abilities: RepairAbilitiesOut;
+}
+
+export interface WorkerIn {
+  employee_id: string;
+  hours: number | string;
+}
+
+export interface PerformMaintenanceIn {
+  started_at: string;
+  finished_at: string;
+  workers: WorkerIn[];
+  comment?: string;
+}
+
+/**
+ * Фильтры журнала аварий и ремонтов (прототип: 30 / 90 / 180 дней, вид, станок).
+ */
+export interface RepairFilters {
+  /**
+     * @minimum 1
+     * @maximum 3660
+     */
+  days?: number;
+  kind?: RepairKind | null;
+  equipment_id?: string | null;
+}
+
+export interface CategoryDowntimeOut {
+  category: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  hours: string;
+}
+
+export interface EquipmentFailuresOut {
+  equipment_id: string;
+  equipment_name: string;
+  failures: number;
+}
+
+export interface RepairsSummaryOut {
+  failures: number;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  failure_downtime: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  labor_hours: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  mttr: string;
+  mtbf: string | null;
+  downtime_by_category: CategoryDowntimeOut[];
+  failures_by_equipment: EquipmentFailuresOut[];
+}
+
+export interface RepairJournalOut {
+  items: RepairListItem[];
+  summary: RepairsSummaryOut;
+  can_register: boolean;
+}
+
+export interface RepairCreateIn {
+  kind: RepairKind;
+  started_at: string;
+  description: string;
+  finished_at?: string | null;
+  maintenance_type_id?: string | null;
+  category_id?: string | null;
+  alarm_code?: string;
+  fix?: string;
+  parts?: string;
+  workers?: WorkerIn[];
+  equipment_id: string;
+}
+
+export interface RepairIn {
+  kind: RepairKind;
+  started_at: string;
+  description: string;
+  finished_at?: string | null;
+  maintenance_type_id?: string | null;
+  category_id?: string | null;
+  alarm_code?: string;
+  fix?: string;
+  parts?: string;
+  workers?: WorkerIn[];
+}
+
+export interface RepairCloseIn {
+  finished_at?: string | null;
+}
+
 export type GetCsrf200 = {[key: string]: boolean};
 
 export type Logout200 = {[key: string]: boolean};
@@ -224,6 +825,68 @@ cursor?: string | null;
 page_size?: number;
 ordering?: string | null;
 with_total?: boolean;
+};
+
+export type ListMetersParams = {
+resource?: string | null;
+};
+
+export type GetEnergyConsumptionParams = {
+date_from?: string | null;
+date_to?: string | null;
+resource?: string | null;
+by_month?: boolean;
+};
+
+export type GetEnergyMeterTreeParams = {
+resource: string;
+date_from?: string | null;
+date_to?: string | null;
+};
+
+export type GetEnergyDailyParams = {
+resource: string;
+date_from?: string | null;
+date_to?: string | null;
+};
+
+export type GetEnergyProfileParams = {
+meter_id: string;
+day: string;
+};
+
+export type GetEnergyBalanceParams = {
+meter_id: string;
+date_from?: string | null;
+date_to?: string | null;
+};
+
+export type GetEnergySpecificParams = {
+date_from?: string | null;
+date_to?: string | null;
+};
+
+export type GetEquipmentDashboardParams = {
+week?: string | null;
+};
+
+export type ListEquipmentParams = {
+week?: string | null;
+};
+
+export type ListRuntimeParams = {
+date_from?: string | null;
+date_to?: string | null;
+};
+
+export type ListRepairsParams = {
+/**
+ * @minimum 1
+ * @maximum 3660
+ */
+days?: number;
+kind?: RepairKind | null;
+equipment_id?: string | null;
 };
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
@@ -1593,3 +2256,2978 @@ export function useListItems<TData = Awaited<ReturnType<typeof listItems>>, TErr
 
   return withQueryKey(query, queryOptions.queryKey);
 }
+
+
+
+
+
+
+
+export const getListEnergyResourcesUrl = () => {
+
+
+
+
+  return `/api/v1/energy/resources`
+}
+
+/**
+ * @summary List Resources
+ */
+export const listEnergyResources = async ( options?: Parameters<typeof customFetch>[1]): Promise<ResourcesOut> => {
+
+  return customFetch<ResourcesOut>(getListEnergyResourcesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListEnergyResourcesQueryKey = () => {
+    return [
+    `/api/v1/energy/resources`
+    ] as const;
+    }
+
+
+export const getListEnergyResourcesQueryOptions = <TData = Awaited<ReturnType<typeof listEnergyResources>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listEnergyResources>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListEnergyResourcesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listEnergyResources>>> = ({ signal }) => listEnergyResources({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listEnergyResources>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListEnergyResourcesQueryResult = NonNullable<Awaited<ReturnType<typeof listEnergyResources>>>
+export type ListEnergyResourcesQueryError = unknown
+
+
+export function useListEnergyResources<TData = Awaited<ReturnType<typeof listEnergyResources>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listEnergyResources>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listEnergyResources>>,
+          TError,
+          Awaited<ReturnType<typeof listEnergyResources>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListEnergyResources<TData = Awaited<ReturnType<typeof listEnergyResources>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listEnergyResources>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listEnergyResources>>,
+          TError,
+          Awaited<ReturnType<typeof listEnergyResources>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListEnergyResources<TData = Awaited<ReturnType<typeof listEnergyResources>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listEnergyResources>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List Resources
+ */
+
+export function useListEnergyResources<TData = Awaited<ReturnType<typeof listEnergyResources>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listEnergyResources>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListEnergyResourcesQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSetEnergyTariffUrl = (resourceId: string,) => {
+
+
+
+
+  return `/api/v1/energy/resources/${resourceId}/tariffs`
+}
+
+/**
+ * @summary Set Tariff
+ */
+export const setEnergyTariff = async (resourceId: string,
+    tariffIn: TariffIn, options?: Parameters<typeof customFetch>[1]): Promise<ResourcesOut> => {
+
+  return customFetch<ResourcesOut>(getSetEnergyTariffUrl(resourceId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(tariffIn)
+  }
+);}
+
+
+
+
+
+export const getSetEnergyTariffMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setEnergyTariff>>, TError,{resourceId: string;data: TariffIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setEnergyTariff>>, TError,{resourceId: string;data: TariffIn}, TContext> => {
+
+const mutationKey = ['setEnergyTariff'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setEnergyTariff>>, {resourceId: string;data: TariffIn}> = (props) => {
+          const {resourceId,data} = props ?? {};
+
+          return  setEnergyTariff(resourceId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SetEnergyTariffMutationResult = NonNullable<Awaited<ReturnType<typeof setEnergyTariff>>>
+    export type SetEnergyTariffMutationBody = TariffIn
+    export type SetEnergyTariffMutationError = unknown
+
+    /**
+ * @summary Set Tariff
+ */
+export const useSetEnergyTariff = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setEnergyTariff>>, TError,{resourceId: string;data: TariffIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof setEnergyTariff>>,
+        TError,
+        {resourceId: string;data: TariffIn},
+        TContext
+      > => {
+      return useMutation(getSetEnergyTariffMutationOptions(options), queryClient);
+    }
+
+export const getListMetersUrl = (params?: ListMetersParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/energy/meters?${stringifiedParams}` : `/api/v1/energy/meters`
+}
+
+/**
+ * @summary List Meters
+ */
+export const listMeters = async (params?: ListMetersParams, options?: Parameters<typeof customFetch>[1]): Promise<MeterOut[]> => {
+
+  return customFetch<MeterOut[]>(getListMetersUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListMetersQueryKey = (params?: ListMetersParams,) => {
+    return [
+    `/api/v1/energy/meters`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListMetersQueryOptions = <TData = Awaited<ReturnType<typeof listMeters>>, TError = unknown>(params?: ListMetersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMeters>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMetersQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMeters>>> = ({ signal }) => listMeters(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMeters>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListMetersQueryResult = NonNullable<Awaited<ReturnType<typeof listMeters>>>
+export type ListMetersQueryError = unknown
+
+
+export function useListMeters<TData = Awaited<ReturnType<typeof listMeters>>, TError = unknown>(
+ params: undefined |  ListMetersParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMeters>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listMeters>>,
+          TError,
+          Awaited<ReturnType<typeof listMeters>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListMeters<TData = Awaited<ReturnType<typeof listMeters>>, TError = unknown>(
+ params?: ListMetersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMeters>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listMeters>>,
+          TError,
+          Awaited<ReturnType<typeof listMeters>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListMeters<TData = Awaited<ReturnType<typeof listMeters>>, TError = unknown>(
+ params?: ListMetersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMeters>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List Meters
+ */
+
+export function useListMeters<TData = Awaited<ReturnType<typeof listMeters>>, TError = unknown>(
+ params?: ListMetersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMeters>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListMetersQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateMeterUrl = () => {
+
+
+
+
+  return `/api/v1/energy/meters`
+}
+
+/**
+ * @summary Create Meter
+ */
+export const createMeter = async (meterIn: MeterIn, options?: Parameters<typeof customFetch>[1]): Promise<MeterOut> => {
+
+  return customFetch<MeterOut>(getCreateMeterUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(meterIn)
+  }
+);}
+
+
+
+
+
+export const getCreateMeterMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMeter>>, TError,{data: MeterIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createMeter>>, TError,{data: MeterIn}, TContext> => {
+
+const mutationKey = ['createMeter'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createMeter>>, {data: MeterIn}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createMeter(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateMeterMutationResult = NonNullable<Awaited<ReturnType<typeof createMeter>>>
+    export type CreateMeterMutationBody = MeterIn
+    export type CreateMeterMutationError = unknown
+
+    /**
+ * @summary Create Meter
+ */
+export const useCreateMeter = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMeter>>, TError,{data: MeterIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createMeter>>,
+        TError,
+        {data: MeterIn},
+        TContext
+      > => {
+      return useMutation(getCreateMeterMutationOptions(options), queryClient);
+    }
+
+export const getUpdateMeterUrl = (meterId: string,) => {
+
+
+
+
+  return `/api/v1/energy/meters/${meterId}`
+}
+
+/**
+ * @summary Update Meter
+ */
+export const updateMeter = async (meterId: string,
+    meterIn: MeterIn, options?: Parameters<typeof customFetch>[1]): Promise<MeterOut> => {
+
+  return customFetch<MeterOut>(getUpdateMeterUrl(meterId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(meterIn)
+  }
+);}
+
+
+
+
+
+export const getUpdateMeterMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMeter>>, TError,{meterId: string;data: MeterIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateMeter>>, TError,{meterId: string;data: MeterIn}, TContext> => {
+
+const mutationKey = ['updateMeter'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMeter>>, {meterId: string;data: MeterIn}> = (props) => {
+          const {meterId,data} = props ?? {};
+
+          return  updateMeter(meterId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateMeterMutationResult = NonNullable<Awaited<ReturnType<typeof updateMeter>>>
+    export type UpdateMeterMutationBody = MeterIn
+    export type UpdateMeterMutationError = unknown
+
+    /**
+ * @summary Update Meter
+ */
+export const useUpdateMeter = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMeter>>, TError,{meterId: string;data: MeterIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateMeter>>,
+        TError,
+        {meterId: string;data: MeterIn},
+        TContext
+      > => {
+      return useMutation(getUpdateMeterMutationOptions(options), queryClient);
+    }
+
+export const getListMeterReadingsUrl = (meterId: string,) => {
+
+
+
+
+  return `/api/v1/energy/meters/${meterId}/readings`
+}
+
+/**
+ * @summary List Readings
+ */
+export const listMeterReadings = async (meterId: string, options?: Parameters<typeof customFetch>[1]): Promise<ReadingOut[]> => {
+
+  return customFetch<ReadingOut[]>(getListMeterReadingsUrl(meterId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListMeterReadingsQueryKey = (meterId: string,) => {
+    return [
+    `/api/v1/energy/meters/${meterId}/readings`
+    ] as const;
+    }
+
+
+export const getListMeterReadingsQueryOptions = <TData = Awaited<ReturnType<typeof listMeterReadings>>, TError = unknown>(meterId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMeterReadings>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMeterReadingsQueryKey(meterId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMeterReadings>>> = ({ signal }) => listMeterReadings(meterId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: meterId !== null && meterId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMeterReadings>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListMeterReadingsQueryResult = NonNullable<Awaited<ReturnType<typeof listMeterReadings>>>
+export type ListMeterReadingsQueryError = unknown
+
+
+export function useListMeterReadings<TData = Awaited<ReturnType<typeof listMeterReadings>>, TError = unknown>(
+ meterId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMeterReadings>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listMeterReadings>>,
+          TError,
+          Awaited<ReturnType<typeof listMeterReadings>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListMeterReadings<TData = Awaited<ReturnType<typeof listMeterReadings>>, TError = unknown>(
+ meterId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMeterReadings>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listMeterReadings>>,
+          TError,
+          Awaited<ReturnType<typeof listMeterReadings>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListMeterReadings<TData = Awaited<ReturnType<typeof listMeterReadings>>, TError = unknown>(
+ meterId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMeterReadings>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List Readings
+ */
+
+export function useListMeterReadings<TData = Awaited<ReturnType<typeof listMeterReadings>>, TError = unknown>(
+ meterId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMeterReadings>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListMeterReadingsQueryOptions(meterId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getRecordMeterReadingUrl = (meterId: string,) => {
+
+
+
+
+  return `/api/v1/energy/meters/${meterId}/readings`
+}
+
+/**
+ * Ручной ввод показания: расход с прошлого показания ложится в получасовые
+ * интервалы между ними.
+ * @summary Record Reading
+ */
+export const recordMeterReading = async (meterId: string,
+    readingIn: ReadingIn, options?: Parameters<typeof customFetch>[1]): Promise<ReadingOut> => {
+
+  return customFetch<ReadingOut>(getRecordMeterReadingUrl(meterId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(readingIn)
+  }
+);}
+
+
+
+
+
+export const getRecordMeterReadingMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof recordMeterReading>>, TError,{meterId: string;data: ReadingIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof recordMeterReading>>, TError,{meterId: string;data: ReadingIn}, TContext> => {
+
+const mutationKey = ['recordMeterReading'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof recordMeterReading>>, {meterId: string;data: ReadingIn}> = (props) => {
+          const {meterId,data} = props ?? {};
+
+          return  recordMeterReading(meterId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RecordMeterReadingMutationResult = NonNullable<Awaited<ReturnType<typeof recordMeterReading>>>
+    export type RecordMeterReadingMutationBody = ReadingIn
+    export type RecordMeterReadingMutationError = unknown
+
+    /**
+ * @summary Record Reading
+ */
+export const useRecordMeterReading = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof recordMeterReading>>, TError,{meterId: string;data: ReadingIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof recordMeterReading>>,
+        TError,
+        {meterId: string;data: ReadingIn},
+        TContext
+      > => {
+      return useMutation(getRecordMeterReadingMutationOptions(options), queryClient);
+    }
+
+export const getIngestEnergyIntervalsUrl = () => {
+
+
+
+
+  return `/api/v1/energy/intervals`
+}
+
+/**
+ * Пакет получасовых интервалов SCADA. Идемпотентно по `message_id`: повтор пакета
+ * возвращает итог первого приёма с `duplicate = true` и ничего не меняет.
+ * @summary Ingest Intervals
+ */
+export const ingestEnergyIntervals = async (scadaEnvelopeIn: ScadaEnvelopeIn, options?: Parameters<typeof customFetch>[1]): Promise<IngestResultOut> => {
+
+  return customFetch<IngestResultOut>(getIngestEnergyIntervalsUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(scadaEnvelopeIn)
+  }
+);}
+
+
+
+
+
+export const getIngestEnergyIntervalsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof ingestEnergyIntervals>>, TError,{data: ScadaEnvelopeIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof ingestEnergyIntervals>>, TError,{data: ScadaEnvelopeIn}, TContext> => {
+
+const mutationKey = ['ingestEnergyIntervals'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof ingestEnergyIntervals>>, {data: ScadaEnvelopeIn}> = (props) => {
+          const {data} = props ?? {};
+
+          return  ingestEnergyIntervals(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IngestEnergyIntervalsMutationResult = NonNullable<Awaited<ReturnType<typeof ingestEnergyIntervals>>>
+    export type IngestEnergyIntervalsMutationBody = ScadaEnvelopeIn
+    export type IngestEnergyIntervalsMutationError = unknown
+
+    /**
+ * @summary Ingest Intervals
+ */
+export const useIngestEnergyIntervals = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof ingestEnergyIntervals>>, TError,{data: ScadaEnvelopeIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof ingestEnergyIntervals>>,
+        TError,
+        {data: ScadaEnvelopeIn},
+        TContext
+      > => {
+      return useMutation(getIngestEnergyIntervalsMutationOptions(options), queryClient);
+    }
+
+export const getListScadaMessagesUrl = () => {
+
+
+
+
+  return `/api/v1/energy/scada-messages`
+}
+
+/**
+ * Последние принятые пакеты — строка состояния обмена на экране.
+ * @summary List Scada Messages
+ */
+export const listScadaMessages = async ( options?: Parameters<typeof customFetch>[1]): Promise<ScadaMessageOut[]> => {
+
+  return customFetch<ScadaMessageOut[]>(getListScadaMessagesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListScadaMessagesQueryKey = () => {
+    return [
+    `/api/v1/energy/scada-messages`
+    ] as const;
+    }
+
+
+export const getListScadaMessagesQueryOptions = <TData = Awaited<ReturnType<typeof listScadaMessages>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listScadaMessages>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListScadaMessagesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listScadaMessages>>> = ({ signal }) => listScadaMessages({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listScadaMessages>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListScadaMessagesQueryResult = NonNullable<Awaited<ReturnType<typeof listScadaMessages>>>
+export type ListScadaMessagesQueryError = unknown
+
+
+export function useListScadaMessages<TData = Awaited<ReturnType<typeof listScadaMessages>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listScadaMessages>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listScadaMessages>>,
+          TError,
+          Awaited<ReturnType<typeof listScadaMessages>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListScadaMessages<TData = Awaited<ReturnType<typeof listScadaMessages>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listScadaMessages>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listScadaMessages>>,
+          TError,
+          Awaited<ReturnType<typeof listScadaMessages>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListScadaMessages<TData = Awaited<ReturnType<typeof listScadaMessages>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listScadaMessages>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List Scada Messages
+ */
+
+export function useListScadaMessages<TData = Awaited<ReturnType<typeof listScadaMessages>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listScadaMessages>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListScadaMessagesQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetEnergyConsumptionUrl = (params?: GetEnergyConsumptionParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/energy/reports/consumption?${stringifiedParams}` : `/api/v1/energy/reports/consumption`
+}
+
+/**
+ * Расход и стоимость по ресурсам: по суткам или по месяцам (`by_month`).
+ * @summary Consumption Report
+ */
+export const getEnergyConsumption = async (params?: GetEnergyConsumptionParams, options?: Parameters<typeof customFetch>[1]): Promise<ConsumptionOut[]> => {
+
+  return customFetch<ConsumptionOut[]>(getGetEnergyConsumptionUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetEnergyConsumptionQueryKey = (params?: GetEnergyConsumptionParams,) => {
+    return [
+    `/api/v1/energy/reports/consumption`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetEnergyConsumptionQueryOptions = <TData = Awaited<ReturnType<typeof getEnergyConsumption>>, TError = unknown>(params?: GetEnergyConsumptionParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyConsumption>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEnergyConsumptionQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEnergyConsumption>>> = ({ signal }) => getEnergyConsumption(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEnergyConsumption>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetEnergyConsumptionQueryResult = NonNullable<Awaited<ReturnType<typeof getEnergyConsumption>>>
+export type GetEnergyConsumptionQueryError = unknown
+
+
+export function useGetEnergyConsumption<TData = Awaited<ReturnType<typeof getEnergyConsumption>>, TError = unknown>(
+ params: undefined |  GetEnergyConsumptionParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyConsumption>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEnergyConsumption>>,
+          TError,
+          Awaited<ReturnType<typeof getEnergyConsumption>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEnergyConsumption<TData = Awaited<ReturnType<typeof getEnergyConsumption>>, TError = unknown>(
+ params?: GetEnergyConsumptionParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyConsumption>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEnergyConsumption>>,
+          TError,
+          Awaited<ReturnType<typeof getEnergyConsumption>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEnergyConsumption<TData = Awaited<ReturnType<typeof getEnergyConsumption>>, TError = unknown>(
+ params?: GetEnergyConsumptionParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyConsumption>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Consumption Report
+ */
+
+export function useGetEnergyConsumption<TData = Awaited<ReturnType<typeof getEnergyConsumption>>, TError = unknown>(
+ params?: GetEnergyConsumptionParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyConsumption>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetEnergyConsumptionQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetEnergyMeterTreeUrl = (params: GetEnergyMeterTreeParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/energy/reports/tree?${stringifiedParams}` : `/api/v1/energy/reports/tree`
+}
+
+/**
+ * «Счётчики и балансы»: дерево, расход за период и предыдущий такой же, доля,
+ * стоимость, небаланс узла.
+ * @summary Meter Tree Report
+ */
+export const getEnergyMeterTree = async (params: GetEnergyMeterTreeParams, options?: Parameters<typeof customFetch>[1]): Promise<MeterTreeRowOut[]> => {
+
+  return customFetch<MeterTreeRowOut[]>(getGetEnergyMeterTreeUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetEnergyMeterTreeQueryKey = (params?: GetEnergyMeterTreeParams,) => {
+    return [
+    `/api/v1/energy/reports/tree`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetEnergyMeterTreeQueryOptions = <TData = Awaited<ReturnType<typeof getEnergyMeterTree>>, TError = unknown>(params: GetEnergyMeterTreeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyMeterTree>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEnergyMeterTreeQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEnergyMeterTree>>> = ({ signal }) => getEnergyMeterTree(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEnergyMeterTree>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetEnergyMeterTreeQueryResult = NonNullable<Awaited<ReturnType<typeof getEnergyMeterTree>>>
+export type GetEnergyMeterTreeQueryError = unknown
+
+
+export function useGetEnergyMeterTree<TData = Awaited<ReturnType<typeof getEnergyMeterTree>>, TError = unknown>(
+ params: GetEnergyMeterTreeParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyMeterTree>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEnergyMeterTree>>,
+          TError,
+          Awaited<ReturnType<typeof getEnergyMeterTree>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEnergyMeterTree<TData = Awaited<ReturnType<typeof getEnergyMeterTree>>, TError = unknown>(
+ params: GetEnergyMeterTreeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyMeterTree>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEnergyMeterTree>>,
+          TError,
+          Awaited<ReturnType<typeof getEnergyMeterTree>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEnergyMeterTree<TData = Awaited<ReturnType<typeof getEnergyMeterTree>>, TError = unknown>(
+ params: GetEnergyMeterTreeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyMeterTree>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Meter Tree Report
+ */
+
+export function useGetEnergyMeterTree<TData = Awaited<ReturnType<typeof getEnergyMeterTree>>, TError = unknown>(
+ params: GetEnergyMeterTreeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyMeterTree>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetEnergyMeterTreeQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetEnergyDailyUrl = (params: GetEnergyDailyParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/energy/reports/daily?${stringifiedParams}` : `/api/v1/energy/reports/daily`
+}
+
+/**
+ * @summary Daily Report
+ */
+export const getEnergyDaily = async (params: GetEnergyDailyParams, options?: Parameters<typeof customFetch>[1]): Promise<DailyOut[]> => {
+
+  return customFetch<DailyOut[]>(getGetEnergyDailyUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetEnergyDailyQueryKey = (params?: GetEnergyDailyParams,) => {
+    return [
+    `/api/v1/energy/reports/daily`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetEnergyDailyQueryOptions = <TData = Awaited<ReturnType<typeof getEnergyDaily>>, TError = unknown>(params: GetEnergyDailyParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyDaily>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEnergyDailyQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEnergyDaily>>> = ({ signal }) => getEnergyDaily(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEnergyDaily>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetEnergyDailyQueryResult = NonNullable<Awaited<ReturnType<typeof getEnergyDaily>>>
+export type GetEnergyDailyQueryError = unknown
+
+
+export function useGetEnergyDaily<TData = Awaited<ReturnType<typeof getEnergyDaily>>, TError = unknown>(
+ params: GetEnergyDailyParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyDaily>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEnergyDaily>>,
+          TError,
+          Awaited<ReturnType<typeof getEnergyDaily>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEnergyDaily<TData = Awaited<ReturnType<typeof getEnergyDaily>>, TError = unknown>(
+ params: GetEnergyDailyParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyDaily>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEnergyDaily>>,
+          TError,
+          Awaited<ReturnType<typeof getEnergyDaily>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEnergyDaily<TData = Awaited<ReturnType<typeof getEnergyDaily>>, TError = unknown>(
+ params: GetEnergyDailyParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyDaily>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Daily Report
+ */
+
+export function useGetEnergyDaily<TData = Awaited<ReturnType<typeof getEnergyDaily>>, TError = unknown>(
+ params: GetEnergyDailyParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyDaily>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetEnergyDailyQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetEnergyProfileUrl = (params: GetEnergyProfileParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/energy/reports/profile?${stringifiedParams}` : `/api/v1/energy/reports/profile`
+}
+
+/**
+ * Получасовой профиль суток: 48 значений расхода (мощность, кВт = значение × 2).
+ * @summary Profile Report
+ */
+export const getEnergyProfile = async (params: GetEnergyProfileParams, options?: Parameters<typeof customFetch>[1]): Promise<ProfileOut> => {
+
+  return customFetch<ProfileOut>(getGetEnergyProfileUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetEnergyProfileQueryKey = (params?: GetEnergyProfileParams,) => {
+    return [
+    `/api/v1/energy/reports/profile`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetEnergyProfileQueryOptions = <TData = Awaited<ReturnType<typeof getEnergyProfile>>, TError = unknown>(params: GetEnergyProfileParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyProfile>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEnergyProfileQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEnergyProfile>>> = ({ signal }) => getEnergyProfile(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEnergyProfile>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetEnergyProfileQueryResult = NonNullable<Awaited<ReturnType<typeof getEnergyProfile>>>
+export type GetEnergyProfileQueryError = unknown
+
+
+export function useGetEnergyProfile<TData = Awaited<ReturnType<typeof getEnergyProfile>>, TError = unknown>(
+ params: GetEnergyProfileParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyProfile>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEnergyProfile>>,
+          TError,
+          Awaited<ReturnType<typeof getEnergyProfile>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEnergyProfile<TData = Awaited<ReturnType<typeof getEnergyProfile>>, TError = unknown>(
+ params: GetEnergyProfileParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyProfile>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEnergyProfile>>,
+          TError,
+          Awaited<ReturnType<typeof getEnergyProfile>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEnergyProfile<TData = Awaited<ReturnType<typeof getEnergyProfile>>, TError = unknown>(
+ params: GetEnergyProfileParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyProfile>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Profile Report
+ */
+
+export function useGetEnergyProfile<TData = Awaited<ReturnType<typeof getEnergyProfile>>, TError = unknown>(
+ params: GetEnergyProfileParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyProfile>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetEnergyProfileQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetEnergyBalanceUrl = (params: GetEnergyBalanceParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/energy/reports/balance?${stringifiedParams}` : `/api/v1/energy/reports/balance`
+}
+
+/**
+ * Баланс узла: ввод − Σ дочерних = потери, за период и по суткам.
+ * @summary Balance Report
+ */
+export const getEnergyBalance = async (params: GetEnergyBalanceParams, options?: Parameters<typeof customFetch>[1]): Promise<NodeBalanceOut> => {
+
+  return customFetch<NodeBalanceOut>(getGetEnergyBalanceUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetEnergyBalanceQueryKey = (params?: GetEnergyBalanceParams,) => {
+    return [
+    `/api/v1/energy/reports/balance`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetEnergyBalanceQueryOptions = <TData = Awaited<ReturnType<typeof getEnergyBalance>>, TError = unknown>(params: GetEnergyBalanceParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyBalance>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEnergyBalanceQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEnergyBalance>>> = ({ signal }) => getEnergyBalance(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEnergyBalance>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetEnergyBalanceQueryResult = NonNullable<Awaited<ReturnType<typeof getEnergyBalance>>>
+export type GetEnergyBalanceQueryError = unknown
+
+
+export function useGetEnergyBalance<TData = Awaited<ReturnType<typeof getEnergyBalance>>, TError = unknown>(
+ params: GetEnergyBalanceParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyBalance>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEnergyBalance>>,
+          TError,
+          Awaited<ReturnType<typeof getEnergyBalance>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEnergyBalance<TData = Awaited<ReturnType<typeof getEnergyBalance>>, TError = unknown>(
+ params: GetEnergyBalanceParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyBalance>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEnergyBalance>>,
+          TError,
+          Awaited<ReturnType<typeof getEnergyBalance>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEnergyBalance<TData = Awaited<ReturnType<typeof getEnergyBalance>>, TError = unknown>(
+ params: GetEnergyBalanceParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyBalance>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Balance Report
+ */
+
+export function useGetEnergyBalance<TData = Awaited<ReturnType<typeof getEnergyBalance>>, TError = unknown>(
+ params: GetEnergyBalanceParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergyBalance>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetEnergyBalanceQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetEnergySpecificUrl = (params?: GetEnergySpecificParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/energy/reports/specific?${stringifiedParams}` : `/api/v1/energy/reports/specific`
+}
+
+/**
+ * Удельный расход электроэнергии оборудования, кВт·ч на машино-час.
+ * @summary Specific Report
+ */
+export const getEnergySpecific = async (params?: GetEnergySpecificParams, options?: Parameters<typeof customFetch>[1]): Promise<SpecificOut[]> => {
+
+  return customFetch<SpecificOut[]>(getGetEnergySpecificUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetEnergySpecificQueryKey = (params?: GetEnergySpecificParams,) => {
+    return [
+    `/api/v1/energy/reports/specific`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetEnergySpecificQueryOptions = <TData = Awaited<ReturnType<typeof getEnergySpecific>>, TError = unknown>(params?: GetEnergySpecificParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergySpecific>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEnergySpecificQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEnergySpecific>>> = ({ signal }) => getEnergySpecific(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEnergySpecific>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetEnergySpecificQueryResult = NonNullable<Awaited<ReturnType<typeof getEnergySpecific>>>
+export type GetEnergySpecificQueryError = unknown
+
+
+export function useGetEnergySpecific<TData = Awaited<ReturnType<typeof getEnergySpecific>>, TError = unknown>(
+ params: undefined |  GetEnergySpecificParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergySpecific>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEnergySpecific>>,
+          TError,
+          Awaited<ReturnType<typeof getEnergySpecific>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEnergySpecific<TData = Awaited<ReturnType<typeof getEnergySpecific>>, TError = unknown>(
+ params?: GetEnergySpecificParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergySpecific>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEnergySpecific>>,
+          TError,
+          Awaited<ReturnType<typeof getEnergySpecific>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEnergySpecific<TData = Awaited<ReturnType<typeof getEnergySpecific>>, TError = unknown>(
+ params?: GetEnergySpecificParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergySpecific>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Specific Report
+ */
+
+export function useGetEnergySpecific<TData = Awaited<ReturnType<typeof getEnergySpecific>>, TError = unknown>(
+ params?: GetEnergySpecificParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEnergySpecific>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetEnergySpecificQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetEquipmentReferenceUrl = () => {
+
+
+
+
+  return `/api/v1/equipment/reference`
+}
+
+/**
+ * @summary Get Reference
+ */
+export const getEquipmentReference = async ( options?: Parameters<typeof customFetch>[1]): Promise<ReferenceOut> => {
+
+  return customFetch<ReferenceOut>(getGetEquipmentReferenceUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetEquipmentReferenceQueryKey = () => {
+    return [
+    `/api/v1/equipment/reference`
+    ] as const;
+    }
+
+
+export const getGetEquipmentReferenceQueryOptions = <TData = Awaited<ReturnType<typeof getEquipmentReference>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEquipmentReference>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEquipmentReferenceQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEquipmentReference>>> = ({ signal }) => getEquipmentReference({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEquipmentReference>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetEquipmentReferenceQueryResult = NonNullable<Awaited<ReturnType<typeof getEquipmentReference>>>
+export type GetEquipmentReferenceQueryError = unknown
+
+
+export function useGetEquipmentReference<TData = Awaited<ReturnType<typeof getEquipmentReference>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEquipmentReference>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEquipmentReference>>,
+          TError,
+          Awaited<ReturnType<typeof getEquipmentReference>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEquipmentReference<TData = Awaited<ReturnType<typeof getEquipmentReference>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEquipmentReference>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEquipmentReference>>,
+          TError,
+          Awaited<ReturnType<typeof getEquipmentReference>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEquipmentReference<TData = Awaited<ReturnType<typeof getEquipmentReference>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEquipmentReference>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Reference
+ */
+
+export function useGetEquipmentReference<TData = Awaited<ReturnType<typeof getEquipmentReference>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEquipmentReference>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetEquipmentReferenceQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetEquipmentDashboardUrl = (params?: GetEquipmentDashboardParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/equipment/dashboard?${stringifiedParams}` : `/api/v1/equipment/dashboard`
+}
+
+/**
+ * Сводка экрана: KPI недели, матрица загрузки 8 недель, Парето простоев, план ТО.
+ * Недели — 8 полных до текущей (как в прототипе); `week` — любая дата недели.
+ * @summary Get Dashboard
+ */
+export const getEquipmentDashboard = async (params?: GetEquipmentDashboardParams, options?: Parameters<typeof customFetch>[1]): Promise<DashboardOut> => {
+
+  return customFetch<DashboardOut>(getGetEquipmentDashboardUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetEquipmentDashboardQueryKey = (params?: GetEquipmentDashboardParams,) => {
+    return [
+    `/api/v1/equipment/dashboard`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetEquipmentDashboardQueryOptions = <TData = Awaited<ReturnType<typeof getEquipmentDashboard>>, TError = unknown>(params?: GetEquipmentDashboardParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEquipmentDashboard>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEquipmentDashboardQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEquipmentDashboard>>> = ({ signal }) => getEquipmentDashboard(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEquipmentDashboard>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetEquipmentDashboardQueryResult = NonNullable<Awaited<ReturnType<typeof getEquipmentDashboard>>>
+export type GetEquipmentDashboardQueryError = unknown
+
+
+export function useGetEquipmentDashboard<TData = Awaited<ReturnType<typeof getEquipmentDashboard>>, TError = unknown>(
+ params: undefined |  GetEquipmentDashboardParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEquipmentDashboard>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEquipmentDashboard>>,
+          TError,
+          Awaited<ReturnType<typeof getEquipmentDashboard>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEquipmentDashboard<TData = Awaited<ReturnType<typeof getEquipmentDashboard>>, TError = unknown>(
+ params?: GetEquipmentDashboardParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEquipmentDashboard>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEquipmentDashboard>>,
+          TError,
+          Awaited<ReturnType<typeof getEquipmentDashboard>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEquipmentDashboard<TData = Awaited<ReturnType<typeof getEquipmentDashboard>>, TError = unknown>(
+ params?: GetEquipmentDashboardParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEquipmentDashboard>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Dashboard
+ */
+
+export function useGetEquipmentDashboard<TData = Awaited<ReturnType<typeof getEquipmentDashboard>>, TError = unknown>(
+ params?: GetEquipmentDashboardParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEquipmentDashboard>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetEquipmentDashboardQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListEquipmentUrl = (params?: ListEquipmentParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/equipment/machines?${stringifiedParams}` : `/api/v1/equipment/machines`
+}
+
+/**
+ * Таблица «Оборудование, наработка и ТО» за неделю (`week` — любая её дата;
+ * по умолчанию — прошлая полная неделя).
+ * @summary List Machines
+ */
+export const listEquipment = async (params?: ListEquipmentParams, options?: Parameters<typeof customFetch>[1]): Promise<EquipmentListItem[]> => {
+
+  return customFetch<EquipmentListItem[]>(getListEquipmentUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListEquipmentQueryKey = (params?: ListEquipmentParams,) => {
+    return [
+    `/api/v1/equipment/machines`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListEquipmentQueryOptions = <TData = Awaited<ReturnType<typeof listEquipment>>, TError = unknown>(params?: ListEquipmentParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listEquipment>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListEquipmentQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listEquipment>>> = ({ signal }) => listEquipment(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listEquipment>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListEquipmentQueryResult = NonNullable<Awaited<ReturnType<typeof listEquipment>>>
+export type ListEquipmentQueryError = unknown
+
+
+export function useListEquipment<TData = Awaited<ReturnType<typeof listEquipment>>, TError = unknown>(
+ params: undefined |  ListEquipmentParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listEquipment>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listEquipment>>,
+          TError,
+          Awaited<ReturnType<typeof listEquipment>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListEquipment<TData = Awaited<ReturnType<typeof listEquipment>>, TError = unknown>(
+ params?: ListEquipmentParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listEquipment>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listEquipment>>,
+          TError,
+          Awaited<ReturnType<typeof listEquipment>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListEquipment<TData = Awaited<ReturnType<typeof listEquipment>>, TError = unknown>(
+ params?: ListEquipmentParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listEquipment>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List Machines
+ */
+
+export function useListEquipment<TData = Awaited<ReturnType<typeof listEquipment>>, TError = unknown>(
+ params?: ListEquipmentParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listEquipment>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListEquipmentQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateEquipmentUrl = () => {
+
+
+
+
+  return `/api/v1/equipment/machines`
+}
+
+/**
+ * @summary Create Machine
+ */
+export const createEquipment = async (equipmentIn: EquipmentIn, options?: Parameters<typeof customFetch>[1]): Promise<EquipmentOut> => {
+
+  return customFetch<EquipmentOut>(getCreateEquipmentUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(equipmentIn)
+  }
+);}
+
+
+
+
+
+export const getCreateEquipmentMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createEquipment>>, TError,{data: EquipmentIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createEquipment>>, TError,{data: EquipmentIn}, TContext> => {
+
+const mutationKey = ['createEquipment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createEquipment>>, {data: EquipmentIn}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createEquipment(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateEquipmentMutationResult = NonNullable<Awaited<ReturnType<typeof createEquipment>>>
+    export type CreateEquipmentMutationBody = EquipmentIn
+    export type CreateEquipmentMutationError = unknown
+
+    /**
+ * @summary Create Machine
+ */
+export const useCreateEquipment = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createEquipment>>, TError,{data: EquipmentIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createEquipment>>,
+        TError,
+        {data: EquipmentIn},
+        TContext
+      > => {
+      return useMutation(getCreateEquipmentMutationOptions(options), queryClient);
+    }
+
+export const getGetEquipmentUrl = (equipmentId: string,) => {
+
+
+
+
+  return `/api/v1/equipment/machines/${equipmentId}`
+}
+
+/**
+ * @summary Get Machine
+ */
+export const getEquipment = async (equipmentId: string, options?: Parameters<typeof customFetch>[1]): Promise<EquipmentOut> => {
+
+  return customFetch<EquipmentOut>(getGetEquipmentUrl(equipmentId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetEquipmentQueryKey = (equipmentId: string,) => {
+    return [
+    `/api/v1/equipment/machines/${equipmentId}`
+    ] as const;
+    }
+
+
+export const getGetEquipmentQueryOptions = <TData = Awaited<ReturnType<typeof getEquipment>>, TError = unknown>(equipmentId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEquipment>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEquipmentQueryKey(equipmentId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEquipment>>> = ({ signal }) => getEquipment(equipmentId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: equipmentId !== null && equipmentId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEquipment>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetEquipmentQueryResult = NonNullable<Awaited<ReturnType<typeof getEquipment>>>
+export type GetEquipmentQueryError = unknown
+
+
+export function useGetEquipment<TData = Awaited<ReturnType<typeof getEquipment>>, TError = unknown>(
+ equipmentId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEquipment>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEquipment>>,
+          TError,
+          Awaited<ReturnType<typeof getEquipment>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEquipment<TData = Awaited<ReturnType<typeof getEquipment>>, TError = unknown>(
+ equipmentId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEquipment>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEquipment>>,
+          TError,
+          Awaited<ReturnType<typeof getEquipment>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEquipment<TData = Awaited<ReturnType<typeof getEquipment>>, TError = unknown>(
+ equipmentId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEquipment>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Machine
+ */
+
+export function useGetEquipment<TData = Awaited<ReturnType<typeof getEquipment>>, TError = unknown>(
+ equipmentId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEquipment>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetEquipmentQueryOptions(equipmentId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateEquipmentUrl = (equipmentId: string,) => {
+
+
+
+
+  return `/api/v1/equipment/machines/${equipmentId}`
+}
+
+/**
+ * @summary Update Machine
+ */
+export const updateEquipment = async (equipmentId: string,
+    equipmentIn: EquipmentIn, options?: Parameters<typeof customFetch>[1]): Promise<EquipmentOut> => {
+
+  return customFetch<EquipmentOut>(getUpdateEquipmentUrl(equipmentId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(equipmentIn)
+  }
+);}
+
+
+
+
+
+export const getUpdateEquipmentMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateEquipment>>, TError,{equipmentId: string;data: EquipmentIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateEquipment>>, TError,{equipmentId: string;data: EquipmentIn}, TContext> => {
+
+const mutationKey = ['updateEquipment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateEquipment>>, {equipmentId: string;data: EquipmentIn}> = (props) => {
+          const {equipmentId,data} = props ?? {};
+
+          return  updateEquipment(equipmentId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateEquipmentMutationResult = NonNullable<Awaited<ReturnType<typeof updateEquipment>>>
+    export type UpdateEquipmentMutationBody = EquipmentIn
+    export type UpdateEquipmentMutationError = unknown
+
+    /**
+ * @summary Update Machine
+ */
+export const useUpdateEquipment = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateEquipment>>, TError,{equipmentId: string;data: EquipmentIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateEquipment>>,
+        TError,
+        {equipmentId: string;data: EquipmentIn},
+        TContext
+      > => {
+      return useMutation(getUpdateEquipmentMutationOptions(options), queryClient);
+    }
+
+export const getSetEquipmentStatusUrl = (equipmentId: string,) => {
+
+
+
+
+  return `/api/v1/equipment/machines/${equipmentId}/status`
+}
+
+/**
+ * @summary Set Machine Status
+ */
+export const setEquipmentStatus = async (equipmentId: string,
+    statusIn: StatusIn, options?: Parameters<typeof customFetch>[1]): Promise<EquipmentOut> => {
+
+  return customFetch<EquipmentOut>(getSetEquipmentStatusUrl(equipmentId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(statusIn)
+  }
+);}
+
+
+
+
+
+export const getSetEquipmentStatusMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setEquipmentStatus>>, TError,{equipmentId: string;data: StatusIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setEquipmentStatus>>, TError,{equipmentId: string;data: StatusIn}, TContext> => {
+
+const mutationKey = ['setEquipmentStatus'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setEquipmentStatus>>, {equipmentId: string;data: StatusIn}> = (props) => {
+          const {equipmentId,data} = props ?? {};
+
+          return  setEquipmentStatus(equipmentId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SetEquipmentStatusMutationResult = NonNullable<Awaited<ReturnType<typeof setEquipmentStatus>>>
+    export type SetEquipmentStatusMutationBody = StatusIn
+    export type SetEquipmentStatusMutationError = unknown
+
+    /**
+ * @summary Set Machine Status
+ */
+export const useSetEquipmentStatus = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setEquipmentStatus>>, TError,{equipmentId: string;data: StatusIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof setEquipmentStatus>>,
+        TError,
+        {equipmentId: string;data: StatusIn},
+        TContext
+      > => {
+      return useMutation(getSetEquipmentStatusMutationOptions(options), queryClient);
+    }
+
+export const getListRuntimeUrl = (equipmentId: string,
+    params?: ListRuntimeParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/equipment/machines/${equipmentId}/runtime?${stringifiedParams}` : `/api/v1/equipment/machines/${equipmentId}/runtime`
+}
+
+/**
+ * @summary List Runtime
+ */
+export const listRuntime = async (equipmentId: string,
+    params?: ListRuntimeParams, options?: Parameters<typeof customFetch>[1]): Promise<RuntimeOut[]> => {
+
+  return customFetch<RuntimeOut[]>(getListRuntimeUrl(equipmentId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListRuntimeQueryKey = (equipmentId: string,
+    params?: ListRuntimeParams,) => {
+    return [
+    `/api/v1/equipment/machines/${equipmentId}/runtime`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListRuntimeQueryOptions = <TData = Awaited<ReturnType<typeof listRuntime>>, TError = unknown>(equipmentId: string,
+    params?: ListRuntimeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listRuntime>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListRuntimeQueryKey(equipmentId,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listRuntime>>> = ({ signal }) => listRuntime(equipmentId,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: equipmentId !== null && equipmentId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listRuntime>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListRuntimeQueryResult = NonNullable<Awaited<ReturnType<typeof listRuntime>>>
+export type ListRuntimeQueryError = unknown
+
+
+export function useListRuntime<TData = Awaited<ReturnType<typeof listRuntime>>, TError = unknown>(
+ equipmentId: string,
+    params: undefined |  ListRuntimeParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listRuntime>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listRuntime>>,
+          TError,
+          Awaited<ReturnType<typeof listRuntime>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListRuntime<TData = Awaited<ReturnType<typeof listRuntime>>, TError = unknown>(
+ equipmentId: string,
+    params?: ListRuntimeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listRuntime>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listRuntime>>,
+          TError,
+          Awaited<ReturnType<typeof listRuntime>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListRuntime<TData = Awaited<ReturnType<typeof listRuntime>>, TError = unknown>(
+ equipmentId: string,
+    params?: ListRuntimeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listRuntime>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List Runtime
+ */
+
+export function useListRuntime<TData = Awaited<ReturnType<typeof listRuntime>>, TError = unknown>(
+ equipmentId: string,
+    params?: ListRuntimeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listRuntime>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListRuntimeQueryOptions(equipmentId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getRecordRuntimeUrl = (equipmentId: string,) => {
+
+
+
+
+  return `/api/v1/equipment/machines/${equipmentId}/runtime`
+}
+
+/**
+ * «Записать смену»: наработка за сутки, заменяет прежнюю запись тех же суток.
+ * @summary Record Runtime
+ */
+export const recordRuntime = async (equipmentId: string,
+    runtimeIn: RuntimeIn, options?: Parameters<typeof customFetch>[1]): Promise<EquipmentOut> => {
+
+  return customFetch<EquipmentOut>(getRecordRuntimeUrl(equipmentId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(runtimeIn)
+  }
+);}
+
+
+
+
+
+export const getRecordRuntimeMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof recordRuntime>>, TError,{equipmentId: string;data: RuntimeIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof recordRuntime>>, TError,{equipmentId: string;data: RuntimeIn}, TContext> => {
+
+const mutationKey = ['recordRuntime'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof recordRuntime>>, {equipmentId: string;data: RuntimeIn}> = (props) => {
+          const {equipmentId,data} = props ?? {};
+
+          return  recordRuntime(equipmentId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RecordRuntimeMutationResult = NonNullable<Awaited<ReturnType<typeof recordRuntime>>>
+    export type RecordRuntimeMutationBody = RuntimeIn
+    export type RecordRuntimeMutationError = unknown
+
+    /**
+ * @summary Record Runtime
+ */
+export const useRecordRuntime = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof recordRuntime>>, TError,{equipmentId: string;data: RuntimeIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof recordRuntime>>,
+        TError,
+        {equipmentId: string;data: RuntimeIn},
+        TContext
+      > => {
+      return useMutation(getRecordRuntimeMutationOptions(options), queryClient);
+    }
+
+export const getCreateMaintenanceTypeUrl = (equipmentId: string,) => {
+
+
+
+
+  return `/api/v1/equipment/machines/${equipmentId}/maintenance-types`
+}
+
+/**
+ * @summary Create Maintenance Type
+ */
+export const createMaintenanceType = async (equipmentId: string,
+    maintenanceTypeIn: MaintenanceTypeIn, options?: Parameters<typeof customFetch>[1]): Promise<EquipmentOut> => {
+
+  return customFetch<EquipmentOut>(getCreateMaintenanceTypeUrl(equipmentId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(maintenanceTypeIn)
+  }
+);}
+
+
+
+
+
+export const getCreateMaintenanceTypeMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMaintenanceType>>, TError,{equipmentId: string;data: MaintenanceTypeIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createMaintenanceType>>, TError,{equipmentId: string;data: MaintenanceTypeIn}, TContext> => {
+
+const mutationKey = ['createMaintenanceType'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createMaintenanceType>>, {equipmentId: string;data: MaintenanceTypeIn}> = (props) => {
+          const {equipmentId,data} = props ?? {};
+
+          return  createMaintenanceType(equipmentId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateMaintenanceTypeMutationResult = NonNullable<Awaited<ReturnType<typeof createMaintenanceType>>>
+    export type CreateMaintenanceTypeMutationBody = MaintenanceTypeIn
+    export type CreateMaintenanceTypeMutationError = unknown
+
+    /**
+ * @summary Create Maintenance Type
+ */
+export const useCreateMaintenanceType = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMaintenanceType>>, TError,{equipmentId: string;data: MaintenanceTypeIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createMaintenanceType>>,
+        TError,
+        {equipmentId: string;data: MaintenanceTypeIn},
+        TContext
+      > => {
+      return useMutation(getCreateMaintenanceTypeMutationOptions(options), queryClient);
+    }
+
+export const getUpdateMaintenanceTypeUrl = (maintenanceTypeId: string,) => {
+
+
+
+
+  return `/api/v1/equipment/maintenance-types/${maintenanceTypeId}`
+}
+
+/**
+ * @summary Update Maintenance Type
+ */
+export const updateMaintenanceType = async (maintenanceTypeId: string,
+    maintenanceTypeIn: MaintenanceTypeIn, options?: Parameters<typeof customFetch>[1]): Promise<EquipmentOut> => {
+
+  return customFetch<EquipmentOut>(getUpdateMaintenanceTypeUrl(maintenanceTypeId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(maintenanceTypeIn)
+  }
+);}
+
+
+
+
+
+export const getUpdateMaintenanceTypeMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMaintenanceType>>, TError,{maintenanceTypeId: string;data: MaintenanceTypeIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateMaintenanceType>>, TError,{maintenanceTypeId: string;data: MaintenanceTypeIn}, TContext> => {
+
+const mutationKey = ['updateMaintenanceType'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMaintenanceType>>, {maintenanceTypeId: string;data: MaintenanceTypeIn}> = (props) => {
+          const {maintenanceTypeId,data} = props ?? {};
+
+          return  updateMaintenanceType(maintenanceTypeId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateMaintenanceTypeMutationResult = NonNullable<Awaited<ReturnType<typeof updateMaintenanceType>>>
+    export type UpdateMaintenanceTypeMutationBody = MaintenanceTypeIn
+    export type UpdateMaintenanceTypeMutationError = unknown
+
+    /**
+ * @summary Update Maintenance Type
+ */
+export const useUpdateMaintenanceType = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMaintenanceType>>, TError,{maintenanceTypeId: string;data: MaintenanceTypeIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateMaintenanceType>>,
+        TError,
+        {maintenanceTypeId: string;data: MaintenanceTypeIn},
+        TContext
+      > => {
+      return useMutation(getUpdateMaintenanceTypeMutationOptions(options), queryClient);
+    }
+
+export const getPerformMaintenanceUrl = (maintenanceTypeId: string,) => {
+
+
+
+
+  return `/api/v1/equipment/maintenance-types/${maintenanceTypeId}/perform`
+}
+
+/**
+ * «Провести» ТО: закрытая запись журнала вида «ТО» и отметка о проведённом ТО.
+ * @summary Perform Maintenance
+ */
+export const performMaintenance = async (maintenanceTypeId: string,
+    performMaintenanceIn: PerformMaintenanceIn, options?: Parameters<typeof customFetch>[1]): Promise<RepairOut> => {
+
+  return customFetch<RepairOut>(getPerformMaintenanceUrl(maintenanceTypeId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(performMaintenanceIn)
+  }
+);}
+
+
+
+
+
+export const getPerformMaintenanceMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof performMaintenance>>, TError,{maintenanceTypeId: string;data: PerformMaintenanceIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof performMaintenance>>, TError,{maintenanceTypeId: string;data: PerformMaintenanceIn}, TContext> => {
+
+const mutationKey = ['performMaintenance'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof performMaintenance>>, {maintenanceTypeId: string;data: PerformMaintenanceIn}> = (props) => {
+          const {maintenanceTypeId,data} = props ?? {};
+
+          return  performMaintenance(maintenanceTypeId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PerformMaintenanceMutationResult = NonNullable<Awaited<ReturnType<typeof performMaintenance>>>
+    export type PerformMaintenanceMutationBody = PerformMaintenanceIn
+    export type PerformMaintenanceMutationError = unknown
+
+    /**
+ * @summary Perform Maintenance
+ */
+export const usePerformMaintenance = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof performMaintenance>>, TError,{maintenanceTypeId: string;data: PerformMaintenanceIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof performMaintenance>>,
+        TError,
+        {maintenanceTypeId: string;data: PerformMaintenanceIn},
+        TContext
+      > => {
+      return useMutation(getPerformMaintenanceMutationOptions(options), queryClient);
+    }
+
+export const getListRepairsUrl = (params?: ListRepairsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/equipment/repairs?${stringifiedParams}` : `/api/v1/equipment/repairs`
+}
+
+/**
+ * Журнал аварий и ремонтов за `days` дней (незакрытые — всегда) со сводкой:
+ * аварии, простой, трудозатраты, MTTR, MTBF, простой по категориям.
+ * @summary List Repairs
+ */
+export const listRepairs = async (params?: ListRepairsParams, options?: Parameters<typeof customFetch>[1]): Promise<RepairJournalOut> => {
+
+  return customFetch<RepairJournalOut>(getListRepairsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListRepairsQueryKey = (params?: ListRepairsParams,) => {
+    return [
+    `/api/v1/equipment/repairs`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListRepairsQueryOptions = <TData = Awaited<ReturnType<typeof listRepairs>>, TError = unknown>(params?: ListRepairsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listRepairs>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListRepairsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listRepairs>>> = ({ signal }) => listRepairs(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listRepairs>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListRepairsQueryResult = NonNullable<Awaited<ReturnType<typeof listRepairs>>>
+export type ListRepairsQueryError = unknown
+
+
+export function useListRepairs<TData = Awaited<ReturnType<typeof listRepairs>>, TError = unknown>(
+ params: undefined |  ListRepairsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listRepairs>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listRepairs>>,
+          TError,
+          Awaited<ReturnType<typeof listRepairs>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListRepairs<TData = Awaited<ReturnType<typeof listRepairs>>, TError = unknown>(
+ params?: ListRepairsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listRepairs>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listRepairs>>,
+          TError,
+          Awaited<ReturnType<typeof listRepairs>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListRepairs<TData = Awaited<ReturnType<typeof listRepairs>>, TError = unknown>(
+ params?: ListRepairsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listRepairs>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List Repairs
+ */
+
+export function useListRepairs<TData = Awaited<ReturnType<typeof listRepairs>>, TError = unknown>(
+ params?: ListRepairsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listRepairs>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListRepairsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateRepairUrl = () => {
+
+
+
+
+  return `/api/v1/equipment/repairs`
+}
+
+/**
+ * @summary Create Repair
+ */
+export const createRepair = async (repairCreateIn: RepairCreateIn, options?: Parameters<typeof customFetch>[1]): Promise<RepairOut> => {
+
+  return customFetch<RepairOut>(getCreateRepairUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(repairCreateIn)
+  }
+);}
+
+
+
+
+
+export const getCreateRepairMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createRepair>>, TError,{data: RepairCreateIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createRepair>>, TError,{data: RepairCreateIn}, TContext> => {
+
+const mutationKey = ['createRepair'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createRepair>>, {data: RepairCreateIn}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createRepair(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateRepairMutationResult = NonNullable<Awaited<ReturnType<typeof createRepair>>>
+    export type CreateRepairMutationBody = RepairCreateIn
+    export type CreateRepairMutationError = unknown
+
+    /**
+ * @summary Create Repair
+ */
+export const useCreateRepair = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createRepair>>, TError,{data: RepairCreateIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createRepair>>,
+        TError,
+        {data: RepairCreateIn},
+        TContext
+      > => {
+      return useMutation(getCreateRepairMutationOptions(options), queryClient);
+    }
+
+export const getGetRepairUrl = (repairId: string,) => {
+
+
+
+
+  return `/api/v1/equipment/repairs/${repairId}`
+}
+
+/**
+ * @summary Get Repair
+ */
+export const getRepair = async (repairId: string, options?: Parameters<typeof customFetch>[1]): Promise<RepairOut> => {
+
+  return customFetch<RepairOut>(getGetRepairUrl(repairId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetRepairQueryKey = (repairId: string,) => {
+    return [
+    `/api/v1/equipment/repairs/${repairId}`
+    ] as const;
+    }
+
+
+export const getGetRepairQueryOptions = <TData = Awaited<ReturnType<typeof getRepair>>, TError = unknown>(repairId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRepair>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetRepairQueryKey(repairId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getRepair>>> = ({ signal }) => getRepair(repairId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: repairId !== null && repairId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getRepair>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetRepairQueryResult = NonNullable<Awaited<ReturnType<typeof getRepair>>>
+export type GetRepairQueryError = unknown
+
+
+export function useGetRepair<TData = Awaited<ReturnType<typeof getRepair>>, TError = unknown>(
+ repairId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRepair>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getRepair>>,
+          TError,
+          Awaited<ReturnType<typeof getRepair>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetRepair<TData = Awaited<ReturnType<typeof getRepair>>, TError = unknown>(
+ repairId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRepair>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getRepair>>,
+          TError,
+          Awaited<ReturnType<typeof getRepair>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetRepair<TData = Awaited<ReturnType<typeof getRepair>>, TError = unknown>(
+ repairId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRepair>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Repair
+ */
+
+export function useGetRepair<TData = Awaited<ReturnType<typeof getRepair>>, TError = unknown>(
+ repairId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRepair>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetRepairQueryOptions(repairId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateRepairUrl = (repairId: string,) => {
+
+
+
+
+  return `/api/v1/equipment/repairs/${repairId}`
+}
+
+/**
+ * @summary Update Repair
+ */
+export const updateRepair = async (repairId: string,
+    repairIn: RepairIn, options?: Parameters<typeof customFetch>[1]): Promise<RepairOut> => {
+
+  return customFetch<RepairOut>(getUpdateRepairUrl(repairId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(repairIn)
+  }
+);}
+
+
+
+
+
+export const getUpdateRepairMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateRepair>>, TError,{repairId: string;data: RepairIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateRepair>>, TError,{repairId: string;data: RepairIn}, TContext> => {
+
+const mutationKey = ['updateRepair'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateRepair>>, {repairId: string;data: RepairIn}> = (props) => {
+          const {repairId,data} = props ?? {};
+
+          return  updateRepair(repairId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateRepairMutationResult = NonNullable<Awaited<ReturnType<typeof updateRepair>>>
+    export type UpdateRepairMutationBody = RepairIn
+    export type UpdateRepairMutationError = unknown
+
+    /**
+ * @summary Update Repair
+ */
+export const useUpdateRepair = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateRepair>>, TError,{repairId: string;data: RepairIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateRepair>>,
+        TError,
+        {repairId: string;data: RepairIn},
+        TContext
+      > => {
+      return useMutation(getUpdateRepairMutationOptions(options), queryClient);
+    }
+
+export const getStartRepairUrl = (repairId: string,) => {
+
+
+
+
+  return `/api/v1/equipment/repairs/${repairId}/start`
+}
+
+/**
+ * @summary Start Repair
+ */
+export const startRepair = async (repairId: string, options?: Parameters<typeof customFetch>[1]): Promise<RepairOut> => {
+
+  return customFetch<RepairOut>(getStartRepairUrl(repairId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getStartRepairMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startRepair>>, TError,{repairId: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof startRepair>>, TError,{repairId: string}, TContext> => {
+
+const mutationKey = ['startRepair'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof startRepair>>, {repairId: string}> = (props) => {
+          const {repairId} = props ?? {};
+
+          return  startRepair(repairId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type StartRepairMutationResult = NonNullable<Awaited<ReturnType<typeof startRepair>>>
+
+    export type StartRepairMutationError = unknown
+
+    /**
+ * @summary Start Repair
+ */
+export const useStartRepair = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startRepair>>, TError,{repairId: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof startRepair>>,
+        TError,
+        {repairId: string},
+        TContext
+      > => {
+      return useMutation(getStartRepairMutationOptions(options), queryClient);
+    }
+
+export const getCloseRepairUrl = (repairId: string,) => {
+
+
+
+
+  return `/api/v1/equipment/repairs/${repairId}/close`
+}
+
+/**
+ * «Устранено — закрыть»: часы исполнителей уходят в табель событием.
+ * @summary Close Repair
+ */
+export const closeRepair = async (repairId: string,
+    repairCloseIn: RepairCloseIn, options?: Parameters<typeof customFetch>[1]): Promise<RepairOut> => {
+
+  return customFetch<RepairOut>(getCloseRepairUrl(repairId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(repairCloseIn)
+  }
+);}
+
+
+
+
+
+export const getCloseRepairMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof closeRepair>>, TError,{repairId: string;data: RepairCloseIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof closeRepair>>, TError,{repairId: string;data: RepairCloseIn}, TContext> => {
+
+const mutationKey = ['closeRepair'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof closeRepair>>, {repairId: string;data: RepairCloseIn}> = (props) => {
+          const {repairId,data} = props ?? {};
+
+          return  closeRepair(repairId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CloseRepairMutationResult = NonNullable<Awaited<ReturnType<typeof closeRepair>>>
+    export type CloseRepairMutationBody = RepairCloseIn
+    export type CloseRepairMutationError = unknown
+
+    /**
+ * @summary Close Repair
+ */
+export const useCloseRepair = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof closeRepair>>, TError,{repairId: string;data: RepairCloseIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof closeRepair>>,
+        TError,
+        {repairId: string;data: RepairCloseIn},
+        TContext
+      > => {
+      return useMutation(getCloseRepairMutationOptions(options), queryClient);
+    }

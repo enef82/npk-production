@@ -281,3 +281,1781 @@ export const ListItemsResponse = zod.object({
   "total": zod.union([zod.int(),zod.null()]).optional(),
   "total_cap": zod.union([zod.int(),zod.null()]).optional()
 })
+
+
+/**
+ * @summary List Resources
+ */
+export const listEnergyResourcesResponseItemsItemTariffRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listEnergyResourcesResponseItemsItemTariffPeriodsItemTariffRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const ListEnergyResourcesResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.uuid(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "unit": zod.string(),
+  "tariff": zod.string().regex(listEnergyResourcesResponseItemsItemTariffRegExp),
+  "tariff_periods": zod.array(zod.object({
+  "valid_from": zod.iso.date(),
+  "tariff": zod.string().regex(listEnergyResourcesResponseItemsItemTariffPeriodsItemTariffRegExp)
+}))
+})),
+  "abilities": zod.object({
+  "can_manage_meters": zod.boolean(),
+  "can_ingest_intervals": zod.boolean()
+})
+})
+
+
+/**
+ * @summary Set Tariff
+ */
+export const SetEnergyTariffParams = zod.object({
+  "resource_id": zod.uuid()
+})
+
+export const setEnergyTariffBodyTariffTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const SetEnergyTariffBody = zod.object({
+  "valid_from": zod.iso.date(),
+  "tariff": zod.union([zod.number(),zod.string().regex(setEnergyTariffBodyTariffTwoRegExp)])
+})
+
+export const setEnergyTariffResponseItemsItemTariffRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setEnergyTariffResponseItemsItemTariffPeriodsItemTariffRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const SetEnergyTariffResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.uuid(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "unit": zod.string(),
+  "tariff": zod.string().regex(setEnergyTariffResponseItemsItemTariffRegExp),
+  "tariff_periods": zod.array(zod.object({
+  "valid_from": zod.iso.date(),
+  "tariff": zod.string().regex(setEnergyTariffResponseItemsItemTariffPeriodsItemTariffRegExp)
+}))
+})),
+  "abilities": zod.object({
+  "can_manage_meters": zod.boolean(),
+  "can_ingest_intervals": zod.boolean()
+})
+})
+
+
+/**
+ * @summary List Meters
+ */
+export const ListMetersQueryParams = zod.object({
+  "resource": zod.union([zod.string(),zod.null()]).optional()
+})
+
+export const ListMetersResponseItem = zod.object({
+  "id": zod.uuid(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "resource_id": zod.uuid(),
+  "resource_code": zod.string(),
+  "unit": zod.string(),
+  "parent_id": zod.union([zod.uuid(),zod.null()]),
+  "kind": zod.enum(['input', 'node', 'shop', 'equipment', 'compressor', 'office', 'other']),
+  "equipment_id": zod.union([zod.uuid(),zod.null()]),
+  "source": zod.enum(['scada', 'manual']),
+  "order": zod.int()
+})
+export const ListMetersResponse = zod.array(ListMetersResponseItem)
+
+
+/**
+ * @summary Create Meter
+ */
+export const createMeterBodySourceDefault = `scada`;
+export const createMeterBodyOrderDefault = 0;
+
+export const CreateMeterBody = zod.object({
+  "code": zod.string(),
+  "name": zod.string(),
+  "resource_id": zod.uuid(),
+  "kind": zod.enum(['input', 'node', 'shop', 'equipment', 'compressor', 'office', 'other']),
+  "parent_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "equipment_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "source": zod.enum(['scada', 'manual']).default(createMeterBodySourceDefault),
+  "order": zod.int().default(createMeterBodyOrderDefault)
+})
+
+export const CreateMeterResponse = zod.object({
+  "id": zod.uuid(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "resource_id": zod.uuid(),
+  "resource_code": zod.string(),
+  "unit": zod.string(),
+  "parent_id": zod.union([zod.uuid(),zod.null()]),
+  "kind": zod.enum(['input', 'node', 'shop', 'equipment', 'compressor', 'office', 'other']),
+  "equipment_id": zod.union([zod.uuid(),zod.null()]),
+  "source": zod.enum(['scada', 'manual']),
+  "order": zod.int()
+})
+
+
+/**
+ * @summary Update Meter
+ */
+export const UpdateMeterParams = zod.object({
+  "meter_id": zod.uuid()
+})
+
+export const updateMeterBodySourceDefault = `scada`;
+export const updateMeterBodyOrderDefault = 0;
+
+export const UpdateMeterBody = zod.object({
+  "code": zod.string(),
+  "name": zod.string(),
+  "resource_id": zod.uuid(),
+  "kind": zod.enum(['input', 'node', 'shop', 'equipment', 'compressor', 'office', 'other']),
+  "parent_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "equipment_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "source": zod.enum(['scada', 'manual']).default(updateMeterBodySourceDefault),
+  "order": zod.int().default(updateMeterBodyOrderDefault)
+})
+
+export const UpdateMeterResponse = zod.object({
+  "id": zod.uuid(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "resource_id": zod.uuid(),
+  "resource_code": zod.string(),
+  "unit": zod.string(),
+  "parent_id": zod.union([zod.uuid(),zod.null()]),
+  "kind": zod.enum(['input', 'node', 'shop', 'equipment', 'compressor', 'office', 'other']),
+  "equipment_id": zod.union([zod.uuid(),zod.null()]),
+  "source": zod.enum(['scada', 'manual']),
+  "order": zod.int()
+})
+
+
+/**
+ * @summary List Readings
+ */
+export const ListMeterReadingsParams = zod.object({
+  "meter_id": zod.uuid()
+})
+
+export const listMeterReadingsResponseValueRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const ListMeterReadingsResponseItem = zod.object({
+  "id": zod.uuid(),
+  "taken_at": zod.iso.datetime({"offset":true}),
+  "value": zod.string().regex(listMeterReadingsResponseValueRegExp)
+})
+export const ListMeterReadingsResponse = zod.array(ListMeterReadingsResponseItem)
+
+
+/**
+ * Ручной ввод показания: расход с прошлого показания ложится в получасовые
+ * интервалы между ними.
+ * @summary Record Reading
+ */
+export const RecordMeterReadingParams = zod.object({
+  "meter_id": zod.uuid()
+})
+
+export const recordMeterReadingBodyValueTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const RecordMeterReadingBody = zod.object({
+  "taken_at": zod.iso.datetime({"offset":true}),
+  "value": zod.union([zod.number(),zod.string().regex(recordMeterReadingBodyValueTwoRegExp)])
+})
+
+export const recordMeterReadingResponseValueRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const RecordMeterReadingResponse = zod.object({
+  "id": zod.uuid(),
+  "taken_at": zod.iso.datetime({"offset":true}),
+  "value": zod.string().regex(recordMeterReadingResponseValueRegExp)
+})
+
+
+/**
+ * Пакет получасовых интервалов SCADA. Идемпотентно по `message_id`: повтор пакета
+ * возвращает итог первого приёма с `duplicate = true` и ничего не меняет.
+ * @summary Ingest Intervals
+ */
+export const ingestEnergyIntervalsBodySchemaVersionMax = 16;
+
+export const ingestEnergyIntervalsBodySourceIdMax = 64;
+
+export const ingestEnergyIntervalsBodyMessageIdMax = 64;
+
+
+
+export const IngestEnergyIntervalsBody = zod.object({
+  "schema_version": zod.string().max(ingestEnergyIntervalsBodySchemaVersionMax),
+  "source_id": zod.string().max(ingestEnergyIntervalsBodySourceIdMax),
+  "message_id": zod.string().min(1).max(ingestEnergyIntervalsBodyMessageIdMax),
+  "items": zod.array(zod.record(zod.string(), zod.unknown()))
+}).describe('Конверт пакета SCADA. Строки — словари: каждая проверяется отдельно, и плохая\nстрока отклоняется с причиной, а не роняет весь пакет.')
+
+export const IngestEnergyIntervalsResponse = zod.object({
+  "message_id": zod.string(),
+  "duplicate": zod.boolean(),
+  "accepted": zod.int(),
+  "rejected": zod.int(),
+  "errors": zod.array(zod.object({
+  "index": zod.int(),
+  "code": zod.string(),
+  "message": zod.string()
+}))
+})
+
+
+/**
+ * Последние принятые пакеты — строка состояния обмена на экране.
+ * @summary List Scada Messages
+ */
+export const ListScadaMessagesResponseItem = zod.object({
+  "message_id": zod.string(),
+  "source_id": zod.string(),
+  "schema_version": zod.string(),
+  "items_total": zod.int(),
+  "items_accepted": zod.int(),
+  "items_rejected": zod.int(),
+  "created_at": zod.iso.datetime({"offset":true})
+})
+export const ListScadaMessagesResponse = zod.array(ListScadaMessagesResponseItem)
+
+
+/**
+ * Расход и стоимость по ресурсам: по суткам или по месяцам (`by_month`).
+ * @summary Consumption Report
+ */
+export const getEnergyConsumptionQueryByMonthDefault = false;
+
+export const GetEnergyConsumptionQueryParams = zod.object({
+  "date_from": zod.union([zod.iso.date(),zod.null()]).optional(),
+  "date_to": zod.union([zod.iso.date(),zod.null()]).optional(),
+  "resource": zod.union([zod.string(),zod.null()]).optional(),
+  "by_month": zod.boolean().default(getEnergyConsumptionQueryByMonthDefault)
+})
+
+export const getEnergyConsumptionResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEnergyConsumptionResponseCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetEnergyConsumptionResponseItem = zod.object({
+  "resource_id": zod.uuid(),
+  "resource_code": zod.string(),
+  "period": zod.iso.date(),
+  "quantity": zod.string().regex(getEnergyConsumptionResponseQuantityRegExp),
+  "cost": zod.string().regex(getEnergyConsumptionResponseCostRegExp)
+})
+export const GetEnergyConsumptionResponse = zod.array(GetEnergyConsumptionResponseItem)
+
+
+/**
+ * «Счётчики и балансы»: дерево, расход за период и предыдущий такой же, доля,
+ * стоимость, небаланс узла.
+ * @summary Meter Tree Report
+ */
+export const GetEnergyMeterTreeQueryParams = zod.object({
+  "resource": zod.string(),
+  "date_from": zod.union([zod.iso.date(),zod.null()]).optional(),
+  "date_to": zod.union([zod.iso.date(),zod.null()]).optional()
+})
+
+export const getEnergyMeterTreeResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEnergyMeterTreeResponsePreviousQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEnergyMeterTreeResponseSharePctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEnergyMeterTreeResponseCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEnergyMeterTreeResponseBalanceOneInputRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEnergyMeterTreeResponseBalanceOneChildrenRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEnergyMeterTreeResponseBalanceOneLossRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEnergyMeterTreeResponseBalanceOneLossPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetEnergyMeterTreeResponseItem = zod.object({
+  "meter_id": zod.uuid(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "parent_id": zod.union([zod.uuid(),zod.null()]),
+  "level": zod.int(),
+  "kind": zod.enum(['input', 'node', 'shop', 'equipment', 'compressor', 'office', 'other']),
+  "source": zod.enum(['scada', 'manual']),
+  "quantity": zod.string().regex(getEnergyMeterTreeResponseQuantityRegExp),
+  "previous_quantity": zod.string().regex(getEnergyMeterTreeResponsePreviousQuantityRegExp),
+  "share_pct": zod.union([zod.string().regex(getEnergyMeterTreeResponseSharePctOneRegExp),zod.null()]),
+  "cost": zod.string().regex(getEnergyMeterTreeResponseCostRegExp),
+  "balance": zod.union([zod.object({
+  "input": zod.string().regex(getEnergyMeterTreeResponseBalanceOneInputRegExp),
+  "children": zod.string().regex(getEnergyMeterTreeResponseBalanceOneChildrenRegExp),
+  "loss": zod.string().regex(getEnergyMeterTreeResponseBalanceOneLossRegExp),
+  "loss_pct": zod.union([zod.string().regex(getEnergyMeterTreeResponseBalanceOneLossPctOneRegExp),zod.null()])
+}),zod.null()])
+})
+export const GetEnergyMeterTreeResponse = zod.array(GetEnergyMeterTreeResponseItem)
+
+
+/**
+ * @summary Daily Report
+ */
+export const GetEnergyDailyQueryParams = zod.object({
+  "resource": zod.string(),
+  "date_from": zod.union([zod.iso.date(),zod.null()]).optional(),
+  "date_to": zod.union([zod.iso.date(),zod.null()]).optional()
+})
+
+export const getEnergyDailyResponseQuantityRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetEnergyDailyResponseItem = zod.object({
+  "meter_id": zod.uuid(),
+  "day": zod.iso.date(),
+  "quantity": zod.string().regex(getEnergyDailyResponseQuantityRegExp)
+})
+export const GetEnergyDailyResponse = zod.array(GetEnergyDailyResponseItem)
+
+
+/**
+ * Получасовой профиль суток: 48 значений расхода (мощность, кВт = значение × 2).
+ * @summary Profile Report
+ */
+export const GetEnergyProfileQueryParams = zod.object({
+  "meter_id": zod.uuid(),
+  "day": zod.iso.date()
+})
+
+export const getEnergyProfileResponseValuesItemRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEnergyProfileResponseTotalRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetEnergyProfileResponse = zod.object({
+  "meter_id": zod.uuid(),
+  "day": zod.iso.date(),
+  "unit": zod.string(),
+  "values": zod.array(zod.string().regex(getEnergyProfileResponseValuesItemRegExp)),
+  "total": zod.string().regex(getEnergyProfileResponseTotalRegExp)
+})
+
+
+/**
+ * Баланс узла: ввод − Σ дочерних = потери, за период и по суткам.
+ * @summary Balance Report
+ */
+export const GetEnergyBalanceQueryParams = zod.object({
+  "meter_id": zod.uuid(),
+  "date_from": zod.union([zod.iso.date(),zod.null()]).optional(),
+  "date_to": zod.union([zod.iso.date(),zod.null()]).optional()
+})
+
+export const getEnergyBalanceResponseTotalInputRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEnergyBalanceResponseTotalChildrenRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEnergyBalanceResponseTotalLossRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEnergyBalanceResponseTotalLossPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEnergyBalanceResponseDaysItemBalanceInputRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEnergyBalanceResponseDaysItemBalanceChildrenRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEnergyBalanceResponseDaysItemBalanceLossRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEnergyBalanceResponseDaysItemBalanceLossPctOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetEnergyBalanceResponse = zod.object({
+  "meter_id": zod.uuid(),
+  "children": zod.array(zod.object({
+  "id": zod.uuid(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "resource_id": zod.uuid(),
+  "resource_code": zod.string(),
+  "unit": zod.string(),
+  "parent_id": zod.union([zod.uuid(),zod.null()]),
+  "kind": zod.enum(['input', 'node', 'shop', 'equipment', 'compressor', 'office', 'other']),
+  "equipment_id": zod.union([zod.uuid(),zod.null()]),
+  "source": zod.enum(['scada', 'manual']),
+  "order": zod.int()
+})),
+  "total": zod.object({
+  "input": zod.string().regex(getEnergyBalanceResponseTotalInputRegExp),
+  "children": zod.string().regex(getEnergyBalanceResponseTotalChildrenRegExp),
+  "loss": zod.string().regex(getEnergyBalanceResponseTotalLossRegExp),
+  "loss_pct": zod.union([zod.string().regex(getEnergyBalanceResponseTotalLossPctOneRegExp),zod.null()])
+}),
+  "days": zod.array(zod.object({
+  "day": zod.iso.date(),
+  "balance": zod.object({
+  "input": zod.string().regex(getEnergyBalanceResponseDaysItemBalanceInputRegExp),
+  "children": zod.string().regex(getEnergyBalanceResponseDaysItemBalanceChildrenRegExp),
+  "loss": zod.string().regex(getEnergyBalanceResponseDaysItemBalanceLossRegExp),
+  "loss_pct": zod.union([zod.string().regex(getEnergyBalanceResponseDaysItemBalanceLossPctOneRegExp),zod.null()])
+})
+}))
+})
+
+
+/**
+ * Удельный расход электроэнергии оборудования, кВт·ч на машино-час.
+ * @summary Specific Report
+ */
+export const GetEnergySpecificQueryParams = zod.object({
+  "date_from": zod.union([zod.iso.date(),zod.null()]).optional(),
+  "date_to": zod.union([zod.iso.date(),zod.null()]).optional()
+})
+
+export const getEnergySpecificResponseEnergyRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEnergySpecificResponseMachineHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEnergySpecificResponseSpecificOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEnergySpecificResponseCostRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetEnergySpecificResponseItem = zod.object({
+  "meter_id": zod.uuid(),
+  "meter_code": zod.string(),
+  "equipment_id": zod.uuid(),
+  "equipment_name": zod.string(),
+  "inventory_no": zod.string(),
+  "energy": zod.string().regex(getEnergySpecificResponseEnergyRegExp),
+  "machine_hours": zod.string().regex(getEnergySpecificResponseMachineHoursRegExp),
+  "specific": zod.union([zod.string().regex(getEnergySpecificResponseSpecificOneRegExp),zod.null()]),
+  "cost": zod.string().regex(getEnergySpecificResponseCostRegExp)
+})
+export const GetEnergySpecificResponse = zod.array(GetEnergySpecificResponseItem)
+
+
+/**
+ * @summary Get Reference
+ */
+export const GetEquipmentReferenceResponse = zod.object({
+  "idle_reasons": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string()
+})),
+  "down_reasons": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "repair_kind": zod.union([zod.enum(['fail', 'repair', 'maintenance']),zod.null()])
+})),
+  "failure_categories": zod.array(zod.object({
+  "id": zod.uuid(),
+  "name": zod.string()
+}))
+})
+
+
+/**
+ * Сводка экрана: KPI недели, матрица загрузки 8 недель, Парето простоев, план ТО.
+ * Недели — 8 полных до текущей (как в прототипе); `week` — любая дата недели.
+ * @summary Get Dashboard
+ */
+export const GetEquipmentDashboardQueryParams = zod.object({
+  "week": zod.union([zod.iso.date(),zod.null()]).optional()
+})
+
+export const getEquipmentDashboardResponseKpiUtilizationRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentDashboardResponseKpiIdleAndDownHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentDashboardResponseMatrixItemWeeksItemRunRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentDashboardResponseMatrixItemWeeksItemSetupRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentDashboardResponseMatrixItemWeeksItemIdleRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentDashboardResponseMatrixItemWeeksItemDownRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentDashboardResponseMatrixItemWeeksItemUtilizationRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentDashboardResponseParetoItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentDashboardResponseMaintenancePlanItemMaintenanceIntervalHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentDashboardResponseMaintenancePlanItemMaintenanceLastAtHoursOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentDashboardResponseMaintenancePlanItemMaintenanceNextAtHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentDashboardResponseMaintenancePlanItemMaintenanceHoursLeftRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetEquipmentDashboardResponse = zod.object({
+  "week_start": zod.iso.date(),
+  "weeks": zod.array(zod.iso.date()),
+  "kpi": zod.object({
+  "equipment_count": zod.int(),
+  "utilization": zod.string().regex(getEquipmentDashboardResponseKpiUtilizationRegExp),
+  "idle_and_down_hours": zod.string().regex(getEquipmentDashboardResponseKpiIdleAndDownHoursRegExp),
+  "maintenance_overdue": zod.int(),
+  "maintenance_soon": zod.int()
+}),
+  "matrix": zod.array(zod.object({
+  "equipment_id": zod.uuid(),
+  "name": zod.string(),
+  "weeks": zod.array(zod.object({
+  "week_start": zod.iso.date(),
+  "run": zod.string().regex(getEquipmentDashboardResponseMatrixItemWeeksItemRunRegExp),
+  "setup": zod.string().regex(getEquipmentDashboardResponseMatrixItemWeeksItemSetupRegExp),
+  "idle": zod.string().regex(getEquipmentDashboardResponseMatrixItemWeeksItemIdleRegExp),
+  "down": zod.string().regex(getEquipmentDashboardResponseMatrixItemWeeksItemDownRegExp),
+  "days": zod.int(),
+  "utilization": zod.string().regex(getEquipmentDashboardResponseMatrixItemWeeksItemUtilizationRegExp)
+}))
+})),
+  "pareto": zod.array(zod.object({
+  "reason": zod.string(),
+  "is_down": zod.boolean(),
+  "hours": zod.string().regex(getEquipmentDashboardResponseParetoItemHoursRegExp)
+})),
+  "maintenance_plan": zod.array(zod.object({
+  "equipment_id": zod.uuid(),
+  "equipment_name": zod.string(),
+  "maintenance": zod.object({
+  "maintenance_type_id": zod.uuid(),
+  "code": zod.string(),
+  "interval_hours": zod.string().regex(getEquipmentDashboardResponseMaintenancePlanItemMaintenanceIntervalHoursRegExp),
+  "scope": zod.string(),
+  "last_date": zod.union([zod.iso.date(),zod.null()]),
+  "last_at_hours": zod.union([zod.string().regex(getEquipmentDashboardResponseMaintenancePlanItemMaintenanceLastAtHoursOneRegExp),zod.null()]),
+  "next_at_hours": zod.string().regex(getEquipmentDashboardResponseMaintenancePlanItemMaintenanceNextAtHoursRegExp),
+  "hours_left": zod.string().regex(getEquipmentDashboardResponseMaintenancePlanItemMaintenanceHoursLeftRegExp),
+  "due_date": zod.iso.date(),
+  "state": zod.enum(['overdue', 'soon', 'ok']).describe('Состояние ТО — выводится селектором (`toState` прототипа), не хранится.')
+})
+})),
+  "abilities": zod.object({
+  "can_create_equipment": zod.boolean(),
+  "can_register_repair": zod.boolean()
+})
+})
+
+
+/**
+ * Таблица «Оборудование, наработка и ТО» за неделю (`week` — любая её дата;
+ * по умолчанию — прошлая полная неделя).
+ * @summary List Machines
+ */
+export const ListEquipmentQueryParams = zod.object({
+  "week": zod.union([zod.iso.date(),zod.null()]).optional()
+})
+
+export const listEquipmentResponseOperatingHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listEquipmentResponseWeekRunRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listEquipmentResponseWeekSetupRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listEquipmentResponseWeekIdleRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listEquipmentResponseWeekDownRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listEquipmentResponseWeekUtilizationRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listEquipmentResponseNearestMaintenanceOneIntervalHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listEquipmentResponseNearestMaintenanceOneLastAtHoursOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listEquipmentResponseNearestMaintenanceOneNextAtHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listEquipmentResponseNearestMaintenanceOneHoursLeftRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const ListEquipmentResponseItem = zod.object({
+  "id": zod.uuid(),
+  "inventory_no": zod.string(),
+  "name": zod.string(),
+  "work_center_id": zod.union([zod.uuid(),zod.null()]),
+  "control_system": zod.string(),
+  "connection": zod.string(),
+  "status": zod.enum(['run', 'idle', 'to', 'repair']),
+  "operating_hours": zod.string().regex(listEquipmentResponseOperatingHoursRegExp),
+  "week": zod.object({
+  "week_start": zod.iso.date(),
+  "run": zod.string().regex(listEquipmentResponseWeekRunRegExp),
+  "setup": zod.string().regex(listEquipmentResponseWeekSetupRegExp),
+  "idle": zod.string().regex(listEquipmentResponseWeekIdleRegExp),
+  "down": zod.string().regex(listEquipmentResponseWeekDownRegExp),
+  "days": zod.int(),
+  "utilization": zod.string().regex(listEquipmentResponseWeekUtilizationRegExp)
+}),
+  "nearest_maintenance": zod.union([zod.object({
+  "maintenance_type_id": zod.uuid(),
+  "code": zod.string(),
+  "interval_hours": zod.string().regex(listEquipmentResponseNearestMaintenanceOneIntervalHoursRegExp),
+  "scope": zod.string(),
+  "last_date": zod.union([zod.iso.date(),zod.null()]),
+  "last_at_hours": zod.union([zod.string().regex(listEquipmentResponseNearestMaintenanceOneLastAtHoursOneRegExp),zod.null()]),
+  "next_at_hours": zod.string().regex(listEquipmentResponseNearestMaintenanceOneNextAtHoursRegExp),
+  "hours_left": zod.string().regex(listEquipmentResponseNearestMaintenanceOneHoursLeftRegExp),
+  "due_date": zod.iso.date(),
+  "state": zod.enum(['overdue', 'soon', 'ok']).describe('Состояние ТО — выводится селектором (`toState` прототипа), не хранится.')
+}),zod.null()])
+})
+export const ListEquipmentResponse = zod.array(ListEquipmentResponseItem)
+
+
+/**
+ * @summary Create Machine
+ */
+export const createEquipmentBodyControlSystemDefault = ``;
+export const createEquipmentBodyConnectionDefault = ``;
+export const createEquipmentBodyOperatingHoursInitialTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createEquipmentBodyOperatingHoursInitialDefault = `0`;
+
+export const CreateEquipmentBody = zod.object({
+  "inventory_no": zod.string(),
+  "name": zod.string(),
+  "work_center_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "control_system": zod.string().default(createEquipmentBodyControlSystemDefault),
+  "connection": zod.string().default(createEquipmentBodyConnectionDefault),
+  "operating_hours_initial": zod.union([zod.number(),zod.string().regex(createEquipmentBodyOperatingHoursInitialTwoRegExp)]).default(createEquipmentBodyOperatingHoursInitialDefault)
+})
+
+export const createEquipmentResponseOperatingHoursInitialRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createEquipmentResponseOperatingHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createEquipmentResponseWeeksItemRunRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createEquipmentResponseWeeksItemSetupRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createEquipmentResponseWeeksItemIdleRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createEquipmentResponseWeeksItemDownRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createEquipmentResponseWeeksItemUtilizationRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createEquipmentResponseMaintenanceItemIntervalHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createEquipmentResponseMaintenanceItemLastAtHoursOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createEquipmentResponseMaintenanceItemNextAtHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createEquipmentResponseMaintenanceItemHoursLeftRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createEquipmentResponseRecentRuntimeItemRunRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createEquipmentResponseRecentRuntimeItemSetupRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createEquipmentResponseRecentRuntimeItemIdleRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createEquipmentResponseRecentRuntimeItemDownRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createEquipmentResponseRecentRepairsItemDowntimeHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createEquipmentResponseRecentRepairsItemLaborHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const CreateEquipmentResponse = zod.object({
+  "id": zod.uuid(),
+  "inventory_no": zod.string(),
+  "name": zod.string(),
+  "work_center_id": zod.union([zod.uuid(),zod.null()]),
+  "control_system": zod.string(),
+  "connection": zod.string(),
+  "status": zod.enum(['run', 'idle', 'to', 'repair']),
+  "operating_hours_initial": zod.string().regex(createEquipmentResponseOperatingHoursInitialRegExp),
+  "operating_hours": zod.string().regex(createEquipmentResponseOperatingHoursRegExp),
+  "weeks": zod.array(zod.object({
+  "week_start": zod.iso.date(),
+  "run": zod.string().regex(createEquipmentResponseWeeksItemRunRegExp),
+  "setup": zod.string().regex(createEquipmentResponseWeeksItemSetupRegExp),
+  "idle": zod.string().regex(createEquipmentResponseWeeksItemIdleRegExp),
+  "down": zod.string().regex(createEquipmentResponseWeeksItemDownRegExp),
+  "days": zod.int(),
+  "utilization": zod.string().regex(createEquipmentResponseWeeksItemUtilizationRegExp)
+})),
+  "maintenance": zod.array(zod.object({
+  "maintenance_type_id": zod.uuid(),
+  "code": zod.string(),
+  "interval_hours": zod.string().regex(createEquipmentResponseMaintenanceItemIntervalHoursRegExp),
+  "scope": zod.string(),
+  "last_date": zod.union([zod.iso.date(),zod.null()]),
+  "last_at_hours": zod.union([zod.string().regex(createEquipmentResponseMaintenanceItemLastAtHoursOneRegExp),zod.null()]),
+  "next_at_hours": zod.string().regex(createEquipmentResponseMaintenanceItemNextAtHoursRegExp),
+  "hours_left": zod.string().regex(createEquipmentResponseMaintenanceItemHoursLeftRegExp),
+  "due_date": zod.iso.date(),
+  "state": zod.enum(['overdue', 'soon', 'ok']).describe('Состояние ТО — выводится селектором (`toState` прототипа), не хранится.')
+})),
+  "recent_runtime": zod.array(zod.object({
+  "id": zod.uuid(),
+  "date": zod.iso.date(),
+  "run": zod.string().regex(createEquipmentResponseRecentRuntimeItemRunRegExp),
+  "setup": zod.string().regex(createEquipmentResponseRecentRuntimeItemSetupRegExp),
+  "idle": zod.string().regex(createEquipmentResponseRecentRuntimeItemIdleRegExp),
+  "down": zod.string().regex(createEquipmentResponseRecentRuntimeItemDownRegExp),
+  "idle_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "idle_reason_name": zod.string(),
+  "down_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "down_reason_name": zod.string(),
+  "source": zod.enum(['manual', 'scada'])
+})),
+  "recent_repairs": zod.array(zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "equipment_id": zod.uuid(),
+  "equipment_name": zod.string(),
+  "equipment_inventory_no": zod.string(),
+  "kind": zod.enum(['fail', 'repair', 'maintenance']),
+  "maintenance_type_id": zod.union([zod.uuid(),zod.null()]),
+  "category_id": zod.union([zod.uuid(),zod.null()]),
+  "category_name": zod.string(),
+  "started_at": zod.iso.datetime({"offset":true}),
+  "finished_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "downtime_hours": zod.string().regex(createEquipmentResponseRecentRepairsItemDowntimeHoursRegExp),
+  "labor_hours": zod.string().regex(createEquipmentResponseRecentRepairsItemLaborHoursRegExp),
+  "description": zod.string(),
+  "fix": zod.string(),
+  "status": zod.enum(['open', 'work', 'done'])
+})),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_set_status": zod.boolean(),
+  "can_log_runtime": zod.boolean(),
+  "can_register_repair": zod.boolean(),
+  "can_manage_maintenance": zod.boolean()
+}).describe('Серверные способности текущего пользователя — фронт показывает кнопки по ним.')
+})
+
+
+/**
+ * @summary Get Machine
+ */
+export const GetEquipmentParams = zod.object({
+  "equipment_id": zod.uuid()
+})
+
+export const getEquipmentResponseOperatingHoursInitialRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentResponseOperatingHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentResponseWeeksItemRunRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentResponseWeeksItemSetupRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentResponseWeeksItemIdleRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentResponseWeeksItemDownRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentResponseWeeksItemUtilizationRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentResponseMaintenanceItemIntervalHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentResponseMaintenanceItemLastAtHoursOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentResponseMaintenanceItemNextAtHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentResponseMaintenanceItemHoursLeftRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentResponseRecentRuntimeItemRunRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentResponseRecentRuntimeItemSetupRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentResponseRecentRuntimeItemIdleRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentResponseRecentRuntimeItemDownRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentResponseRecentRepairsItemDowntimeHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getEquipmentResponseRecentRepairsItemLaborHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetEquipmentResponse = zod.object({
+  "id": zod.uuid(),
+  "inventory_no": zod.string(),
+  "name": zod.string(),
+  "work_center_id": zod.union([zod.uuid(),zod.null()]),
+  "control_system": zod.string(),
+  "connection": zod.string(),
+  "status": zod.enum(['run', 'idle', 'to', 'repair']),
+  "operating_hours_initial": zod.string().regex(getEquipmentResponseOperatingHoursInitialRegExp),
+  "operating_hours": zod.string().regex(getEquipmentResponseOperatingHoursRegExp),
+  "weeks": zod.array(zod.object({
+  "week_start": zod.iso.date(),
+  "run": zod.string().regex(getEquipmentResponseWeeksItemRunRegExp),
+  "setup": zod.string().regex(getEquipmentResponseWeeksItemSetupRegExp),
+  "idle": zod.string().regex(getEquipmentResponseWeeksItemIdleRegExp),
+  "down": zod.string().regex(getEquipmentResponseWeeksItemDownRegExp),
+  "days": zod.int(),
+  "utilization": zod.string().regex(getEquipmentResponseWeeksItemUtilizationRegExp)
+})),
+  "maintenance": zod.array(zod.object({
+  "maintenance_type_id": zod.uuid(),
+  "code": zod.string(),
+  "interval_hours": zod.string().regex(getEquipmentResponseMaintenanceItemIntervalHoursRegExp),
+  "scope": zod.string(),
+  "last_date": zod.union([zod.iso.date(),zod.null()]),
+  "last_at_hours": zod.union([zod.string().regex(getEquipmentResponseMaintenanceItemLastAtHoursOneRegExp),zod.null()]),
+  "next_at_hours": zod.string().regex(getEquipmentResponseMaintenanceItemNextAtHoursRegExp),
+  "hours_left": zod.string().regex(getEquipmentResponseMaintenanceItemHoursLeftRegExp),
+  "due_date": zod.iso.date(),
+  "state": zod.enum(['overdue', 'soon', 'ok']).describe('Состояние ТО — выводится селектором (`toState` прототипа), не хранится.')
+})),
+  "recent_runtime": zod.array(zod.object({
+  "id": zod.uuid(),
+  "date": zod.iso.date(),
+  "run": zod.string().regex(getEquipmentResponseRecentRuntimeItemRunRegExp),
+  "setup": zod.string().regex(getEquipmentResponseRecentRuntimeItemSetupRegExp),
+  "idle": zod.string().regex(getEquipmentResponseRecentRuntimeItemIdleRegExp),
+  "down": zod.string().regex(getEquipmentResponseRecentRuntimeItemDownRegExp),
+  "idle_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "idle_reason_name": zod.string(),
+  "down_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "down_reason_name": zod.string(),
+  "source": zod.enum(['manual', 'scada'])
+})),
+  "recent_repairs": zod.array(zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "equipment_id": zod.uuid(),
+  "equipment_name": zod.string(),
+  "equipment_inventory_no": zod.string(),
+  "kind": zod.enum(['fail', 'repair', 'maintenance']),
+  "maintenance_type_id": zod.union([zod.uuid(),zod.null()]),
+  "category_id": zod.union([zod.uuid(),zod.null()]),
+  "category_name": zod.string(),
+  "started_at": zod.iso.datetime({"offset":true}),
+  "finished_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "downtime_hours": zod.string().regex(getEquipmentResponseRecentRepairsItemDowntimeHoursRegExp),
+  "labor_hours": zod.string().regex(getEquipmentResponseRecentRepairsItemLaborHoursRegExp),
+  "description": zod.string(),
+  "fix": zod.string(),
+  "status": zod.enum(['open', 'work', 'done'])
+})),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_set_status": zod.boolean(),
+  "can_log_runtime": zod.boolean(),
+  "can_register_repair": zod.boolean(),
+  "can_manage_maintenance": zod.boolean()
+}).describe('Серверные способности текущего пользователя — фронт показывает кнопки по ним.')
+})
+
+
+/**
+ * @summary Update Machine
+ */
+export const UpdateEquipmentParams = zod.object({
+  "equipment_id": zod.uuid()
+})
+
+export const updateEquipmentBodyControlSystemDefault = ``;
+export const updateEquipmentBodyConnectionDefault = ``;
+export const updateEquipmentBodyOperatingHoursInitialTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateEquipmentBodyOperatingHoursInitialDefault = `0`;
+
+export const UpdateEquipmentBody = zod.object({
+  "inventory_no": zod.string(),
+  "name": zod.string(),
+  "work_center_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "control_system": zod.string().default(updateEquipmentBodyControlSystemDefault),
+  "connection": zod.string().default(updateEquipmentBodyConnectionDefault),
+  "operating_hours_initial": zod.union([zod.number(),zod.string().regex(updateEquipmentBodyOperatingHoursInitialTwoRegExp)]).default(updateEquipmentBodyOperatingHoursInitialDefault)
+})
+
+export const updateEquipmentResponseOperatingHoursInitialRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateEquipmentResponseOperatingHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateEquipmentResponseWeeksItemRunRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateEquipmentResponseWeeksItemSetupRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateEquipmentResponseWeeksItemIdleRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateEquipmentResponseWeeksItemDownRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateEquipmentResponseWeeksItemUtilizationRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateEquipmentResponseMaintenanceItemIntervalHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateEquipmentResponseMaintenanceItemLastAtHoursOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateEquipmentResponseMaintenanceItemNextAtHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateEquipmentResponseMaintenanceItemHoursLeftRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateEquipmentResponseRecentRuntimeItemRunRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateEquipmentResponseRecentRuntimeItemSetupRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateEquipmentResponseRecentRuntimeItemIdleRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateEquipmentResponseRecentRuntimeItemDownRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateEquipmentResponseRecentRepairsItemDowntimeHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateEquipmentResponseRecentRepairsItemLaborHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const UpdateEquipmentResponse = zod.object({
+  "id": zod.uuid(),
+  "inventory_no": zod.string(),
+  "name": zod.string(),
+  "work_center_id": zod.union([zod.uuid(),zod.null()]),
+  "control_system": zod.string(),
+  "connection": zod.string(),
+  "status": zod.enum(['run', 'idle', 'to', 'repair']),
+  "operating_hours_initial": zod.string().regex(updateEquipmentResponseOperatingHoursInitialRegExp),
+  "operating_hours": zod.string().regex(updateEquipmentResponseOperatingHoursRegExp),
+  "weeks": zod.array(zod.object({
+  "week_start": zod.iso.date(),
+  "run": zod.string().regex(updateEquipmentResponseWeeksItemRunRegExp),
+  "setup": zod.string().regex(updateEquipmentResponseWeeksItemSetupRegExp),
+  "idle": zod.string().regex(updateEquipmentResponseWeeksItemIdleRegExp),
+  "down": zod.string().regex(updateEquipmentResponseWeeksItemDownRegExp),
+  "days": zod.int(),
+  "utilization": zod.string().regex(updateEquipmentResponseWeeksItemUtilizationRegExp)
+})),
+  "maintenance": zod.array(zod.object({
+  "maintenance_type_id": zod.uuid(),
+  "code": zod.string(),
+  "interval_hours": zod.string().regex(updateEquipmentResponseMaintenanceItemIntervalHoursRegExp),
+  "scope": zod.string(),
+  "last_date": zod.union([zod.iso.date(),zod.null()]),
+  "last_at_hours": zod.union([zod.string().regex(updateEquipmentResponseMaintenanceItemLastAtHoursOneRegExp),zod.null()]),
+  "next_at_hours": zod.string().regex(updateEquipmentResponseMaintenanceItemNextAtHoursRegExp),
+  "hours_left": zod.string().regex(updateEquipmentResponseMaintenanceItemHoursLeftRegExp),
+  "due_date": zod.iso.date(),
+  "state": zod.enum(['overdue', 'soon', 'ok']).describe('Состояние ТО — выводится селектором (`toState` прототипа), не хранится.')
+})),
+  "recent_runtime": zod.array(zod.object({
+  "id": zod.uuid(),
+  "date": zod.iso.date(),
+  "run": zod.string().regex(updateEquipmentResponseRecentRuntimeItemRunRegExp),
+  "setup": zod.string().regex(updateEquipmentResponseRecentRuntimeItemSetupRegExp),
+  "idle": zod.string().regex(updateEquipmentResponseRecentRuntimeItemIdleRegExp),
+  "down": zod.string().regex(updateEquipmentResponseRecentRuntimeItemDownRegExp),
+  "idle_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "idle_reason_name": zod.string(),
+  "down_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "down_reason_name": zod.string(),
+  "source": zod.enum(['manual', 'scada'])
+})),
+  "recent_repairs": zod.array(zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "equipment_id": zod.uuid(),
+  "equipment_name": zod.string(),
+  "equipment_inventory_no": zod.string(),
+  "kind": zod.enum(['fail', 'repair', 'maintenance']),
+  "maintenance_type_id": zod.union([zod.uuid(),zod.null()]),
+  "category_id": zod.union([zod.uuid(),zod.null()]),
+  "category_name": zod.string(),
+  "started_at": zod.iso.datetime({"offset":true}),
+  "finished_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "downtime_hours": zod.string().regex(updateEquipmentResponseRecentRepairsItemDowntimeHoursRegExp),
+  "labor_hours": zod.string().regex(updateEquipmentResponseRecentRepairsItemLaborHoursRegExp),
+  "description": zod.string(),
+  "fix": zod.string(),
+  "status": zod.enum(['open', 'work', 'done'])
+})),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_set_status": zod.boolean(),
+  "can_log_runtime": zod.boolean(),
+  "can_register_repair": zod.boolean(),
+  "can_manage_maintenance": zod.boolean()
+}).describe('Серверные способности текущего пользователя — фронт показывает кнопки по ним.')
+})
+
+
+/**
+ * @summary Set Machine Status
+ */
+export const SetEquipmentStatusParams = zod.object({
+  "equipment_id": zod.uuid()
+})
+
+export const SetEquipmentStatusBody = zod.object({
+  "status": zod.enum(['run', 'idle', 'to', 'repair'])
+})
+
+export const setEquipmentStatusResponseOperatingHoursInitialRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setEquipmentStatusResponseOperatingHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setEquipmentStatusResponseWeeksItemRunRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setEquipmentStatusResponseWeeksItemSetupRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setEquipmentStatusResponseWeeksItemIdleRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setEquipmentStatusResponseWeeksItemDownRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setEquipmentStatusResponseWeeksItemUtilizationRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setEquipmentStatusResponseMaintenanceItemIntervalHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setEquipmentStatusResponseMaintenanceItemLastAtHoursOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setEquipmentStatusResponseMaintenanceItemNextAtHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setEquipmentStatusResponseMaintenanceItemHoursLeftRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setEquipmentStatusResponseRecentRuntimeItemRunRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setEquipmentStatusResponseRecentRuntimeItemSetupRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setEquipmentStatusResponseRecentRuntimeItemIdleRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setEquipmentStatusResponseRecentRuntimeItemDownRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setEquipmentStatusResponseRecentRepairsItemDowntimeHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const setEquipmentStatusResponseRecentRepairsItemLaborHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const SetEquipmentStatusResponse = zod.object({
+  "id": zod.uuid(),
+  "inventory_no": zod.string(),
+  "name": zod.string(),
+  "work_center_id": zod.union([zod.uuid(),zod.null()]),
+  "control_system": zod.string(),
+  "connection": zod.string(),
+  "status": zod.enum(['run', 'idle', 'to', 'repair']),
+  "operating_hours_initial": zod.string().regex(setEquipmentStatusResponseOperatingHoursInitialRegExp),
+  "operating_hours": zod.string().regex(setEquipmentStatusResponseOperatingHoursRegExp),
+  "weeks": zod.array(zod.object({
+  "week_start": zod.iso.date(),
+  "run": zod.string().regex(setEquipmentStatusResponseWeeksItemRunRegExp),
+  "setup": zod.string().regex(setEquipmentStatusResponseWeeksItemSetupRegExp),
+  "idle": zod.string().regex(setEquipmentStatusResponseWeeksItemIdleRegExp),
+  "down": zod.string().regex(setEquipmentStatusResponseWeeksItemDownRegExp),
+  "days": zod.int(),
+  "utilization": zod.string().regex(setEquipmentStatusResponseWeeksItemUtilizationRegExp)
+})),
+  "maintenance": zod.array(zod.object({
+  "maintenance_type_id": zod.uuid(),
+  "code": zod.string(),
+  "interval_hours": zod.string().regex(setEquipmentStatusResponseMaintenanceItemIntervalHoursRegExp),
+  "scope": zod.string(),
+  "last_date": zod.union([zod.iso.date(),zod.null()]),
+  "last_at_hours": zod.union([zod.string().regex(setEquipmentStatusResponseMaintenanceItemLastAtHoursOneRegExp),zod.null()]),
+  "next_at_hours": zod.string().regex(setEquipmentStatusResponseMaintenanceItemNextAtHoursRegExp),
+  "hours_left": zod.string().regex(setEquipmentStatusResponseMaintenanceItemHoursLeftRegExp),
+  "due_date": zod.iso.date(),
+  "state": zod.enum(['overdue', 'soon', 'ok']).describe('Состояние ТО — выводится селектором (`toState` прототипа), не хранится.')
+})),
+  "recent_runtime": zod.array(zod.object({
+  "id": zod.uuid(),
+  "date": zod.iso.date(),
+  "run": zod.string().regex(setEquipmentStatusResponseRecentRuntimeItemRunRegExp),
+  "setup": zod.string().regex(setEquipmentStatusResponseRecentRuntimeItemSetupRegExp),
+  "idle": zod.string().regex(setEquipmentStatusResponseRecentRuntimeItemIdleRegExp),
+  "down": zod.string().regex(setEquipmentStatusResponseRecentRuntimeItemDownRegExp),
+  "idle_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "idle_reason_name": zod.string(),
+  "down_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "down_reason_name": zod.string(),
+  "source": zod.enum(['manual', 'scada'])
+})),
+  "recent_repairs": zod.array(zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "equipment_id": zod.uuid(),
+  "equipment_name": zod.string(),
+  "equipment_inventory_no": zod.string(),
+  "kind": zod.enum(['fail', 'repair', 'maintenance']),
+  "maintenance_type_id": zod.union([zod.uuid(),zod.null()]),
+  "category_id": zod.union([zod.uuid(),zod.null()]),
+  "category_name": zod.string(),
+  "started_at": zod.iso.datetime({"offset":true}),
+  "finished_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "downtime_hours": zod.string().regex(setEquipmentStatusResponseRecentRepairsItemDowntimeHoursRegExp),
+  "labor_hours": zod.string().regex(setEquipmentStatusResponseRecentRepairsItemLaborHoursRegExp),
+  "description": zod.string(),
+  "fix": zod.string(),
+  "status": zod.enum(['open', 'work', 'done'])
+})),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_set_status": zod.boolean(),
+  "can_log_runtime": zod.boolean(),
+  "can_register_repair": zod.boolean(),
+  "can_manage_maintenance": zod.boolean()
+}).describe('Серверные способности текущего пользователя — фронт показывает кнопки по ним.')
+})
+
+
+/**
+ * @summary List Runtime
+ */
+export const ListRuntimeParams = zod.object({
+  "equipment_id": zod.uuid()
+})
+
+export const ListRuntimeQueryParams = zod.object({
+  "date_from": zod.union([zod.iso.date(),zod.null()]).optional(),
+  "date_to": zod.union([zod.iso.date(),zod.null()]).optional()
+})
+
+export const listRuntimeResponseRunRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listRuntimeResponseSetupRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listRuntimeResponseIdleRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listRuntimeResponseDownRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const ListRuntimeResponseItem = zod.object({
+  "id": zod.uuid(),
+  "date": zod.iso.date(),
+  "run": zod.string().regex(listRuntimeResponseRunRegExp),
+  "setup": zod.string().regex(listRuntimeResponseSetupRegExp),
+  "idle": zod.string().regex(listRuntimeResponseIdleRegExp),
+  "down": zod.string().regex(listRuntimeResponseDownRegExp),
+  "idle_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "idle_reason_name": zod.string(),
+  "down_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "down_reason_name": zod.string(),
+  "source": zod.enum(['manual', 'scada'])
+})
+export const ListRuntimeResponse = zod.array(ListRuntimeResponseItem)
+
+
+/**
+ * «Записать смену»: наработка за сутки, заменяет прежнюю запись тех же суток.
+ * @summary Record Runtime
+ */
+export const RecordRuntimeParams = zod.object({
+  "equipment_id": zod.uuid()
+})
+
+export const recordRuntimeBodyRunTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const recordRuntimeBodyRunDefault = `0`;
+export const recordRuntimeBodySetupTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const recordRuntimeBodySetupDefault = `0`;
+export const recordRuntimeBodyIdleTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const recordRuntimeBodyIdleDefault = `0`;
+export const recordRuntimeBodyDownTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const recordRuntimeBodyDownDefault = `0`;
+
+export const RecordRuntimeBody = zod.object({
+  "date": zod.iso.date(),
+  "run": zod.union([zod.number(),zod.string().regex(recordRuntimeBodyRunTwoRegExp)]).default(recordRuntimeBodyRunDefault),
+  "setup": zod.union([zod.number(),zod.string().regex(recordRuntimeBodySetupTwoRegExp)]).default(recordRuntimeBodySetupDefault),
+  "idle": zod.union([zod.number(),zod.string().regex(recordRuntimeBodyIdleTwoRegExp)]).default(recordRuntimeBodyIdleDefault),
+  "down": zod.union([zod.number(),zod.string().regex(recordRuntimeBodyDownTwoRegExp)]).default(recordRuntimeBodyDownDefault),
+  "idle_reason_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "down_reason_id": zod.union([zod.uuid(),zod.null()]).optional()
+})
+
+export const recordRuntimeResponseOperatingHoursInitialRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const recordRuntimeResponseOperatingHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const recordRuntimeResponseWeeksItemRunRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const recordRuntimeResponseWeeksItemSetupRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const recordRuntimeResponseWeeksItemIdleRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const recordRuntimeResponseWeeksItemDownRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const recordRuntimeResponseWeeksItemUtilizationRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const recordRuntimeResponseMaintenanceItemIntervalHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const recordRuntimeResponseMaintenanceItemLastAtHoursOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const recordRuntimeResponseMaintenanceItemNextAtHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const recordRuntimeResponseMaintenanceItemHoursLeftRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const recordRuntimeResponseRecentRuntimeItemRunRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const recordRuntimeResponseRecentRuntimeItemSetupRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const recordRuntimeResponseRecentRuntimeItemIdleRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const recordRuntimeResponseRecentRuntimeItemDownRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const recordRuntimeResponseRecentRepairsItemDowntimeHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const recordRuntimeResponseRecentRepairsItemLaborHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const RecordRuntimeResponse = zod.object({
+  "id": zod.uuid(),
+  "inventory_no": zod.string(),
+  "name": zod.string(),
+  "work_center_id": zod.union([zod.uuid(),zod.null()]),
+  "control_system": zod.string(),
+  "connection": zod.string(),
+  "status": zod.enum(['run', 'idle', 'to', 'repair']),
+  "operating_hours_initial": zod.string().regex(recordRuntimeResponseOperatingHoursInitialRegExp),
+  "operating_hours": zod.string().regex(recordRuntimeResponseOperatingHoursRegExp),
+  "weeks": zod.array(zod.object({
+  "week_start": zod.iso.date(),
+  "run": zod.string().regex(recordRuntimeResponseWeeksItemRunRegExp),
+  "setup": zod.string().regex(recordRuntimeResponseWeeksItemSetupRegExp),
+  "idle": zod.string().regex(recordRuntimeResponseWeeksItemIdleRegExp),
+  "down": zod.string().regex(recordRuntimeResponseWeeksItemDownRegExp),
+  "days": zod.int(),
+  "utilization": zod.string().regex(recordRuntimeResponseWeeksItemUtilizationRegExp)
+})),
+  "maintenance": zod.array(zod.object({
+  "maintenance_type_id": zod.uuid(),
+  "code": zod.string(),
+  "interval_hours": zod.string().regex(recordRuntimeResponseMaintenanceItemIntervalHoursRegExp),
+  "scope": zod.string(),
+  "last_date": zod.union([zod.iso.date(),zod.null()]),
+  "last_at_hours": zod.union([zod.string().regex(recordRuntimeResponseMaintenanceItemLastAtHoursOneRegExp),zod.null()]),
+  "next_at_hours": zod.string().regex(recordRuntimeResponseMaintenanceItemNextAtHoursRegExp),
+  "hours_left": zod.string().regex(recordRuntimeResponseMaintenanceItemHoursLeftRegExp),
+  "due_date": zod.iso.date(),
+  "state": zod.enum(['overdue', 'soon', 'ok']).describe('Состояние ТО — выводится селектором (`toState` прототипа), не хранится.')
+})),
+  "recent_runtime": zod.array(zod.object({
+  "id": zod.uuid(),
+  "date": zod.iso.date(),
+  "run": zod.string().regex(recordRuntimeResponseRecentRuntimeItemRunRegExp),
+  "setup": zod.string().regex(recordRuntimeResponseRecentRuntimeItemSetupRegExp),
+  "idle": zod.string().regex(recordRuntimeResponseRecentRuntimeItemIdleRegExp),
+  "down": zod.string().regex(recordRuntimeResponseRecentRuntimeItemDownRegExp),
+  "idle_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "idle_reason_name": zod.string(),
+  "down_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "down_reason_name": zod.string(),
+  "source": zod.enum(['manual', 'scada'])
+})),
+  "recent_repairs": zod.array(zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "equipment_id": zod.uuid(),
+  "equipment_name": zod.string(),
+  "equipment_inventory_no": zod.string(),
+  "kind": zod.enum(['fail', 'repair', 'maintenance']),
+  "maintenance_type_id": zod.union([zod.uuid(),zod.null()]),
+  "category_id": zod.union([zod.uuid(),zod.null()]),
+  "category_name": zod.string(),
+  "started_at": zod.iso.datetime({"offset":true}),
+  "finished_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "downtime_hours": zod.string().regex(recordRuntimeResponseRecentRepairsItemDowntimeHoursRegExp),
+  "labor_hours": zod.string().regex(recordRuntimeResponseRecentRepairsItemLaborHoursRegExp),
+  "description": zod.string(),
+  "fix": zod.string(),
+  "status": zod.enum(['open', 'work', 'done'])
+})),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_set_status": zod.boolean(),
+  "can_log_runtime": zod.boolean(),
+  "can_register_repair": zod.boolean(),
+  "can_manage_maintenance": zod.boolean()
+}).describe('Серверные способности текущего пользователя — фронт показывает кнопки по ним.')
+})
+
+
+/**
+ * @summary Create Maintenance Type
+ */
+export const CreateMaintenanceTypeParams = zod.object({
+  "equipment_id": zod.uuid()
+})
+
+export const createMaintenanceTypeBodyIntervalHoursTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createMaintenanceTypeBodyScopeDefault = ``;
+
+export const CreateMaintenanceTypeBody = zod.object({
+  "code": zod.string(),
+  "interval_hours": zod.union([zod.number(),zod.string().regex(createMaintenanceTypeBodyIntervalHoursTwoRegExp)]),
+  "scope": zod.string().default(createMaintenanceTypeBodyScopeDefault)
+})
+
+export const createMaintenanceTypeResponseOperatingHoursInitialRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createMaintenanceTypeResponseOperatingHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createMaintenanceTypeResponseWeeksItemRunRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createMaintenanceTypeResponseWeeksItemSetupRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createMaintenanceTypeResponseWeeksItemIdleRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createMaintenanceTypeResponseWeeksItemDownRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createMaintenanceTypeResponseWeeksItemUtilizationRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createMaintenanceTypeResponseMaintenanceItemIntervalHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createMaintenanceTypeResponseMaintenanceItemLastAtHoursOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createMaintenanceTypeResponseMaintenanceItemNextAtHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createMaintenanceTypeResponseMaintenanceItemHoursLeftRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createMaintenanceTypeResponseRecentRuntimeItemRunRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createMaintenanceTypeResponseRecentRuntimeItemSetupRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createMaintenanceTypeResponseRecentRuntimeItemIdleRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createMaintenanceTypeResponseRecentRuntimeItemDownRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createMaintenanceTypeResponseRecentRepairsItemDowntimeHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createMaintenanceTypeResponseRecentRepairsItemLaborHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const CreateMaintenanceTypeResponse = zod.object({
+  "id": zod.uuid(),
+  "inventory_no": zod.string(),
+  "name": zod.string(),
+  "work_center_id": zod.union([zod.uuid(),zod.null()]),
+  "control_system": zod.string(),
+  "connection": zod.string(),
+  "status": zod.enum(['run', 'idle', 'to', 'repair']),
+  "operating_hours_initial": zod.string().regex(createMaintenanceTypeResponseOperatingHoursInitialRegExp),
+  "operating_hours": zod.string().regex(createMaintenanceTypeResponseOperatingHoursRegExp),
+  "weeks": zod.array(zod.object({
+  "week_start": zod.iso.date(),
+  "run": zod.string().regex(createMaintenanceTypeResponseWeeksItemRunRegExp),
+  "setup": zod.string().regex(createMaintenanceTypeResponseWeeksItemSetupRegExp),
+  "idle": zod.string().regex(createMaintenanceTypeResponseWeeksItemIdleRegExp),
+  "down": zod.string().regex(createMaintenanceTypeResponseWeeksItemDownRegExp),
+  "days": zod.int(),
+  "utilization": zod.string().regex(createMaintenanceTypeResponseWeeksItemUtilizationRegExp)
+})),
+  "maintenance": zod.array(zod.object({
+  "maintenance_type_id": zod.uuid(),
+  "code": zod.string(),
+  "interval_hours": zod.string().regex(createMaintenanceTypeResponseMaintenanceItemIntervalHoursRegExp),
+  "scope": zod.string(),
+  "last_date": zod.union([zod.iso.date(),zod.null()]),
+  "last_at_hours": zod.union([zod.string().regex(createMaintenanceTypeResponseMaintenanceItemLastAtHoursOneRegExp),zod.null()]),
+  "next_at_hours": zod.string().regex(createMaintenanceTypeResponseMaintenanceItemNextAtHoursRegExp),
+  "hours_left": zod.string().regex(createMaintenanceTypeResponseMaintenanceItemHoursLeftRegExp),
+  "due_date": zod.iso.date(),
+  "state": zod.enum(['overdue', 'soon', 'ok']).describe('Состояние ТО — выводится селектором (`toState` прототипа), не хранится.')
+})),
+  "recent_runtime": zod.array(zod.object({
+  "id": zod.uuid(),
+  "date": zod.iso.date(),
+  "run": zod.string().regex(createMaintenanceTypeResponseRecentRuntimeItemRunRegExp),
+  "setup": zod.string().regex(createMaintenanceTypeResponseRecentRuntimeItemSetupRegExp),
+  "idle": zod.string().regex(createMaintenanceTypeResponseRecentRuntimeItemIdleRegExp),
+  "down": zod.string().regex(createMaintenanceTypeResponseRecentRuntimeItemDownRegExp),
+  "idle_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "idle_reason_name": zod.string(),
+  "down_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "down_reason_name": zod.string(),
+  "source": zod.enum(['manual', 'scada'])
+})),
+  "recent_repairs": zod.array(zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "equipment_id": zod.uuid(),
+  "equipment_name": zod.string(),
+  "equipment_inventory_no": zod.string(),
+  "kind": zod.enum(['fail', 'repair', 'maintenance']),
+  "maintenance_type_id": zod.union([zod.uuid(),zod.null()]),
+  "category_id": zod.union([zod.uuid(),zod.null()]),
+  "category_name": zod.string(),
+  "started_at": zod.iso.datetime({"offset":true}),
+  "finished_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "downtime_hours": zod.string().regex(createMaintenanceTypeResponseRecentRepairsItemDowntimeHoursRegExp),
+  "labor_hours": zod.string().regex(createMaintenanceTypeResponseRecentRepairsItemLaborHoursRegExp),
+  "description": zod.string(),
+  "fix": zod.string(),
+  "status": zod.enum(['open', 'work', 'done'])
+})),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_set_status": zod.boolean(),
+  "can_log_runtime": zod.boolean(),
+  "can_register_repair": zod.boolean(),
+  "can_manage_maintenance": zod.boolean()
+}).describe('Серверные способности текущего пользователя — фронт показывает кнопки по ним.')
+})
+
+
+/**
+ * @summary Update Maintenance Type
+ */
+export const UpdateMaintenanceTypeParams = zod.object({
+  "maintenance_type_id": zod.uuid()
+})
+
+export const updateMaintenanceTypeBodyIntervalHoursTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateMaintenanceTypeBodyScopeDefault = ``;
+
+export const UpdateMaintenanceTypeBody = zod.object({
+  "code": zod.string(),
+  "interval_hours": zod.union([zod.number(),zod.string().regex(updateMaintenanceTypeBodyIntervalHoursTwoRegExp)]),
+  "scope": zod.string().default(updateMaintenanceTypeBodyScopeDefault)
+})
+
+export const updateMaintenanceTypeResponseOperatingHoursInitialRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateMaintenanceTypeResponseOperatingHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateMaintenanceTypeResponseWeeksItemRunRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateMaintenanceTypeResponseWeeksItemSetupRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateMaintenanceTypeResponseWeeksItemIdleRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateMaintenanceTypeResponseWeeksItemDownRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateMaintenanceTypeResponseWeeksItemUtilizationRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateMaintenanceTypeResponseMaintenanceItemIntervalHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateMaintenanceTypeResponseMaintenanceItemLastAtHoursOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateMaintenanceTypeResponseMaintenanceItemNextAtHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateMaintenanceTypeResponseMaintenanceItemHoursLeftRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateMaintenanceTypeResponseRecentRuntimeItemRunRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateMaintenanceTypeResponseRecentRuntimeItemSetupRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateMaintenanceTypeResponseRecentRuntimeItemIdleRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateMaintenanceTypeResponseRecentRuntimeItemDownRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateMaintenanceTypeResponseRecentRepairsItemDowntimeHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateMaintenanceTypeResponseRecentRepairsItemLaborHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const UpdateMaintenanceTypeResponse = zod.object({
+  "id": zod.uuid(),
+  "inventory_no": zod.string(),
+  "name": zod.string(),
+  "work_center_id": zod.union([zod.uuid(),zod.null()]),
+  "control_system": zod.string(),
+  "connection": zod.string(),
+  "status": zod.enum(['run', 'idle', 'to', 'repair']),
+  "operating_hours_initial": zod.string().regex(updateMaintenanceTypeResponseOperatingHoursInitialRegExp),
+  "operating_hours": zod.string().regex(updateMaintenanceTypeResponseOperatingHoursRegExp),
+  "weeks": zod.array(zod.object({
+  "week_start": zod.iso.date(),
+  "run": zod.string().regex(updateMaintenanceTypeResponseWeeksItemRunRegExp),
+  "setup": zod.string().regex(updateMaintenanceTypeResponseWeeksItemSetupRegExp),
+  "idle": zod.string().regex(updateMaintenanceTypeResponseWeeksItemIdleRegExp),
+  "down": zod.string().regex(updateMaintenanceTypeResponseWeeksItemDownRegExp),
+  "days": zod.int(),
+  "utilization": zod.string().regex(updateMaintenanceTypeResponseWeeksItemUtilizationRegExp)
+})),
+  "maintenance": zod.array(zod.object({
+  "maintenance_type_id": zod.uuid(),
+  "code": zod.string(),
+  "interval_hours": zod.string().regex(updateMaintenanceTypeResponseMaintenanceItemIntervalHoursRegExp),
+  "scope": zod.string(),
+  "last_date": zod.union([zod.iso.date(),zod.null()]),
+  "last_at_hours": zod.union([zod.string().regex(updateMaintenanceTypeResponseMaintenanceItemLastAtHoursOneRegExp),zod.null()]),
+  "next_at_hours": zod.string().regex(updateMaintenanceTypeResponseMaintenanceItemNextAtHoursRegExp),
+  "hours_left": zod.string().regex(updateMaintenanceTypeResponseMaintenanceItemHoursLeftRegExp),
+  "due_date": zod.iso.date(),
+  "state": zod.enum(['overdue', 'soon', 'ok']).describe('Состояние ТО — выводится селектором (`toState` прототипа), не хранится.')
+})),
+  "recent_runtime": zod.array(zod.object({
+  "id": zod.uuid(),
+  "date": zod.iso.date(),
+  "run": zod.string().regex(updateMaintenanceTypeResponseRecentRuntimeItemRunRegExp),
+  "setup": zod.string().regex(updateMaintenanceTypeResponseRecentRuntimeItemSetupRegExp),
+  "idle": zod.string().regex(updateMaintenanceTypeResponseRecentRuntimeItemIdleRegExp),
+  "down": zod.string().regex(updateMaintenanceTypeResponseRecentRuntimeItemDownRegExp),
+  "idle_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "idle_reason_name": zod.string(),
+  "down_reason_id": zod.union([zod.uuid(),zod.null()]),
+  "down_reason_name": zod.string(),
+  "source": zod.enum(['manual', 'scada'])
+})),
+  "recent_repairs": zod.array(zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "equipment_id": zod.uuid(),
+  "equipment_name": zod.string(),
+  "equipment_inventory_no": zod.string(),
+  "kind": zod.enum(['fail', 'repair', 'maintenance']),
+  "maintenance_type_id": zod.union([zod.uuid(),zod.null()]),
+  "category_id": zod.union([zod.uuid(),zod.null()]),
+  "category_name": zod.string(),
+  "started_at": zod.iso.datetime({"offset":true}),
+  "finished_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "downtime_hours": zod.string().regex(updateMaintenanceTypeResponseRecentRepairsItemDowntimeHoursRegExp),
+  "labor_hours": zod.string().regex(updateMaintenanceTypeResponseRecentRepairsItemLaborHoursRegExp),
+  "description": zod.string(),
+  "fix": zod.string(),
+  "status": zod.enum(['open', 'work', 'done'])
+})),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_set_status": zod.boolean(),
+  "can_log_runtime": zod.boolean(),
+  "can_register_repair": zod.boolean(),
+  "can_manage_maintenance": zod.boolean()
+}).describe('Серверные способности текущего пользователя — фронт показывает кнопки по ним.')
+})
+
+
+/**
+ * «Провести» ТО: закрытая запись журнала вида «ТО» и отметка о проведённом ТО.
+ * @summary Perform Maintenance
+ */
+export const PerformMaintenanceParams = zod.object({
+  "maintenance_type_id": zod.uuid()
+})
+
+export const performMaintenanceBodyWorkersItemHoursTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const performMaintenanceBodyCommentDefault = ``;
+
+export const PerformMaintenanceBody = zod.object({
+  "started_at": zod.iso.datetime({"offset":true}),
+  "finished_at": zod.iso.datetime({"offset":true}),
+  "workers": zod.array(zod.object({
+  "employee_id": zod.uuid(),
+  "hours": zod.union([zod.number(),zod.string().regex(performMaintenanceBodyWorkersItemHoursTwoRegExp)])
+})),
+  "comment": zod.string().default(performMaintenanceBodyCommentDefault)
+})
+
+export const performMaintenanceResponseDowntimeHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const performMaintenanceResponseLaborHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const performMaintenanceResponseWorkersItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const PerformMaintenanceResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "equipment_id": zod.uuid(),
+  "equipment_name": zod.string(),
+  "equipment_inventory_no": zod.string(),
+  "kind": zod.enum(['fail', 'repair', 'maintenance']),
+  "maintenance_type_id": zod.union([zod.uuid(),zod.null()]),
+  "category_id": zod.union([zod.uuid(),zod.null()]),
+  "category_name": zod.string(),
+  "started_at": zod.iso.datetime({"offset":true}),
+  "finished_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "downtime_hours": zod.string().regex(performMaintenanceResponseDowntimeHoursRegExp),
+  "labor_hours": zod.string().regex(performMaintenanceResponseLaborHoursRegExp),
+  "description": zod.string(),
+  "fix": zod.string(),
+  "status": zod.enum(['open', 'work', 'done']),
+  "alarm_code": zod.string(),
+  "parts": zod.string(),
+  "maintenance_type_code": zod.string(),
+  "workers": zod.array(zod.object({
+  "employee_id": zod.uuid(),
+  "employee_name": zod.string(),
+  "hours": zod.string().regex(performMaintenanceResponseWorkersItemHoursRegExp)
+})),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_start": zod.boolean(),
+  "can_close": zod.boolean()
+})
+})
+
+
+/**
+ * Журнал аварий и ремонтов за `days` дней (незакрытые — всегда) со сводкой:
+ * аварии, простой, трудозатраты, MTTR, MTBF, простой по категориям.
+ * @summary List Repairs
+ */
+export const listRepairsQueryDaysDefault = 90;
+export const listRepairsQueryDaysMax = 3660;
+
+
+
+export const ListRepairsQueryParams = zod.object({
+  "days": zod.int().min(1).max(listRepairsQueryDaysMax).default(listRepairsQueryDaysDefault),
+  "kind": zod.union([zod.enum(['fail', 'repair', 'maintenance']),zod.null()]).optional(),
+  "equipment_id": zod.union([zod.uuid(),zod.null()]).optional()
+})
+
+export const listRepairsResponseItemsItemDowntimeHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listRepairsResponseItemsItemLaborHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listRepairsResponseSummaryFailureDowntimeRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listRepairsResponseSummaryLaborHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listRepairsResponseSummaryMttrRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listRepairsResponseSummaryMtbfOneRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const listRepairsResponseSummaryDowntimeByCategoryItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const ListRepairsResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "equipment_id": zod.uuid(),
+  "equipment_name": zod.string(),
+  "equipment_inventory_no": zod.string(),
+  "kind": zod.enum(['fail', 'repair', 'maintenance']),
+  "maintenance_type_id": zod.union([zod.uuid(),zod.null()]),
+  "category_id": zod.union([zod.uuid(),zod.null()]),
+  "category_name": zod.string(),
+  "started_at": zod.iso.datetime({"offset":true}),
+  "finished_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "downtime_hours": zod.string().regex(listRepairsResponseItemsItemDowntimeHoursRegExp),
+  "labor_hours": zod.string().regex(listRepairsResponseItemsItemLaborHoursRegExp),
+  "description": zod.string(),
+  "fix": zod.string(),
+  "status": zod.enum(['open', 'work', 'done'])
+})),
+  "summary": zod.object({
+  "failures": zod.int(),
+  "failure_downtime": zod.string().regex(listRepairsResponseSummaryFailureDowntimeRegExp),
+  "labor_hours": zod.string().regex(listRepairsResponseSummaryLaborHoursRegExp),
+  "mttr": zod.string().regex(listRepairsResponseSummaryMttrRegExp),
+  "mtbf": zod.union([zod.string().regex(listRepairsResponseSummaryMtbfOneRegExp),zod.null()]),
+  "downtime_by_category": zod.array(zod.object({
+  "category": zod.string(),
+  "hours": zod.string().regex(listRepairsResponseSummaryDowntimeByCategoryItemHoursRegExp)
+})),
+  "failures_by_equipment": zod.array(zod.object({
+  "equipment_id": zod.uuid(),
+  "equipment_name": zod.string(),
+  "failures": zod.int()
+}))
+}),
+  "can_register": zod.boolean()
+})
+
+
+/**
+ * @summary Create Repair
+ */
+export const createRepairBodyAlarmCodeDefault = ``;
+export const createRepairBodyFixDefault = ``;
+export const createRepairBodyPartsDefault = ``;
+export const createRepairBodyWorkersItemHoursTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createRepairBodyWorkersDefault = [];
+
+export const CreateRepairBody = zod.object({
+  "kind": zod.enum(['fail', 'repair', 'maintenance']),
+  "started_at": zod.iso.datetime({"offset":true}),
+  "description": zod.string(),
+  "finished_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]).optional(),
+  "maintenance_type_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "category_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "alarm_code": zod.string().default(createRepairBodyAlarmCodeDefault),
+  "fix": zod.string().default(createRepairBodyFixDefault),
+  "parts": zod.string().default(createRepairBodyPartsDefault),
+  "workers": zod.array(zod.object({
+  "employee_id": zod.uuid(),
+  "hours": zod.union([zod.number(),zod.string().regex(createRepairBodyWorkersItemHoursTwoRegExp)])
+})).default(createRepairBodyWorkersDefault),
+  "equipment_id": zod.uuid()
+})
+
+export const createRepairResponseDowntimeHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createRepairResponseLaborHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const createRepairResponseWorkersItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const CreateRepairResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "equipment_id": zod.uuid(),
+  "equipment_name": zod.string(),
+  "equipment_inventory_no": zod.string(),
+  "kind": zod.enum(['fail', 'repair', 'maintenance']),
+  "maintenance_type_id": zod.union([zod.uuid(),zod.null()]),
+  "category_id": zod.union([zod.uuid(),zod.null()]),
+  "category_name": zod.string(),
+  "started_at": zod.iso.datetime({"offset":true}),
+  "finished_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "downtime_hours": zod.string().regex(createRepairResponseDowntimeHoursRegExp),
+  "labor_hours": zod.string().regex(createRepairResponseLaborHoursRegExp),
+  "description": zod.string(),
+  "fix": zod.string(),
+  "status": zod.enum(['open', 'work', 'done']),
+  "alarm_code": zod.string(),
+  "parts": zod.string(),
+  "maintenance_type_code": zod.string(),
+  "workers": zod.array(zod.object({
+  "employee_id": zod.uuid(),
+  "employee_name": zod.string(),
+  "hours": zod.string().regex(createRepairResponseWorkersItemHoursRegExp)
+})),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_start": zod.boolean(),
+  "can_close": zod.boolean()
+})
+})
+
+
+/**
+ * @summary Get Repair
+ */
+export const GetRepairParams = zod.object({
+  "repair_id": zod.uuid()
+})
+
+export const getRepairResponseDowntimeHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getRepairResponseLaborHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const getRepairResponseWorkersItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const GetRepairResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "equipment_id": zod.uuid(),
+  "equipment_name": zod.string(),
+  "equipment_inventory_no": zod.string(),
+  "kind": zod.enum(['fail', 'repair', 'maintenance']),
+  "maintenance_type_id": zod.union([zod.uuid(),zod.null()]),
+  "category_id": zod.union([zod.uuid(),zod.null()]),
+  "category_name": zod.string(),
+  "started_at": zod.iso.datetime({"offset":true}),
+  "finished_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "downtime_hours": zod.string().regex(getRepairResponseDowntimeHoursRegExp),
+  "labor_hours": zod.string().regex(getRepairResponseLaborHoursRegExp),
+  "description": zod.string(),
+  "fix": zod.string(),
+  "status": zod.enum(['open', 'work', 'done']),
+  "alarm_code": zod.string(),
+  "parts": zod.string(),
+  "maintenance_type_code": zod.string(),
+  "workers": zod.array(zod.object({
+  "employee_id": zod.uuid(),
+  "employee_name": zod.string(),
+  "hours": zod.string().regex(getRepairResponseWorkersItemHoursRegExp)
+})),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_start": zod.boolean(),
+  "can_close": zod.boolean()
+})
+})
+
+
+/**
+ * @summary Update Repair
+ */
+export const UpdateRepairParams = zod.object({
+  "repair_id": zod.uuid()
+})
+
+export const updateRepairBodyAlarmCodeDefault = ``;
+export const updateRepairBodyFixDefault = ``;
+export const updateRepairBodyPartsDefault = ``;
+export const updateRepairBodyWorkersItemHoursTwoRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateRepairBodyWorkersDefault = [];
+
+export const UpdateRepairBody = zod.object({
+  "kind": zod.enum(['fail', 'repair', 'maintenance']),
+  "started_at": zod.iso.datetime({"offset":true}),
+  "description": zod.string(),
+  "finished_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]).optional(),
+  "maintenance_type_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "category_id": zod.union([zod.uuid(),zod.null()]).optional(),
+  "alarm_code": zod.string().default(updateRepairBodyAlarmCodeDefault),
+  "fix": zod.string().default(updateRepairBodyFixDefault),
+  "parts": zod.string().default(updateRepairBodyPartsDefault),
+  "workers": zod.array(zod.object({
+  "employee_id": zod.uuid(),
+  "hours": zod.union([zod.number(),zod.string().regex(updateRepairBodyWorkersItemHoursTwoRegExp)])
+})).default(updateRepairBodyWorkersDefault)
+})
+
+export const updateRepairResponseDowntimeHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateRepairResponseLaborHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const updateRepairResponseWorkersItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const UpdateRepairResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "equipment_id": zod.uuid(),
+  "equipment_name": zod.string(),
+  "equipment_inventory_no": zod.string(),
+  "kind": zod.enum(['fail', 'repair', 'maintenance']),
+  "maintenance_type_id": zod.union([zod.uuid(),zod.null()]),
+  "category_id": zod.union([zod.uuid(),zod.null()]),
+  "category_name": zod.string(),
+  "started_at": zod.iso.datetime({"offset":true}),
+  "finished_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "downtime_hours": zod.string().regex(updateRepairResponseDowntimeHoursRegExp),
+  "labor_hours": zod.string().regex(updateRepairResponseLaborHoursRegExp),
+  "description": zod.string(),
+  "fix": zod.string(),
+  "status": zod.enum(['open', 'work', 'done']),
+  "alarm_code": zod.string(),
+  "parts": zod.string(),
+  "maintenance_type_code": zod.string(),
+  "workers": zod.array(zod.object({
+  "employee_id": zod.uuid(),
+  "employee_name": zod.string(),
+  "hours": zod.string().regex(updateRepairResponseWorkersItemHoursRegExp)
+})),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_start": zod.boolean(),
+  "can_close": zod.boolean()
+})
+})
+
+
+/**
+ * @summary Start Repair
+ */
+export const StartRepairParams = zod.object({
+  "repair_id": zod.uuid()
+})
+
+export const startRepairResponseDowntimeHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const startRepairResponseLaborHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const startRepairResponseWorkersItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const StartRepairResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "equipment_id": zod.uuid(),
+  "equipment_name": zod.string(),
+  "equipment_inventory_no": zod.string(),
+  "kind": zod.enum(['fail', 'repair', 'maintenance']),
+  "maintenance_type_id": zod.union([zod.uuid(),zod.null()]),
+  "category_id": zod.union([zod.uuid(),zod.null()]),
+  "category_name": zod.string(),
+  "started_at": zod.iso.datetime({"offset":true}),
+  "finished_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "downtime_hours": zod.string().regex(startRepairResponseDowntimeHoursRegExp),
+  "labor_hours": zod.string().regex(startRepairResponseLaborHoursRegExp),
+  "description": zod.string(),
+  "fix": zod.string(),
+  "status": zod.enum(['open', 'work', 'done']),
+  "alarm_code": zod.string(),
+  "parts": zod.string(),
+  "maintenance_type_code": zod.string(),
+  "workers": zod.array(zod.object({
+  "employee_id": zod.uuid(),
+  "employee_name": zod.string(),
+  "hours": zod.string().regex(startRepairResponseWorkersItemHoursRegExp)
+})),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_start": zod.boolean(),
+  "can_close": zod.boolean()
+})
+})
+
+
+/**
+ * «Устранено — закрыть»: часы исполнителей уходят в табель событием.
+ * @summary Close Repair
+ */
+export const CloseRepairParams = zod.object({
+  "repair_id": zod.uuid()
+})
+
+export const CloseRepairBody = zod.object({
+  "finished_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]).optional()
+})
+
+export const closeRepairResponseDowntimeHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const closeRepairResponseLaborHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+export const closeRepairResponseWorkersItemHoursRegExp = new RegExp('^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$');
+
+
+export const CloseRepairResponse = zod.object({
+  "id": zod.uuid(),
+  "number": zod.string(),
+  "equipment_id": zod.uuid(),
+  "equipment_name": zod.string(),
+  "equipment_inventory_no": zod.string(),
+  "kind": zod.enum(['fail', 'repair', 'maintenance']),
+  "maintenance_type_id": zod.union([zod.uuid(),zod.null()]),
+  "category_id": zod.union([zod.uuid(),zod.null()]),
+  "category_name": zod.string(),
+  "started_at": zod.iso.datetime({"offset":true}),
+  "finished_at": zod.union([zod.iso.datetime({"offset":true}),zod.null()]),
+  "downtime_hours": zod.string().regex(closeRepairResponseDowntimeHoursRegExp),
+  "labor_hours": zod.string().regex(closeRepairResponseLaborHoursRegExp),
+  "description": zod.string(),
+  "fix": zod.string(),
+  "status": zod.enum(['open', 'work', 'done']),
+  "alarm_code": zod.string(),
+  "parts": zod.string(),
+  "maintenance_type_code": zod.string(),
+  "workers": zod.array(zod.object({
+  "employee_id": zod.uuid(),
+  "employee_name": zod.string(),
+  "hours": zod.string().regex(closeRepairResponseWorkersItemHoursRegExp)
+})),
+  "created_at": zod.iso.datetime({"offset":true}),
+  "abilities": zod.object({
+  "can_edit": zod.boolean(),
+  "can_start": zod.boolean(),
+  "can_close": zod.boolean()
+})
+})

@@ -91,3 +91,25 @@
 - **payload:** нет дополнительных полей — причина архивации остаётся в
   pghistory-контексте (`actor_context(actor_id, reason=reason)`), не дублируется здесь.
 - **Подписчики:** нет постоянных.
+
+### equipment.repair_closed
+
+- **Версия:** 1
+- **Публикует:** `src.equipment`
+- **Когда:** при закрытии записи журнала аварий и ремонтов
+  (`services.repair.close_repair`, в том числе «Провести ТО» —
+  `services.repair.perform_maintenance`) — `Repair.status` переходит в `done`, в той же
+  транзакции, что и простой в наработке суток и (для вида «ТО») запись
+  `MaintenanceRecord`. Закрытая запись больше не правится, поэтому событие по одной
+  записи публикуется ровно один раз.
+- **aggregate_id:** `Repair.id`.
+- **payload:**
+  - `equipment_id` (UUID) — оборудование.
+  - `date` (date, ISO) — дата ремонта: локальная дата начала простоя (`started_at`);
+    на неё ложатся часы в табеле.
+  - `number` (str) — номер записи (`АР-0001`), для аналитики `REP-…` и текста журнала.
+  - `workers` (list) — исполнители: `[{employee_id (UUID), hours (str, Decimal)}]`,
+    по убыванию часов; не пуст — без исполнителей запись не закрывается.
+- **Подписчики:** `timesheet` — часы исполнителей в разноску `target=repair` на дату
+  ремонта (`docs/spec/00-prilozhenie-proizvodstvo.md` §3.5); идемпотентность по
+  `aggregate_id`.

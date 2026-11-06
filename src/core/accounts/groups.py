@@ -66,10 +66,10 @@ SEED_GROUP_PERMISSIONS: dict[str, tuple[str, ...]] = {
     DESIGNER: (),
     TECHNOLOGIST: (),
     PROCUREMENT_OFFICER: (),
-    PRODUCTION_HEAD: (),
+    PRODUCTION_HEAD: ("equipment.manage_equipment",),
     WAREHOUSE_HEAD: (),
-    FOREMAN: (),
+    FOREMAN: ("equipment.log_runtime",),
     QC_ENGINEER: (),
-    POWER_ENGINEER: (),
+    POWER_ENGINEER: ("energy.manage_meters",),
     OBSERVER: (),
 }
