@@ -183,6 +183,266 @@ export interface CursorPageItemListItem {
   total_cap?: number | null;
 }
 
+export interface TimeCodeOut {
+  id: string;
+  code: string;
+  name: string;
+  is_work: boolean;
+  is_allocatable: boolean;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  cost_multiplier: string;
+}
+
+export type PeriodStatus = typeof PeriodStatus[keyof typeof PeriodStatus];
+
+
+export const PeriodStatus = {
+  draft: 'draft',
+  on_review: 'on_review',
+  approved: 'approved',
+  sent: 'sent',
+  closed: 'closed',
+  reopened: 'reopened',
+} as const;
+
+export interface DepartmentPeriodOut {
+  department_id: string;
+  code: string;
+  name: string;
+  head_name: string;
+  status: PeriodStatus;
+}
+
+export interface CheckOut {
+  is_blocking: boolean;
+  text: string;
+  employee_id: string | null;
+}
+
+export interface CodeTotalOut {
+  code: string;
+  name: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  hours: string;
+}
+
+export interface DayHoursOut {
+  date: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  hours: string;
+}
+
+export interface GridCellOut {
+  date: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  work_hours: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  overtime_hours: string;
+  absence_code: string;
+  is_trip: boolean;
+  has_overhead: boolean;
+  is_missing: boolean;
+}
+
+export interface GridDayOut {
+  date: string;
+  is_weekend: boolean;
+}
+
+export interface ObjectLineOut {
+  target: string;
+  order_id: string | null;
+  days: DayHoursOut[];
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  total: string;
+}
+
+export interface GridRowOut {
+  employee_id: string;
+  full_name: string;
+  personnel_no: string;
+  position: string;
+  work_center_id: string | null;
+  cells: GridCellOut[];
+  objects: ObjectLineOut[];
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  total: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  norm: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  delta: string;
+}
+
+export interface PeriodAbilitiesOut {
+  can_edit: boolean;
+  can_fill_plan: boolean;
+  can_submit: boolean;
+  can_confirm_manager: boolean;
+  can_approve: boolean;
+  can_return: boolean;
+  can_send: boolean;
+  can_close: boolean;
+  can_reopen: boolean;
+}
+
+export interface PeriodOut {
+  department_id: string;
+  month: string;
+  status: PeriodStatus;
+  version: number;
+  abilities: PeriodAbilitiesOut;
+}
+
+export interface ObjectTotalOut {
+  target: string;
+  order_id: string | null;
+  analytics: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  hours: string;
+}
+
+export interface MonthGridOut {
+  period: PeriodOut;
+  department_code: string;
+  department_name: string;
+  head_id: string | null;
+  head_name: string;
+  days: GridDayOut[];
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  norm_hours: string;
+  rows: GridRowOut[];
+  checks: CheckOut[];
+  by_code: CodeTotalOut[];
+  by_object: ObjectTotalOut[];
+}
+
+export interface ManagerOrderHoursOut {
+  order_id: string;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  hours: string;
+}
+
+export interface ManagerVisaOut {
+  manager_id: string;
+  manager_name: string;
+  orders: ManagerOrderHoursOut[];
+  confirmed: boolean;
+  can_confirm: boolean;
+}
+
+export type PeriodEventKind = typeof PeriodEventKind[keyof typeof PeriodEventKind];
+
+
+export const PeriodEventKind = {
+  submitted: 'submitted',
+  manager_confirmed: 'manager_confirmed',
+  returned: 'returned',
+  approved: 'approved',
+  sent: 'sent',
+  closed: 'closed',
+  reopened: 'reopened',
+} as const;
+
+export interface PeriodEventOut {
+  kind: PeriodEventKind;
+  version: number;
+  actor_name: string;
+  manager_name: string;
+  comment: string;
+  created_at: string;
+}
+
+export interface PeriodReviewOut {
+  period: PeriodOut;
+  managers: ManagerVisaOut[];
+  events: PeriodEventOut[];
+}
+
+export interface FillResultOut {
+  filled_days: number;
+  period: PeriodOut;
+}
+
+export interface ReasonIn {
+  comment: string;
+}
+
+export type PackageType = typeof PackageType[keyof typeof PackageType];
+
+
+export const PackageType = {
+  timesheet: 'timesheet',
+  cost_allocation: 'cost_allocation',
+} as const;
+
+export type AllocationSource = typeof AllocationSource[keyof typeof AllocationSource];
+
+
+export const AllocationSource = {
+  manual: 'manual',
+  plan: 'plan',
+  repair: 'repair',
+} as const;
+
+export interface AllocationOut {
+  id: string;
+  employee_id: string;
+  date: string;
+  time_code: string;
+  time_code_name: string;
+  is_work: boolean;
+  target: string;
+  order_id: string | null;
+  operation_id: string | null;
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  hours: string;
+  source: AllocationSource;
+  source_ref: string;
+}
+
+export interface PlannedOpOut {
+  operation_id: string;
+  order_id: string;
+  label: string;
+}
+
+export interface DayOut {
+  employee_id: string;
+  full_name: string;
+  position: string;
+  department_id: string;
+  department_name: string;
+  work_center_id: string | null;
+  date: string;
+  rows: AllocationOut[];
+  /** @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$ */
+  total: string;
+  can_edit: boolean;
+  planned: PlannedOpOut[];
+}
+
+export interface AllocationRowIn {
+  time_code: string;
+  hours: number | string;
+  target?: string;
+  order_id?: string | null;
+  operation_id?: string | null;
+}
+
+export interface DayIn {
+  rows: AllocationRowIn[];
+}
+
+export interface AllocationIn {
+  time_code: string;
+  hours: number | string;
+  target?: string;
+  order_id?: string | null;
+  operation_id?: string | null;
+  employee_id: string;
+  date: string;
+}
+
 export type GetCsrf200 = {[key: string]: boolean};
 
 export type Logout200 = {[key: string]: boolean};
@@ -224,6 +484,10 @@ cursor?: string | null;
 page_size?: number;
 ordering?: string | null;
 with_total?: boolean;
+};
+
+export type ListTimesheetDepartmentsParams = {
+month: string;
 };
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
@@ -1593,3 +1857,1616 @@ export function useListItems<TData = Awaited<ReturnType<typeof listItems>>, TErr
 
   return withQueryKey(query, queryOptions.queryKey);
 }
+
+
+
+
+
+
+
+export const getListTimeCodesUrl = () => {
+
+
+
+
+  return `/api/v1/timesheet/time-codes`
+}
+
+/**
+ * @summary List Time Codes
+ */
+export const listTimeCodes = async ( options?: Parameters<typeof customFetch>[1]): Promise<TimeCodeOut[]> => {
+
+  return customFetch<TimeCodeOut[]>(getListTimeCodesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListTimeCodesQueryKey = () => {
+    return [
+    `/api/v1/timesheet/time-codes`
+    ] as const;
+    }
+
+
+export const getListTimeCodesQueryOptions = <TData = Awaited<ReturnType<typeof listTimeCodes>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimeCodes>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListTimeCodesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listTimeCodes>>> = ({ signal }) => listTimeCodes({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listTimeCodes>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListTimeCodesQueryResult = NonNullable<Awaited<ReturnType<typeof listTimeCodes>>>
+export type ListTimeCodesQueryError = unknown
+
+
+export function useListTimeCodes<TData = Awaited<ReturnType<typeof listTimeCodes>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimeCodes>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listTimeCodes>>,
+          TError,
+          Awaited<ReturnType<typeof listTimeCodes>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListTimeCodes<TData = Awaited<ReturnType<typeof listTimeCodes>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimeCodes>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listTimeCodes>>,
+          TError,
+          Awaited<ReturnType<typeof listTimeCodes>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListTimeCodes<TData = Awaited<ReturnType<typeof listTimeCodes>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimeCodes>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List Time Codes
+ */
+
+export function useListTimeCodes<TData = Awaited<ReturnType<typeof listTimeCodes>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimeCodes>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListTimeCodesQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListTimesheetDepartmentsUrl = (params: ListTimesheetDepartmentsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/timesheet/departments?${stringifiedParams}` : `/api/v1/timesheet/departments`
+}
+
+/**
+ * Подразделения с работниками и статус их табеля за месяц — выбор на экране.
+ * @summary List Departments
+ */
+export const listTimesheetDepartments = async (params: ListTimesheetDepartmentsParams, options?: Parameters<typeof customFetch>[1]): Promise<DepartmentPeriodOut[]> => {
+
+  return customFetch<DepartmentPeriodOut[]>(getListTimesheetDepartmentsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListTimesheetDepartmentsQueryKey = (params?: ListTimesheetDepartmentsParams,) => {
+    return [
+    `/api/v1/timesheet/departments`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListTimesheetDepartmentsQueryOptions = <TData = Awaited<ReturnType<typeof listTimesheetDepartments>>, TError = unknown>(params: ListTimesheetDepartmentsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimesheetDepartments>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListTimesheetDepartmentsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listTimesheetDepartments>>> = ({ signal }) => listTimesheetDepartments(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listTimesheetDepartments>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListTimesheetDepartmentsQueryResult = NonNullable<Awaited<ReturnType<typeof listTimesheetDepartments>>>
+export type ListTimesheetDepartmentsQueryError = unknown
+
+
+export function useListTimesheetDepartments<TData = Awaited<ReturnType<typeof listTimesheetDepartments>>, TError = unknown>(
+ params: ListTimesheetDepartmentsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimesheetDepartments>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listTimesheetDepartments>>,
+          TError,
+          Awaited<ReturnType<typeof listTimesheetDepartments>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListTimesheetDepartments<TData = Awaited<ReturnType<typeof listTimesheetDepartments>>, TError = unknown>(
+ params: ListTimesheetDepartmentsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimesheetDepartments>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listTimesheetDepartments>>,
+          TError,
+          Awaited<ReturnType<typeof listTimesheetDepartments>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListTimesheetDepartments<TData = Awaited<ReturnType<typeof listTimesheetDepartments>>, TError = unknown>(
+ params: ListTimesheetDepartmentsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimesheetDepartments>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List Departments
+ */
+
+export function useListTimesheetDepartments<TData = Awaited<ReturnType<typeof listTimesheetDepartments>>, TError = unknown>(
+ params: ListTimesheetDepartmentsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTimesheetDepartments>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListTimesheetDepartmentsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetTimesheetGridUrl = (departmentId: string,
+    month: string,) => {
+
+
+
+
+  return `/api/v1/timesheet/departments/${departmentId}/periods/${month}/grid`
+}
+
+/**
+ * @summary Get Grid
+ */
+export const getTimesheetGrid = async (departmentId: string,
+    month: string, options?: Parameters<typeof customFetch>[1]): Promise<MonthGridOut> => {
+
+  return customFetch<MonthGridOut>(getGetTimesheetGridUrl(departmentId,month),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetTimesheetGridQueryKey = (departmentId: string,
+    month: string,) => {
+    return [
+    `/api/v1/timesheet/departments/${departmentId}/periods/${month}/grid`
+    ] as const;
+    }
+
+
+export const getGetTimesheetGridQueryOptions = <TData = Awaited<ReturnType<typeof getTimesheetGrid>>, TError = unknown>(departmentId: string,
+    month: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTimesheetGrid>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTimesheetGridQueryKey(departmentId,month);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTimesheetGrid>>> = ({ signal }) => getTimesheetGrid(departmentId,month, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: departmentId !== null && departmentId !== undefined && month !== null && month !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTimesheetGrid>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetTimesheetGridQueryResult = NonNullable<Awaited<ReturnType<typeof getTimesheetGrid>>>
+export type GetTimesheetGridQueryError = unknown
+
+
+export function useGetTimesheetGrid<TData = Awaited<ReturnType<typeof getTimesheetGrid>>, TError = unknown>(
+ departmentId: string,
+    month: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTimesheetGrid>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getTimesheetGrid>>,
+          TError,
+          Awaited<ReturnType<typeof getTimesheetGrid>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetTimesheetGrid<TData = Awaited<ReturnType<typeof getTimesheetGrid>>, TError = unknown>(
+ departmentId: string,
+    month: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTimesheetGrid>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getTimesheetGrid>>,
+          TError,
+          Awaited<ReturnType<typeof getTimesheetGrid>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetTimesheetGrid<TData = Awaited<ReturnType<typeof getTimesheetGrid>>, TError = unknown>(
+ departmentId: string,
+    month: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTimesheetGrid>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Grid
+ */
+
+export function useGetTimesheetGrid<TData = Awaited<ReturnType<typeof getTimesheetGrid>>, TError = unknown>(
+ departmentId: string,
+    month: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTimesheetGrid>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetTimesheetGridQueryOptions(departmentId,month,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetTimesheetReviewUrl = (departmentId: string,
+    month: string,) => {
+
+
+
+
+  return `/api/v1/timesheet/departments/${departmentId}/periods/${month}/review`
+}
+
+/**
+ * Визы менеджеров по своим заказам (`mgrHours`) и журнал переходов периода.
+ * @summary Get Review
+ */
+export const getTimesheetReview = async (departmentId: string,
+    month: string, options?: Parameters<typeof customFetch>[1]): Promise<PeriodReviewOut> => {
+
+  return customFetch<PeriodReviewOut>(getGetTimesheetReviewUrl(departmentId,month),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetTimesheetReviewQueryKey = (departmentId: string,
+    month: string,) => {
+    return [
+    `/api/v1/timesheet/departments/${departmentId}/periods/${month}/review`
+    ] as const;
+    }
+
+
+export const getGetTimesheetReviewQueryOptions = <TData = Awaited<ReturnType<typeof getTimesheetReview>>, TError = unknown>(departmentId: string,
+    month: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTimesheetReview>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTimesheetReviewQueryKey(departmentId,month);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTimesheetReview>>> = ({ signal }) => getTimesheetReview(departmentId,month, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: departmentId !== null && departmentId !== undefined && month !== null && month !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTimesheetReview>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetTimesheetReviewQueryResult = NonNullable<Awaited<ReturnType<typeof getTimesheetReview>>>
+export type GetTimesheetReviewQueryError = unknown
+
+
+export function useGetTimesheetReview<TData = Awaited<ReturnType<typeof getTimesheetReview>>, TError = unknown>(
+ departmentId: string,
+    month: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTimesheetReview>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getTimesheetReview>>,
+          TError,
+          Awaited<ReturnType<typeof getTimesheetReview>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetTimesheetReview<TData = Awaited<ReturnType<typeof getTimesheetReview>>, TError = unknown>(
+ departmentId: string,
+    month: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTimesheetReview>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getTimesheetReview>>,
+          TError,
+          Awaited<ReturnType<typeof getTimesheetReview>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetTimesheetReview<TData = Awaited<ReturnType<typeof getTimesheetReview>>, TError = unknown>(
+ departmentId: string,
+    month: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTimesheetReview>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Review
+ */
+
+export function useGetTimesheetReview<TData = Awaited<ReturnType<typeof getTimesheetReview>>, TError = unknown>(
+ departmentId: string,
+    month: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTimesheetReview>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetTimesheetReviewQueryOptions(departmentId,month,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getFillTimesheetFromPlanUrl = (departmentId: string,
+    month: string,) => {
+
+
+
+
+  return `/api/v1/timesheet/departments/${departmentId}/periods/${month}/fill-from-plan`
+}
+
+/**
+ * Незакрытые будние дни до вчера — по плану операций участков.
+ * @summary Fill From Plan
+ */
+export const fillTimesheetFromPlan = async (departmentId: string,
+    month: string, options?: Parameters<typeof customFetch>[1]): Promise<FillResultOut> => {
+
+  return customFetch<FillResultOut>(getFillTimesheetFromPlanUrl(departmentId,month),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getFillTimesheetFromPlanMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof fillTimesheetFromPlan>>, TError,{departmentId: string;month: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof fillTimesheetFromPlan>>, TError,{departmentId: string;month: string}, TContext> => {
+
+const mutationKey = ['fillTimesheetFromPlan'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof fillTimesheetFromPlan>>, {departmentId: string;month: string}> = (props) => {
+          const {departmentId,month} = props ?? {};
+
+          return  fillTimesheetFromPlan(departmentId,month,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type FillTimesheetFromPlanMutationResult = NonNullable<Awaited<ReturnType<typeof fillTimesheetFromPlan>>>
+
+    export type FillTimesheetFromPlanMutationError = unknown
+
+    /**
+ * @summary Fill From Plan
+ */
+export const useFillTimesheetFromPlan = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof fillTimesheetFromPlan>>, TError,{departmentId: string;month: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof fillTimesheetFromPlan>>,
+        TError,
+        {departmentId: string;month: string},
+        TContext
+      > => {
+      return useMutation(getFillTimesheetFromPlanMutationOptions(options), queryClient);
+    }
+
+export const getSubmitTimesheetUrl = (departmentId: string,
+    month: string,) => {
+
+
+
+
+  return `/api/v1/timesheet/departments/${departmentId}/periods/${month}/submit`
+}
+
+/**
+ * @summary Submit
+ */
+export const submitTimesheet = async (departmentId: string,
+    month: string, options?: Parameters<typeof customFetch>[1]): Promise<PeriodOut> => {
+
+  return customFetch<PeriodOut>(getSubmitTimesheetUrl(departmentId,month),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getSubmitTimesheetMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitTimesheet>>, TError,{departmentId: string;month: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof submitTimesheet>>, TError,{departmentId: string;month: string}, TContext> => {
+
+const mutationKey = ['submitTimesheet'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof submitTimesheet>>, {departmentId: string;month: string}> = (props) => {
+          const {departmentId,month} = props ?? {};
+
+          return  submitTimesheet(departmentId,month,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SubmitTimesheetMutationResult = NonNullable<Awaited<ReturnType<typeof submitTimesheet>>>
+
+    export type SubmitTimesheetMutationError = unknown
+
+    /**
+ * @summary Submit
+ */
+export const useSubmitTimesheet = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitTimesheet>>, TError,{departmentId: string;month: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof submitTimesheet>>,
+        TError,
+        {departmentId: string;month: string},
+        TContext
+      > => {
+      return useMutation(getSubmitTimesheetMutationOptions(options), queryClient);
+    }
+
+export const getConfirmTimesheetHoursUrl = (departmentId: string,
+    month: string,) => {
+
+
+
+
+  return `/api/v1/timesheet/departments/${departmentId}/periods/${month}/confirm-manager`
+}
+
+/**
+ * Виза менеджера по часам на свои заказы — ставит сам менеджер.
+ * @summary Confirm Manager
+ */
+export const confirmTimesheetHours = async (departmentId: string,
+    month: string, options?: Parameters<typeof customFetch>[1]): Promise<PeriodOut> => {
+
+  return customFetch<PeriodOut>(getConfirmTimesheetHoursUrl(departmentId,month),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getConfirmTimesheetHoursMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof confirmTimesheetHours>>, TError,{departmentId: string;month: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof confirmTimesheetHours>>, TError,{departmentId: string;month: string}, TContext> => {
+
+const mutationKey = ['confirmTimesheetHours'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof confirmTimesheetHours>>, {departmentId: string;month: string}> = (props) => {
+          const {departmentId,month} = props ?? {};
+
+          return  confirmTimesheetHours(departmentId,month,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ConfirmTimesheetHoursMutationResult = NonNullable<Awaited<ReturnType<typeof confirmTimesheetHours>>>
+
+    export type ConfirmTimesheetHoursMutationError = unknown
+
+    /**
+ * @summary Confirm Manager
+ */
+export const useConfirmTimesheetHours = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof confirmTimesheetHours>>, TError,{departmentId: string;month: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof confirmTimesheetHours>>,
+        TError,
+        {departmentId: string;month: string},
+        TContext
+      > => {
+      return useMutation(getConfirmTimesheetHoursMutationOptions(options), queryClient);
+    }
+
+export const getApproveTimesheetUrl = (departmentId: string,
+    month: string,) => {
+
+
+
+
+  return `/api/v1/timesheet/departments/${departmentId}/periods/${month}/approve`
+}
+
+/**
+ * @summary Approve
+ */
+export const approveTimesheet = async (departmentId: string,
+    month: string, options?: Parameters<typeof customFetch>[1]): Promise<PeriodOut> => {
+
+  return customFetch<PeriodOut>(getApproveTimesheetUrl(departmentId,month),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getApproveTimesheetMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof approveTimesheet>>, TError,{departmentId: string;month: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof approveTimesheet>>, TError,{departmentId: string;month: string}, TContext> => {
+
+const mutationKey = ['approveTimesheet'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof approveTimesheet>>, {departmentId: string;month: string}> = (props) => {
+          const {departmentId,month} = props ?? {};
+
+          return  approveTimesheet(departmentId,month,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ApproveTimesheetMutationResult = NonNullable<Awaited<ReturnType<typeof approveTimesheet>>>
+
+    export type ApproveTimesheetMutationError = unknown
+
+    /**
+ * @summary Approve
+ */
+export const useApproveTimesheet = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof approveTimesheet>>, TError,{departmentId: string;month: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof approveTimesheet>>,
+        TError,
+        {departmentId: string;month: string},
+        TContext
+      > => {
+      return useMutation(getApproveTimesheetMutationOptions(options), queryClient);
+    }
+
+export const getReturnTimesheetUrl = (departmentId: string,
+    month: string,) => {
+
+
+
+
+  return `/api/v1/timesheet/departments/${departmentId}/periods/${month}/return`
+}
+
+/**
+ * @summary Return View
+ */
+export const returnTimesheet = async (departmentId: string,
+    month: string,
+    reasonIn: ReasonIn, options?: Parameters<typeof customFetch>[1]): Promise<PeriodOut> => {
+
+  return customFetch<PeriodOut>(getReturnTimesheetUrl(departmentId,month),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(reasonIn)
+  }
+);}
+
+
+
+
+
+export const getReturnTimesheetMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof returnTimesheet>>, TError,{departmentId: string;month: string;data: ReasonIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof returnTimesheet>>, TError,{departmentId: string;month: string;data: ReasonIn}, TContext> => {
+
+const mutationKey = ['returnTimesheet'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof returnTimesheet>>, {departmentId: string;month: string;data: ReasonIn}> = (props) => {
+          const {departmentId,month,data} = props ?? {};
+
+          return  returnTimesheet(departmentId,month,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReturnTimesheetMutationResult = NonNullable<Awaited<ReturnType<typeof returnTimesheet>>>
+    export type ReturnTimesheetMutationBody = ReasonIn
+    export type ReturnTimesheetMutationError = unknown
+
+    /**
+ * @summary Return View
+ */
+export const useReturnTimesheet = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof returnTimesheet>>, TError,{departmentId: string;month: string;data: ReasonIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof returnTimesheet>>,
+        TError,
+        {departmentId: string;month: string;data: ReasonIn},
+        TContext
+      > => {
+      return useMutation(getReturnTimesheetMutationOptions(options), queryClient);
+    }
+
+export const getSendTimesheetUrl = (departmentId: string,
+    month: string,) => {
+
+
+
+
+  return `/api/v1/timesheet/departments/${departmentId}/periods/${month}/send`
+}
+
+/**
+ * Передача в 1С: статус `sent`; сами пакеты скачиваются `.../packages/{тип}`.
+ * @summary Send
+ */
+export const sendTimesheet = async (departmentId: string,
+    month: string, options?: Parameters<typeof customFetch>[1]): Promise<PeriodOut> => {
+
+  return customFetch<PeriodOut>(getSendTimesheetUrl(departmentId,month),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getSendTimesheetMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendTimesheet>>, TError,{departmentId: string;month: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof sendTimesheet>>, TError,{departmentId: string;month: string}, TContext> => {
+
+const mutationKey = ['sendTimesheet'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof sendTimesheet>>, {departmentId: string;month: string}> = (props) => {
+          const {departmentId,month} = props ?? {};
+
+          return  sendTimesheet(departmentId,month,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SendTimesheetMutationResult = NonNullable<Awaited<ReturnType<typeof sendTimesheet>>>
+
+    export type SendTimesheetMutationError = unknown
+
+    /**
+ * @summary Send
+ */
+export const useSendTimesheet = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendTimesheet>>, TError,{departmentId: string;month: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof sendTimesheet>>,
+        TError,
+        {departmentId: string;month: string},
+        TContext
+      > => {
+      return useMutation(getSendTimesheetMutationOptions(options), queryClient);
+    }
+
+export const getCloseTimesheetUrl = (departmentId: string,
+    month: string,) => {
+
+
+
+
+  return `/api/v1/timesheet/departments/${departmentId}/periods/${month}/close`
+}
+
+/**
+ * @summary Close
+ */
+export const closeTimesheet = async (departmentId: string,
+    month: string, options?: Parameters<typeof customFetch>[1]): Promise<PeriodOut> => {
+
+  return customFetch<PeriodOut>(getCloseTimesheetUrl(departmentId,month),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getCloseTimesheetMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof closeTimesheet>>, TError,{departmentId: string;month: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof closeTimesheet>>, TError,{departmentId: string;month: string}, TContext> => {
+
+const mutationKey = ['closeTimesheet'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof closeTimesheet>>, {departmentId: string;month: string}> = (props) => {
+          const {departmentId,month} = props ?? {};
+
+          return  closeTimesheet(departmentId,month,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CloseTimesheetMutationResult = NonNullable<Awaited<ReturnType<typeof closeTimesheet>>>
+
+    export type CloseTimesheetMutationError = unknown
+
+    /**
+ * @summary Close
+ */
+export const useCloseTimesheet = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof closeTimesheet>>, TError,{departmentId: string;month: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof closeTimesheet>>,
+        TError,
+        {departmentId: string;month: string},
+        TContext
+      > => {
+      return useMutation(getCloseTimesheetMutationOptions(options), queryClient);
+    }
+
+export const getReopenTimesheetUrl = (departmentId: string,
+    month: string,) => {
+
+
+
+
+  return `/api/v1/timesheet/departments/${departmentId}/periods/${month}/reopen`
+}
+
+/**
+ * @summary Reopen
+ */
+export const reopenTimesheet = async (departmentId: string,
+    month: string,
+    reasonIn: ReasonIn, options?: Parameters<typeof customFetch>[1]): Promise<PeriodOut> => {
+
+  return customFetch<PeriodOut>(getReopenTimesheetUrl(departmentId,month),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(reasonIn)
+  }
+);}
+
+
+
+
+
+export const getReopenTimesheetMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof reopenTimesheet>>, TError,{departmentId: string;month: string;data: ReasonIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof reopenTimesheet>>, TError,{departmentId: string;month: string;data: ReasonIn}, TContext> => {
+
+const mutationKey = ['reopenTimesheet'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof reopenTimesheet>>, {departmentId: string;month: string;data: ReasonIn}> = (props) => {
+          const {departmentId,month,data} = props ?? {};
+
+          return  reopenTimesheet(departmentId,month,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReopenTimesheetMutationResult = NonNullable<Awaited<ReturnType<typeof reopenTimesheet>>>
+    export type ReopenTimesheetMutationBody = ReasonIn
+    export type ReopenTimesheetMutationError = unknown
+
+    /**
+ * @summary Reopen
+ */
+export const useReopenTimesheet = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof reopenTimesheet>>, TError,{departmentId: string;month: string;data: ReasonIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof reopenTimesheet>>,
+        TError,
+        {departmentId: string;month: string;data: ReasonIn},
+        TContext
+      > => {
+      return useMutation(getReopenTimesheetMutationOptions(options), queryClient);
+    }
+
+export const getDownloadTimesheetPackageUrl = (departmentId: string,
+    month: string,
+    packageType: 'timesheet' | 'cost_allocation',) => {
+
+
+
+
+  return `/api/v1/timesheet/departments/${departmentId}/periods/${month}/packages/${packageType}`
+}
+
+/**
+ * Пакет обмена с 1С файлом JSON (ИС ADR 0002: транспорт в 1С вне объёма).
+ * @summary Download Package
+ */
+export const downloadTimesheetPackage = async (departmentId: string,
+    month: string,
+    packageType: 'timesheet' | 'cost_allocation', options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDownloadTimesheetPackageUrl(departmentId,month,packageType),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getDownloadTimesheetPackageQueryKey = (departmentId: string,
+    month: string,
+    packageType: 'timesheet' | 'cost_allocation',) => {
+    return [
+    `/api/v1/timesheet/departments/${departmentId}/periods/${month}/packages/${packageType}`
+    ] as const;
+    }
+
+
+export const getDownloadTimesheetPackageQueryOptions = <TData = Awaited<ReturnType<typeof downloadTimesheetPackage>>, TError = unknown>(departmentId: string,
+    month: string,
+    packageType: 'timesheet' | 'cost_allocation', options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadTimesheetPackage>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getDownloadTimesheetPackageQueryKey(departmentId,month,packageType);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof downloadTimesheetPackage>>> = ({ signal }) => downloadTimesheetPackage(departmentId,month,packageType, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: departmentId !== null && departmentId !== undefined && month !== null && month !== undefined && packageType !== null && packageType !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof downloadTimesheetPackage>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type DownloadTimesheetPackageQueryResult = NonNullable<Awaited<ReturnType<typeof downloadTimesheetPackage>>>
+export type DownloadTimesheetPackageQueryError = unknown
+
+
+export function useDownloadTimesheetPackage<TData = Awaited<ReturnType<typeof downloadTimesheetPackage>>, TError = unknown>(
+ departmentId: string,
+    month: string,
+    packageType: 'timesheet' | 'cost_allocation', options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadTimesheetPackage>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof downloadTimesheetPackage>>,
+          TError,
+          Awaited<ReturnType<typeof downloadTimesheetPackage>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useDownloadTimesheetPackage<TData = Awaited<ReturnType<typeof downloadTimesheetPackage>>, TError = unknown>(
+ departmentId: string,
+    month: string,
+    packageType: 'timesheet' | 'cost_allocation', options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadTimesheetPackage>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof downloadTimesheetPackage>>,
+          TError,
+          Awaited<ReturnType<typeof downloadTimesheetPackage>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useDownloadTimesheetPackage<TData = Awaited<ReturnType<typeof downloadTimesheetPackage>>, TError = unknown>(
+ departmentId: string,
+    month: string,
+    packageType: 'timesheet' | 'cost_allocation', options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadTimesheetPackage>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Download Package
+ */
+
+export function useDownloadTimesheetPackage<TData = Awaited<ReturnType<typeof downloadTimesheetPackage>>, TError = unknown>(
+ departmentId: string,
+    month: string,
+    packageType: 'timesheet' | 'cost_allocation', options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadTimesheetPackage>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getDownloadTimesheetPackageQueryOptions(departmentId,month,packageType,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetTimesheetDayUrl = (employeeId: string,
+    day: string,) => {
+
+
+
+
+  return `/api/v1/timesheet/employees/${employeeId}/days/${day}`
+}
+
+/**
+ * @summary Get Day
+ */
+export const getTimesheetDay = async (employeeId: string,
+    day: string, options?: Parameters<typeof customFetch>[1]): Promise<DayOut> => {
+
+  return customFetch<DayOut>(getGetTimesheetDayUrl(employeeId,day),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetTimesheetDayQueryKey = (employeeId: string,
+    day: string,) => {
+    return [
+    `/api/v1/timesheet/employees/${employeeId}/days/${day}`
+    ] as const;
+    }
+
+
+export const getGetTimesheetDayQueryOptions = <TData = Awaited<ReturnType<typeof getTimesheetDay>>, TError = unknown>(employeeId: string,
+    day: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTimesheetDay>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTimesheetDayQueryKey(employeeId,day);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTimesheetDay>>> = ({ signal }) => getTimesheetDay(employeeId,day, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: employeeId !== null && employeeId !== undefined && day !== null && day !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTimesheetDay>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetTimesheetDayQueryResult = NonNullable<Awaited<ReturnType<typeof getTimesheetDay>>>
+export type GetTimesheetDayQueryError = unknown
+
+
+export function useGetTimesheetDay<TData = Awaited<ReturnType<typeof getTimesheetDay>>, TError = unknown>(
+ employeeId: string,
+    day: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTimesheetDay>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getTimesheetDay>>,
+          TError,
+          Awaited<ReturnType<typeof getTimesheetDay>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetTimesheetDay<TData = Awaited<ReturnType<typeof getTimesheetDay>>, TError = unknown>(
+ employeeId: string,
+    day: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTimesheetDay>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getTimesheetDay>>,
+          TError,
+          Awaited<ReturnType<typeof getTimesheetDay>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetTimesheetDay<TData = Awaited<ReturnType<typeof getTimesheetDay>>, TError = unknown>(
+ employeeId: string,
+    day: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTimesheetDay>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Day
+ */
+
+export function useGetTimesheetDay<TData = Awaited<ReturnType<typeof getTimesheetDay>>, TError = unknown>(
+ employeeId: string,
+    day: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTimesheetDay>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetTimesheetDayQueryOptions(employeeId,day,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSaveTimesheetDayUrl = (employeeId: string,
+    day: string,) => {
+
+
+
+
+  return `/api/v1/timesheet/employees/${employeeId}/days/${day}`
+}
+
+/**
+ * Сохранение диалога дня: строки дня заменяются целиком.
+ * @summary Save Day
+ */
+export const saveTimesheetDay = async (employeeId: string,
+    day: string,
+    dayIn: DayIn, options?: Parameters<typeof customFetch>[1]): Promise<DayOut> => {
+
+  return customFetch<DayOut>(getSaveTimesheetDayUrl(employeeId,day),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(dayIn)
+  }
+);}
+
+
+
+
+
+export const getSaveTimesheetDayMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveTimesheetDay>>, TError,{employeeId: string;day: string;data: DayIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof saveTimesheetDay>>, TError,{employeeId: string;day: string;data: DayIn}, TContext> => {
+
+const mutationKey = ['saveTimesheetDay'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveTimesheetDay>>, {employeeId: string;day: string;data: DayIn}> = (props) => {
+          const {employeeId,day,data} = props ?? {};
+
+          return  saveTimesheetDay(employeeId,day,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SaveTimesheetDayMutationResult = NonNullable<Awaited<ReturnType<typeof saveTimesheetDay>>>
+    export type SaveTimesheetDayMutationBody = DayIn
+    export type SaveTimesheetDayMutationError = unknown
+
+    /**
+ * @summary Save Day
+ */
+export const useSaveTimesheetDay = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveTimesheetDay>>, TError,{employeeId: string;day: string;data: DayIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof saveTimesheetDay>>,
+        TError,
+        {employeeId: string;day: string;data: DayIn},
+        TContext
+      > => {
+      return useMutation(getSaveTimesheetDayMutationOptions(options), queryClient);
+    }
+
+export const getFillTimesheetDayFromPlanUrl = (employeeId: string,
+    day: string,) => {
+
+
+
+
+  return `/api/v1/timesheet/employees/${employeeId}/days/${day}/fill-from-plan`
+}
+
+/**
+ * @summary Fill Day
+ */
+export const fillTimesheetDayFromPlan = async (employeeId: string,
+    day: string, options?: Parameters<typeof customFetch>[1]): Promise<DayOut> => {
+
+  return customFetch<DayOut>(getFillTimesheetDayFromPlanUrl(employeeId,day),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getFillTimesheetDayFromPlanMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof fillTimesheetDayFromPlan>>, TError,{employeeId: string;day: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof fillTimesheetDayFromPlan>>, TError,{employeeId: string;day: string}, TContext> => {
+
+const mutationKey = ['fillTimesheetDayFromPlan'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof fillTimesheetDayFromPlan>>, {employeeId: string;day: string}> = (props) => {
+          const {employeeId,day} = props ?? {};
+
+          return  fillTimesheetDayFromPlan(employeeId,day,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type FillTimesheetDayFromPlanMutationResult = NonNullable<Awaited<ReturnType<typeof fillTimesheetDayFromPlan>>>
+
+    export type FillTimesheetDayFromPlanMutationError = unknown
+
+    /**
+ * @summary Fill Day
+ */
+export const useFillTimesheetDayFromPlan = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof fillTimesheetDayFromPlan>>, TError,{employeeId: string;day: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof fillTimesheetDayFromPlan>>,
+        TError,
+        {employeeId: string;day: string},
+        TContext
+      > => {
+      return useMutation(getFillTimesheetDayFromPlanMutationOptions(options), queryClient);
+    }
+
+export const getCreateAllocationUrl = () => {
+
+
+
+
+  return `/api/v1/timesheet/allocations`
+}
+
+/**
+ * @summary Create Allocation
+ */
+export const createAllocation = async (allocationIn: AllocationIn, options?: Parameters<typeof customFetch>[1]): Promise<AllocationOut> => {
+
+  return customFetch<AllocationOut>(getCreateAllocationUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(allocationIn)
+  }
+);}
+
+
+
+
+
+export const getCreateAllocationMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAllocation>>, TError,{data: AllocationIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createAllocation>>, TError,{data: AllocationIn}, TContext> => {
+
+const mutationKey = ['createAllocation'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createAllocation>>, {data: AllocationIn}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createAllocation(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateAllocationMutationResult = NonNullable<Awaited<ReturnType<typeof createAllocation>>>
+    export type CreateAllocationMutationBody = AllocationIn
+    export type CreateAllocationMutationError = unknown
+
+    /**
+ * @summary Create Allocation
+ */
+export const useCreateAllocation = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAllocation>>, TError,{data: AllocationIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createAllocation>>,
+        TError,
+        {data: AllocationIn},
+        TContext
+      > => {
+      return useMutation(getCreateAllocationMutationOptions(options), queryClient);
+    }
+
+export const getUpdateAllocationUrl = (allocationId: string,) => {
+
+
+
+
+  return `/api/v1/timesheet/allocations/${allocationId}`
+}
+
+/**
+ * @summary Update Allocation
+ */
+export const updateAllocation = async (allocationId: string,
+    allocationRowIn: AllocationRowIn, options?: Parameters<typeof customFetch>[1]): Promise<AllocationOut> => {
+
+  return customFetch<AllocationOut>(getUpdateAllocationUrl(allocationId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(allocationRowIn)
+  }
+);}
+
+
+
+
+
+export const getUpdateAllocationMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAllocation>>, TError,{allocationId: string;data: AllocationRowIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateAllocation>>, TError,{allocationId: string;data: AllocationRowIn}, TContext> => {
+
+const mutationKey = ['updateAllocation'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateAllocation>>, {allocationId: string;data: AllocationRowIn}> = (props) => {
+          const {allocationId,data} = props ?? {};
+
+          return  updateAllocation(allocationId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateAllocationMutationResult = NonNullable<Awaited<ReturnType<typeof updateAllocation>>>
+    export type UpdateAllocationMutationBody = AllocationRowIn
+    export type UpdateAllocationMutationError = unknown
+
+    /**
+ * @summary Update Allocation
+ */
+export const useUpdateAllocation = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAllocation>>, TError,{allocationId: string;data: AllocationRowIn}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateAllocation>>,
+        TError,
+        {allocationId: string;data: AllocationRowIn},
+        TContext
+      > => {
+      return useMutation(getUpdateAllocationMutationOptions(options), queryClient);
+    }
+
+export const getDeleteAllocationUrl = (allocationId: string,) => {
+
+
+
+
+  return `/api/v1/timesheet/allocations/${allocationId}`
+}
+
+/**
+ * @summary Delete Allocation
+ */
+export const deleteAllocation = async (allocationId: string, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteAllocationUrl(allocationId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteAllocationMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAllocation>>, TError,{allocationId: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteAllocation>>, TError,{allocationId: string}, TContext> => {
+
+const mutationKey = ['deleteAllocation'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAllocation>>, {allocationId: string}> = (props) => {
+          const {allocationId} = props ?? {};
+
+          return  deleteAllocation(allocationId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteAllocationMutationResult = NonNullable<Awaited<ReturnType<typeof deleteAllocation>>>
+
+    export type DeleteAllocationMutationError = unknown
+
+    /**
+ * @summary Delete Allocation
+ */
+export const useDeleteAllocation = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAllocation>>, TError,{allocationId: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteAllocation>>,
+        TError,
+        {allocationId: string},
+        TContext
+      > => {
+      return useMutation(getDeleteAllocationMutationOptions(options), queryClient);
+    }

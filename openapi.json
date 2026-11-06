@@ -747,6 +747,906 @@
           }
         ]
       }
+    },
+    "/api/v1/timesheet/time-codes": {
+      "get": {
+        "operationId": "listTimeCodes",
+        "summary": "List Time Codes",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TimeCodeOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "timesheet"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timesheet/departments": {
+      "get": {
+        "operationId": "listTimesheetDepartments",
+        "summary": "List Departments",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "month",
+            "schema": {
+              "format": "date",
+              "title": "Month",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DepartmentPeriodOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "description": "Подразделения с работниками и статус их табеля за месяц — выбор на экране.",
+        "tags": [
+          "timesheet"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timesheet/departments/{department_id}/periods/{month}/grid": {
+      "get": {
+        "operationId": "getTimesheetGrid",
+        "summary": "Get Grid",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "department_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Department Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "month",
+            "schema": {
+              "format": "date",
+              "title": "Month",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonthGridOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "timesheet"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timesheet/departments/{department_id}/periods/{month}/review": {
+      "get": {
+        "operationId": "getTimesheetReview",
+        "summary": "Get Review",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "department_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Department Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "month",
+            "schema": {
+              "format": "date",
+              "title": "Month",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PeriodReviewOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Визы менеджеров по своим заказам (`mgrHours`) и журнал переходов периода.",
+        "tags": [
+          "timesheet"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timesheet/departments/{department_id}/periods/{month}/fill-from-plan": {
+      "post": {
+        "operationId": "fillTimesheetFromPlan",
+        "summary": "Fill From Plan",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "department_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Department Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "month",
+            "schema": {
+              "format": "date",
+              "title": "Month",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FillResultOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Незакрытые будние дни до вчера — по плану операций участков.",
+        "tags": [
+          "timesheet"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timesheet/departments/{department_id}/periods/{month}/submit": {
+      "post": {
+        "operationId": "submitTimesheet",
+        "summary": "Submit",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "department_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Department Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "month",
+            "schema": {
+              "format": "date",
+              "title": "Month",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PeriodOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "timesheet"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timesheet/departments/{department_id}/periods/{month}/confirm-manager": {
+      "post": {
+        "operationId": "confirmTimesheetHours",
+        "summary": "Confirm Manager",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "department_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Department Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "month",
+            "schema": {
+              "format": "date",
+              "title": "Month",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PeriodOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Виза менеджера по часам на свои заказы — ставит сам менеджер.",
+        "tags": [
+          "timesheet"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timesheet/departments/{department_id}/periods/{month}/approve": {
+      "post": {
+        "operationId": "approveTimesheet",
+        "summary": "Approve",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "department_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Department Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "month",
+            "schema": {
+              "format": "date",
+              "title": "Month",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PeriodOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "timesheet"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timesheet/departments/{department_id}/periods/{month}/return": {
+      "post": {
+        "operationId": "returnTimesheet",
+        "summary": "Return View",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "department_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Department Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "month",
+            "schema": {
+              "format": "date",
+              "title": "Month",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PeriodOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "timesheet"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReasonIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timesheet/departments/{department_id}/periods/{month}/send": {
+      "post": {
+        "operationId": "sendTimesheet",
+        "summary": "Send",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "department_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Department Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "month",
+            "schema": {
+              "format": "date",
+              "title": "Month",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PeriodOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Передача в 1С: статус `sent`; сами пакеты скачиваются `.../packages/{тип}`.",
+        "tags": [
+          "timesheet"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timesheet/departments/{department_id}/periods/{month}/close": {
+      "post": {
+        "operationId": "closeTimesheet",
+        "summary": "Close",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "department_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Department Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "month",
+            "schema": {
+              "format": "date",
+              "title": "Month",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PeriodOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "timesheet"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timesheet/departments/{department_id}/periods/{month}/reopen": {
+      "post": {
+        "operationId": "reopenTimesheet",
+        "summary": "Reopen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "department_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Department Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "month",
+            "schema": {
+              "format": "date",
+              "title": "Month",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PeriodOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "timesheet"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReasonIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timesheet/departments/{department_id}/periods/{month}/packages/{package_type}": {
+      "get": {
+        "operationId": "downloadTimesheetPackage",
+        "summary": "Download Package",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "department_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Department Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "month",
+            "schema": {
+              "format": "date",
+              "title": "Month",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "package_type",
+            "schema": {
+              "enum": [
+                "timesheet",
+                "cost_allocation"
+              ],
+              "title": "PackageType",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "description": "Пакет обмена с 1С файлом JSON (ИС ADR 0002: транспорт в 1С вне объёма).",
+        "tags": [
+          "timesheet"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timesheet/employees/{employee_id}/days/{day}": {
+      "get": {
+        "operationId": "getTimesheetDay",
+        "summary": "Get Day",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employee_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Employee Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "day",
+            "schema": {
+              "format": "date",
+              "title": "Day",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DayOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "timesheet"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "saveTimesheetDay",
+        "summary": "Save Day",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employee_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Employee Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "day",
+            "schema": {
+              "format": "date",
+              "title": "Day",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DayOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Сохранение диалога дня: строки дня заменяются целиком.",
+        "tags": [
+          "timesheet"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DayIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timesheet/employees/{employee_id}/days/{day}/fill-from-plan": {
+      "post": {
+        "operationId": "fillTimesheetDayFromPlan",
+        "summary": "Fill Day",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employee_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Employee Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "day",
+            "schema": {
+              "format": "date",
+              "title": "Day",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DayOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "timesheet"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timesheet/allocations": {
+      "post": {
+        "operationId": "createAllocation",
+        "summary": "Create Allocation",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AllocationOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "timesheet"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AllocationIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/timesheet/allocations/{allocation_id}": {
+      "patch": {
+        "operationId": "updateAllocation",
+        "summary": "Update Allocation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "allocation_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Allocation Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AllocationOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "timesheet"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AllocationRowIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "deleteAllocation",
+        "summary": "Delete Allocation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "allocation_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Allocation Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "timesheet"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -1325,6 +2225,1070 @@
           "created_at"
         ],
         "title": "ItemListItem",
+        "type": "object"
+      },
+      "TimeCodeOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "is_work": {
+            "title": "Is Work",
+            "type": "boolean"
+          },
+          "is_allocatable": {
+            "title": "Is Allocatable",
+            "type": "boolean"
+          },
+          "cost_multiplier": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Cost Multiplier",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "is_work",
+          "is_allocatable",
+          "cost_multiplier"
+        ],
+        "title": "TimeCodeOut",
+        "type": "object"
+      },
+      "DepartmentPeriodOut": {
+        "properties": {
+          "department_id": {
+            "format": "uuid",
+            "title": "Department Id",
+            "type": "string"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "head_name": {
+            "title": "Head Name",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PeriodStatus"
+          }
+        },
+        "required": [
+          "department_id",
+          "code",
+          "name",
+          "head_name",
+          "status"
+        ],
+        "title": "DepartmentPeriodOut",
+        "type": "object"
+      },
+      "PeriodStatus": {
+        "enum": [
+          "draft",
+          "on_review",
+          "approved",
+          "sent",
+          "closed",
+          "reopened"
+        ],
+        "title": "PeriodStatus",
+        "type": "string"
+      },
+      "CheckOut": {
+        "properties": {
+          "is_blocking": {
+            "title": "Is Blocking",
+            "type": "boolean"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "employee_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Employee Id"
+          }
+        },
+        "required": [
+          "is_blocking",
+          "text",
+          "employee_id"
+        ],
+        "title": "CheckOut",
+        "type": "object"
+      },
+      "CodeTotalOut": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Hours",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "hours"
+        ],
+        "title": "CodeTotalOut",
+        "type": "object"
+      },
+      "DayHoursOut": {
+        "properties": {
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Hours",
+            "type": "string"
+          }
+        },
+        "required": [
+          "date",
+          "hours"
+        ],
+        "title": "DayHoursOut",
+        "type": "object"
+      },
+      "GridCellOut": {
+        "properties": {
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "work_hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Work Hours",
+            "type": "string"
+          },
+          "overtime_hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Overtime Hours",
+            "type": "string"
+          },
+          "absence_code": {
+            "title": "Absence Code",
+            "type": "string"
+          },
+          "is_trip": {
+            "title": "Is Trip",
+            "type": "boolean"
+          },
+          "has_overhead": {
+            "title": "Has Overhead",
+            "type": "boolean"
+          },
+          "is_missing": {
+            "title": "Is Missing",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "date",
+          "work_hours",
+          "overtime_hours",
+          "absence_code",
+          "is_trip",
+          "has_overhead",
+          "is_missing"
+        ],
+        "title": "GridCellOut",
+        "type": "object"
+      },
+      "GridDayOut": {
+        "properties": {
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "is_weekend": {
+            "title": "Is Weekend",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "date",
+          "is_weekend"
+        ],
+        "title": "GridDayOut",
+        "type": "object"
+      },
+      "GridRowOut": {
+        "properties": {
+          "employee_id": {
+            "format": "uuid",
+            "title": "Employee Id",
+            "type": "string"
+          },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
+          "personnel_no": {
+            "title": "Personnel No",
+            "type": "string"
+          },
+          "position": {
+            "title": "Position",
+            "type": "string"
+          },
+          "work_center_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Work Center Id"
+          },
+          "cells": {
+            "items": {
+              "$ref": "#/components/schemas/GridCellOut"
+            },
+            "title": "Cells",
+            "type": "array"
+          },
+          "objects": {
+            "items": {
+              "$ref": "#/components/schemas/ObjectLineOut"
+            },
+            "title": "Objects",
+            "type": "array"
+          },
+          "total": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Total",
+            "type": "string"
+          },
+          "norm": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Norm",
+            "type": "string"
+          },
+          "delta": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Delta",
+            "type": "string"
+          }
+        },
+        "required": [
+          "employee_id",
+          "full_name",
+          "personnel_no",
+          "position",
+          "work_center_id",
+          "cells",
+          "objects",
+          "total",
+          "norm",
+          "delta"
+        ],
+        "title": "GridRowOut",
+        "type": "object"
+      },
+      "MonthGridOut": {
+        "properties": {
+          "period": {
+            "$ref": "#/components/schemas/PeriodOut"
+          },
+          "department_code": {
+            "title": "Department Code",
+            "type": "string"
+          },
+          "department_name": {
+            "title": "Department Name",
+            "type": "string"
+          },
+          "head_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Head Id"
+          },
+          "head_name": {
+            "title": "Head Name",
+            "type": "string"
+          },
+          "days": {
+            "items": {
+              "$ref": "#/components/schemas/GridDayOut"
+            },
+            "title": "Days",
+            "type": "array"
+          },
+          "norm_hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Norm Hours",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/GridRowOut"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/CheckOut"
+            },
+            "title": "Checks",
+            "type": "array"
+          },
+          "by_code": {
+            "items": {
+              "$ref": "#/components/schemas/CodeTotalOut"
+            },
+            "title": "By Code",
+            "type": "array"
+          },
+          "by_object": {
+            "items": {
+              "$ref": "#/components/schemas/ObjectTotalOut"
+            },
+            "title": "By Object",
+            "type": "array"
+          }
+        },
+        "required": [
+          "period",
+          "department_code",
+          "department_name",
+          "head_id",
+          "head_name",
+          "days",
+          "norm_hours",
+          "rows",
+          "checks",
+          "by_code",
+          "by_object"
+        ],
+        "title": "MonthGridOut",
+        "type": "object"
+      },
+      "ObjectLineOut": {
+        "properties": {
+          "target": {
+            "title": "Target",
+            "type": "string"
+          },
+          "order_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Id"
+          },
+          "days": {
+            "items": {
+              "$ref": "#/components/schemas/DayHoursOut"
+            },
+            "title": "Days",
+            "type": "array"
+          },
+          "total": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Total",
+            "type": "string"
+          }
+        },
+        "required": [
+          "target",
+          "order_id",
+          "days",
+          "total"
+        ],
+        "title": "ObjectLineOut",
+        "type": "object"
+      },
+      "ObjectTotalOut": {
+        "properties": {
+          "target": {
+            "title": "Target",
+            "type": "string"
+          },
+          "order_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Id"
+          },
+          "analytics": {
+            "title": "Analytics",
+            "type": "string"
+          },
+          "hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Hours",
+            "type": "string"
+          }
+        },
+        "required": [
+          "target",
+          "order_id",
+          "analytics",
+          "hours"
+        ],
+        "title": "ObjectTotalOut",
+        "type": "object"
+      },
+      "PeriodAbilitiesOut": {
+        "properties": {
+          "can_edit": {
+            "title": "Can Edit",
+            "type": "boolean"
+          },
+          "can_fill_plan": {
+            "title": "Can Fill Plan",
+            "type": "boolean"
+          },
+          "can_submit": {
+            "title": "Can Submit",
+            "type": "boolean"
+          },
+          "can_confirm_manager": {
+            "title": "Can Confirm Manager",
+            "type": "boolean"
+          },
+          "can_approve": {
+            "title": "Can Approve",
+            "type": "boolean"
+          },
+          "can_return": {
+            "title": "Can Return",
+            "type": "boolean"
+          },
+          "can_send": {
+            "title": "Can Send",
+            "type": "boolean"
+          },
+          "can_close": {
+            "title": "Can Close",
+            "type": "boolean"
+          },
+          "can_reopen": {
+            "title": "Can Reopen",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "can_edit",
+          "can_fill_plan",
+          "can_submit",
+          "can_confirm_manager",
+          "can_approve",
+          "can_return",
+          "can_send",
+          "can_close",
+          "can_reopen"
+        ],
+        "title": "PeriodAbilitiesOut",
+        "type": "object"
+      },
+      "PeriodOut": {
+        "properties": {
+          "department_id": {
+            "format": "uuid",
+            "title": "Department Id",
+            "type": "string"
+          },
+          "month": {
+            "format": "date",
+            "title": "Month",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PeriodStatus"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "abilities": {
+            "$ref": "#/components/schemas/PeriodAbilitiesOut"
+          }
+        },
+        "required": [
+          "department_id",
+          "month",
+          "status",
+          "version",
+          "abilities"
+        ],
+        "title": "PeriodOut",
+        "type": "object"
+      },
+      "ManagerOrderHoursOut": {
+        "properties": {
+          "order_id": {
+            "format": "uuid",
+            "title": "Order Id",
+            "type": "string"
+          },
+          "hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Hours",
+            "type": "string"
+          }
+        },
+        "required": [
+          "order_id",
+          "hours"
+        ],
+        "title": "ManagerOrderHoursOut",
+        "type": "object"
+      },
+      "ManagerVisaOut": {
+        "properties": {
+          "manager_id": {
+            "format": "uuid",
+            "title": "Manager Id",
+            "type": "string"
+          },
+          "manager_name": {
+            "title": "Manager Name",
+            "type": "string"
+          },
+          "orders": {
+            "items": {
+              "$ref": "#/components/schemas/ManagerOrderHoursOut"
+            },
+            "title": "Orders",
+            "type": "array"
+          },
+          "confirmed": {
+            "title": "Confirmed",
+            "type": "boolean"
+          },
+          "can_confirm": {
+            "title": "Can Confirm",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "manager_id",
+          "manager_name",
+          "orders",
+          "confirmed",
+          "can_confirm"
+        ],
+        "title": "ManagerVisaOut",
+        "type": "object"
+      },
+      "PeriodEventKind": {
+        "enum": [
+          "submitted",
+          "manager_confirmed",
+          "returned",
+          "approved",
+          "sent",
+          "closed",
+          "reopened"
+        ],
+        "title": "PeriodEventKind",
+        "type": "string"
+      },
+      "PeriodEventOut": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/PeriodEventKind"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "actor_name": {
+            "title": "Actor Name",
+            "type": "string"
+          },
+          "manager_name": {
+            "title": "Manager Name",
+            "type": "string"
+          },
+          "comment": {
+            "title": "Comment",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "version",
+          "actor_name",
+          "manager_name",
+          "comment",
+          "created_at"
+        ],
+        "title": "PeriodEventOut",
+        "type": "object"
+      },
+      "PeriodReviewOut": {
+        "properties": {
+          "period": {
+            "$ref": "#/components/schemas/PeriodOut"
+          },
+          "managers": {
+            "items": {
+              "$ref": "#/components/schemas/ManagerVisaOut"
+            },
+            "title": "Managers",
+            "type": "array"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/PeriodEventOut"
+            },
+            "title": "Events",
+            "type": "array"
+          }
+        },
+        "required": [
+          "period",
+          "managers",
+          "events"
+        ],
+        "title": "PeriodReviewOut",
+        "type": "object"
+      },
+      "FillResultOut": {
+        "properties": {
+          "filled_days": {
+            "title": "Filled Days",
+            "type": "integer"
+          },
+          "period": {
+            "$ref": "#/components/schemas/PeriodOut"
+          }
+        },
+        "required": [
+          "filled_days",
+          "period"
+        ],
+        "title": "FillResultOut",
+        "type": "object"
+      },
+      "ReasonIn": {
+        "properties": {
+          "comment": {
+            "title": "Comment",
+            "type": "string"
+          }
+        },
+        "required": [
+          "comment"
+        ],
+        "title": "ReasonIn",
+        "type": "object"
+      },
+      "PackageType": {
+        "enum": [
+          "timesheet",
+          "cost_allocation"
+        ],
+        "title": "PackageType",
+        "type": "string"
+      },
+      "AllocationOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "employee_id": {
+            "format": "uuid",
+            "title": "Employee Id",
+            "type": "string"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "time_code": {
+            "title": "Time Code",
+            "type": "string"
+          },
+          "time_code_name": {
+            "title": "Time Code Name",
+            "type": "string"
+          },
+          "is_work": {
+            "title": "Is Work",
+            "type": "boolean"
+          },
+          "target": {
+            "title": "Target",
+            "type": "string"
+          },
+          "order_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Id"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "hours": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Hours",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/AllocationSource"
+          },
+          "source_ref": {
+            "title": "Source Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "employee_id",
+          "date",
+          "time_code",
+          "time_code_name",
+          "is_work",
+          "target",
+          "order_id",
+          "operation_id",
+          "hours",
+          "source",
+          "source_ref"
+        ],
+        "title": "AllocationOut",
+        "type": "object"
+      },
+      "AllocationSource": {
+        "enum": [
+          "manual",
+          "plan",
+          "repair"
+        ],
+        "title": "AllocationSource",
+        "type": "string"
+      },
+      "DayOut": {
+        "properties": {
+          "employee_id": {
+            "format": "uuid",
+            "title": "Employee Id",
+            "type": "string"
+          },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
+          "position": {
+            "title": "Position",
+            "type": "string"
+          },
+          "department_id": {
+            "format": "uuid",
+            "title": "Department Id",
+            "type": "string"
+          },
+          "department_name": {
+            "title": "Department Name",
+            "type": "string"
+          },
+          "work_center_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Work Center Id"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/AllocationOut"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "total": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Total",
+            "type": "string"
+          },
+          "can_edit": {
+            "title": "Can Edit",
+            "type": "boolean"
+          },
+          "planned": {
+            "items": {
+              "$ref": "#/components/schemas/PlannedOpOut"
+            },
+            "title": "Planned",
+            "type": "array"
+          }
+        },
+        "required": [
+          "employee_id",
+          "full_name",
+          "position",
+          "department_id",
+          "department_name",
+          "work_center_id",
+          "date",
+          "rows",
+          "total",
+          "can_edit",
+          "planned"
+        ],
+        "title": "DayOut",
+        "type": "object"
+      },
+      "PlannedOpOut": {
+        "properties": {
+          "operation_id": {
+            "format": "uuid",
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "order_id": {
+            "format": "uuid",
+            "title": "Order Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation_id",
+          "order_id",
+          "label"
+        ],
+        "title": "PlannedOpOut",
+        "type": "object"
+      },
+      "AllocationRowIn": {
+        "properties": {
+          "time_code": {
+            "title": "Time Code",
+            "type": "string"
+          },
+          "hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Hours"
+          },
+          "target": {
+            "default": "",
+            "title": "Target",
+            "type": "string"
+          },
+          "order_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Id"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          }
+        },
+        "required": [
+          "time_code",
+          "hours"
+        ],
+        "title": "AllocationRowIn",
+        "type": "object"
+      },
+      "DayIn": {
+        "properties": {
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/AllocationRowIn"
+            },
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "rows"
+        ],
+        "title": "DayIn",
+        "type": "object"
+      },
+      "AllocationIn": {
+        "properties": {
+          "time_code": {
+            "title": "Time Code",
+            "type": "string"
+          },
+          "hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Hours"
+          },
+          "target": {
+            "default": "",
+            "title": "Target",
+            "type": "string"
+          },
+          "order_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Id"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "employee_id": {
+            "format": "uuid",
+            "title": "Employee Id",
+            "type": "string"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          }
+        },
+        "required": [
+          "time_code",
+          "hours",
+          "employee_id",
+          "date"
+        ],
+        "title": "AllocationIn",
         "type": "object"
       }
     },
