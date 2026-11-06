@@ -16,6 +16,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from datetime import date, datetime, time, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 from uuid import UUID
@@ -57,8 +58,8 @@ from src.equipment.services.repair import (
 )
 
 # (инв. №, наименование, участок прототипа, система управления, [(вид ТО, интервал, работы)],
-#  подключение). Участок — код прототипа: только для профиля загрузки; `work_center_id`
-#  проставит модуль `production`, когда появятся участки (И2 — без FK).
+#  подключение). Участок — код прототипа: профиль загрузки и `work_center_id` по карте
+#  кодов участков, которую передаёт команда `seed_demo` (И2 — без FK).
 MACHINES: tuple[tuple[str, str, str, str, tuple[tuple[str, int, str], ...], str], ...] = (
     ("ИН-0012", "Лазерный станок оптоволоконный 3 кВт, 3000×1500", "list", "ЧПУ CypCut",
      (("ТО-1", 250, "чистка оптики и сопла, проверка газа"),
@@ -218,7 +219,9 @@ def _at(day: date, hour: int, minute: int = 0) -> datetime:
     return timezone.make_aware(datetime.combine(day, time(hour, minute)))
 
 
-def seed_demo() -> None:
+def seed_demo(work_centers: Mapping[str, UUID] | None = None) -> None:
+    """`work_centers` — код участка прототипа (`list`, `meh`, …) → id участка `production`."""
+
     if Equipment.objects.exists():
         return
     with transaction.atomic():
@@ -230,13 +233,14 @@ def seed_demo() -> None:
         }
         today = timezone.localdate()
         for spec in MACHINES:
-            _seed_machine(spec, today, people)
+            _seed_machine(spec, today, people, work_centers or {})
 
 
 def _seed_machine(
     spec: tuple[str, str, str, str, tuple[tuple[str, int, str], ...], str],
     today: date,
     people: dict[str, UUID | None],
+    work_centers: Mapping[str, UUID],
 ) -> None:
     inventory_no, name, area, control, maintenance, connection = spec
     initial = Decimal(int(_uniform("2500", "9000", inventory_no, "hours")))
@@ -244,6 +248,7 @@ def _seed_machine(
         EquipmentDTO(
             inventory_no=inventory_no,
             name=name,
+            work_center_id=work_centers.get(area),
             control_system=control,
             connection=connection,
             operating_hours_initial=initial,

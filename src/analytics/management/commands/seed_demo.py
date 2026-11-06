@@ -17,6 +17,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date
 from typing import Any
+from uuid import UUID
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -38,8 +39,11 @@ from src.core.accounts.groups import (
 from src.core.accounts.models import User
 from src.core.org import facade as org
 from src.core.org.models import PositionCategory
+from src.energy import facade as energy
+from src.equipment import facade as equipment
 from src.production import facade as production
 from src.sales import facade as sales
+from src.timesheet import facade as timesheet
 
 DEMO_PASSWORD = "demo12345"  # только для локальной разработки, под DEBUG=True
 HIRE_DATE = date(2020, 1, 1)
@@ -181,10 +185,31 @@ EMPLOYEES = (
     ),
 )
 
+
 # Модули добавляют свои вызовы сюда, в порядке §3.8: production → sales → quality → …
-MODULE_SEEDS: tuple[tuple[str, Callable[[], None]], ...] = (
+def _work_center_ids() -> dict[str, UUID]:
+    """Код участка прототипа (`kb`, `list`, …) → id участка `production`: так модули,
+    засеянные позже, связывают свои данные с участками без FK (И2)."""
+
+    return {center.code: center.id for center in production.list_work_centers()}
+
+
+def _seed_timesheet() -> None:
+    orders = [
+        (op.order_id, op.id, op.work_center_id)
+        for order in production.list_active_orders()
+        for op in production.list_order_operations(order.id)
+        if not op.is_supply
+    ]
+    timesheet.seed_demo(orders, work_centers=_work_center_ids())
+
+
+MODULE_SEEDS: tuple[tuple[str, Callable[[], object]], ...] = (
     ("production", production.seed_demo),
     ("sales", sales.seed_demo),
+    ("timesheet", _seed_timesheet),
+    ("equipment", lambda: equipment.seed_demo(_work_center_ids())),
+    ("energy", energy.seed_demo),
 )
 
 
